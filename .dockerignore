@@ -1,0 +1,7 @@
+# Each service builds from its own folder (see backend/ and frontend/.dockerignore).
+# This file covers builds that use the repository root as context.
+.git
+.env
+**/node_modules
+**/__pycache__
+**/dist
