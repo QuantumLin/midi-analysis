@@ -363,8 +363,23 @@ h2 {
   padding: 16px 12px 4px;
 }
 
-.player__screen canvas + canvas {
+.player__screen canvas + canvas,
+.player__stage + canvas {
   margin-top: 8px;
+}
+
+/* The achievement pop-up appears over the spectrum, like in the edited video. */
+.player__stage {
+  position: relative;
+}
+
+.player__popup {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
 }
 
 .player__controls {
@@ -484,6 +499,14 @@ h2 {
   transition: box-shadow 0.3s;
 }
 
+/* Content below the label (wrapped for the flash animation): centred like in the videos. */
+.neon-panel > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
 .neon-panel--boosted {
   box-shadow:
     0 0 14px var(--neon),
@@ -557,6 +580,64 @@ h2 {
 .neon-meter .neon-meter__on {
   background: var(--neon-core);
   box-shadow: 0 0 6px var(--neon);
+}
+
+/* Degree overlay: big roman numeral with a raised suffix, the chain of the last degrees below */
+.neon-numeral {
+  letter-spacing: 0.08em;
+}
+
+.neon-numeral sup {
+  margin-left: 0.1em;
+  font-size: 0.45em;
+  font-weight: 700;
+  letter-spacing: 0;
+  vertical-align: 0.95em;
+}
+
+.neon-chain {
+  display: flex;
+  gap: 0.6em;
+  margin: 6px 0 4px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: color-mix(in srgb, var(--neon-core) 55%, transparent);
+}
+
+.neon-chain > span {
+  display: flex;
+  gap: 0.6em;
+}
+
+.neon-chain__current {
+  color: var(--neon-core);
+  text-shadow:
+    0 0 4px var(--neon),
+    0 0 12px var(--neon);
+}
+
+/* Achievement pop-up */
+.neon-panel > .neon-toast__title {
+  flex-direction: row;
+  width: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.45em;
+  font-size: 1.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  text-shadow:
+    0 0 3px var(--neon),
+    0 0 12px var(--neon),
+    0 0 26px color-mix(in srgb, var(--neon) 70%, transparent);
+}
+
+.neon-toast__title svg {
+  width: 0.85em;
+  height: 0.85em;
+  fill: var(--neon-core);
+  filter: drop-shadow(0 0 4px var(--neon)) drop-shadow(0 0 10px var(--neon));
 }
 
 /* Neon colour swatches in the export settings */

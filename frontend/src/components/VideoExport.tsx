@@ -19,6 +19,8 @@ const KIND_LABELS: Record<VideoKind, string> = {
   note_rate: "Noten/s",
   key: "Tonart",
   chords: "Akkord",
+  harmony: "Stufen",
+  achievements: "Achievements",
   spectrum: "Frequenzspektrum",
   heatmap: "Tasten-Heatmap",
 };

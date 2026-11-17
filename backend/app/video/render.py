@@ -8,14 +8,18 @@ from pathlib import Path
 
 import numpy as np
 
+from app.analysis.achievements import find_achievements
 from app.analysis.chords import ChordSegment, detect_chords
+from app.analysis.harmony import analyze_harmony
 from app.analysis.key import detect_keys
 from app.analysis.keyboard_activity import KeyboardActivity
 from app.analysis.note_rate import note_rate, summarize
 from app.analysis.spectrum import compute_spectrum
 from app.midi.models import MidiData
+from app.video.achievement_renderer import AchievementRenderer
 from app.video.chord_renderer import ChordRenderer
 from app.video.encoder import VideoEncoder
+from app.video.harmony_renderer import HarmonyRenderer
 from app.video.heatmap_renderer import HeatmapRenderer
 from app.video.key_renderer import KeyRenderer
 from app.video.note_rate_renderer import NoteRateRenderer
@@ -154,6 +158,29 @@ def _heatmap_frames(midi: MidiData, options: VideoOptions):
     yield from _parallel_in_order(render, _frame_count(midi, options.fps))
 
 
+def _harmony_frames(midi: MidiData, options: VideoOptions):
+    chords = detect_chords(midi)
+    harmony = analyze_harmony(chords, detect_keys(midi))
+    renderer = HarmonyRenderer(options.width, options.height, options.color, options.language, harmony)
+    index_of = {id(c): i for i, c in enumerate(chords)}
+
+    def state(index: int):
+        time = index / options.fps
+        chord = chord_at(chords, time)
+        return renderer.state(index_of[id(chord)] if chord else None, time)
+
+    states = [state(i) for i in range(_frame_count(midi, options.fps))]
+    yield from _render_states(states, renderer.render_state)
+
+
+def _achievement_frames(midi: MidiData, options: VideoOptions):
+    renderer = AchievementRenderer(
+        options.width, options.height, options.color, options.language, find_achievements(midi)
+    )
+    states = [renderer.state(i / options.fps) for i in range(_frame_count(midi, options.fps))]
+    yield from _render_states(states, renderer.render_state)
+
+
 def chord_at(chords: list[ChordSegment], time: float) -> ChordSegment | None:
     """Chord to display at `time` (chords sorted by start), holding through short gaps."""
     current = None
@@ -174,4 +201,6 @@ _FRAME_SOURCES = {
     "key": _key_frames,
     "note_rate": _note_rate_frames,
     "heatmap": _heatmap_frames,
+    "harmony": _harmony_frames,
+    "achievements": _achievement_frames,
 }

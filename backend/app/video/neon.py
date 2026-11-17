@@ -6,6 +6,7 @@ blurred, coloured glow layers plus a bright core (the accent colour mixed with w
 like a neon tube. `strength` scales the glow, which the overlays use to flash on events.
 """
 
+import math
 from collections.abc import Iterable
 from functools import lru_cache
 
@@ -70,6 +71,23 @@ def draw_text(
         font, stroke = _glyph(char, size, weight)
         draw.text((x + stroke, baseline), char, font=font, fill=255, anchor="ls", stroke_width=stroke, stroke_fill=255)
         x += _advance(char, size, weight) + tracking * size
+
+
+def draw_star(mask: Image.Image, center_x: float, center_y: float, radius: float, points: int = 5) -> None:
+    """Filled star in white onto an "L" mask (anti-aliased by supersampling)."""
+    s = SUPERSAMPLING
+    size = int(radius * 2) + 4
+    big = Image.new("L", (size * s, size * s))
+    c = size * s / 2
+    corners = []
+    for i in range(points * 2):
+        r = radius * s * (1.0 if i % 2 == 0 else 0.45)
+        angle = math.pi * i / points - math.pi / 2  # first tip points up
+        corners.append((c + r * math.cos(angle), c + r * math.sin(angle)))
+    ImageDraw.Draw(big).polygon(corners, fill=255)
+    small = big.resize((size, size), Image.Resampling.LANCZOS)
+    left, top = round(center_x - size / 2), round(center_y - size / 2)
+    mask.paste(255, (left, top), small)
 
 
 # --- glow ---------------------------------------------------------------------------------------

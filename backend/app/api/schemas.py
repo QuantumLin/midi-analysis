@@ -28,6 +28,7 @@ class ChordOut(BaseModel):
     quality: str
     bass: str
     notes: list[str]
+    numeral: str | None  # scale degree in the key at that moment: "vi", "V7", "♭VII"
 
 
 class KeyOut(BaseModel):
@@ -61,6 +62,31 @@ class NoteRateOut(BaseModel):
     records: list[NoteRecordOut]
 
 
+class LocalizedOut(BaseModel):
+    de: str
+    en: str
+
+
+class ProgressionOut(BaseModel):
+    """A known chord progression, complete at `time` and highlighted until `end`."""
+
+    time: float
+    end: float
+    id: str
+    count: int  # 1 = first time through, 2 = first repetition ...
+    name: LocalizedOut  # including the counter, e.g. "Die Pop-Formel ×2"
+
+
+class AchievementOut(BaseModel):
+    """A pop-up shown from `time` to `end` (already scheduled so pop-ups never overlap)."""
+
+    time: float
+    end: float
+    kind: str
+    title: LocalizedOut
+    detail: LocalizedOut
+
+
 class NotesOut(BaseModel):
     """All pitched notes as parallel arrays (compact), sorted by start; `end` is the key release."""
 
@@ -78,6 +104,8 @@ class AnalysisResponse(BaseModel):
     chords: list[ChordOut]
     keys: KeysOut
     note_rate: NoteRateOut
+    progressions: list[ProgressionOut]
+    achievements: list[AchievementOut]
     notes: NotesOut
 
 
