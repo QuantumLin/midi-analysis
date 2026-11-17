@@ -11,9 +11,8 @@ MIDI-Datei (`.mid`, `.midi`) auswählen oder per Drag & Drop hochladen. Die Anwe
   - **Tonart:** Die aktuelle Tonart, z. B. „d-Moll“. Bei einem Tonartwechsel steht 3 s lang „Modulation →“ darüber.
   - **Akkord:** Der aktuelle Akkord, z. B. `C`, `Am7`, `G7`, `Cmaj7`, `Bm7b5` oder Umkehrungen wie `C/E`.
   - **Frequenzspektrum:** Ein Analyzer wie in einer DAW (z. B. ReaEQ in Reaper) von 20 Hz bis 20 kHz, logarithmisch, in dB.
-  - **Tasten-Heatmap:** Alle 88 Tasten. Jede Taste leuchtet umso stärker, je öfter sie bisher gespielt wurde, gerade gedrückte Tasten leuchten hell.
+  - **Tasten-Heatmap:** Ein leuchtender Balken über alle 88 Tasten, von A0 links bis C8 rechts. Die Farbintensität zeigt, wie oft eine Lage bisher gespielt wurde: von dunkel über die Neonfarbe bis weißglühend. Gerade gedrückte Tasten leuchten als heller Punkt auf. Striche markieren die Cs (C1–C8).
 - **Video-Export:** Jedes Overlay lässt sich einzeln als **transparentes Video** exportieren und in DaVinci Resolve frei platzieren, z. B. neben einem Piano-Visualizer.
-- **Velocity-Verlauf und Akkordwechsel:** Diagramm der mittleren Velocity über die Zeit mit Akkordspur. Werte erscheinen beim Überfahren mit der Maus oder per Pfeiltasten.
 - **Akkordtabelle:** Jeder Akkord mit Start, Ende und Noten.
 
 ### Spektrum
@@ -33,15 +32,19 @@ MIDI enthält keinen Klang, deshalb wird das Spektrum aus den Noten berechnet:
 | Format | **ProRes 4444 `.mov`** mit Alpha-Kanal (Standard für Resolve) oder **PNG-Sequenz** als `.zip` |
 | Auflösung | 1280×720 bis 3840×2160 |
 | Bildrate | 24, 25, 30, 50, 60 fps |
-| Farbe | Akzentfarbe für Kurve, Werte, Text und Heatmap |
+| Neonfarbe | Vorlagen (Cyan, Magenta, Lime, Orange, Violett, Gelb) oder eine eigene Farbe für alle Overlays |
 | Sprache | Deutsch oder Englisch für die Texte („d-Moll“ / „D minor“, „Noten/s“ / „notes/s“) |
 | Raster | Spektrum mit Raster und Hz/dB-Beschriftung oder nur die Kurve |
 
 - **Vorschau:** Sie zeigt Farbe, Sprache und Raster vorab so, wie die Videos aussehen werden.
 - **„Alle erstellen“:** Rendert alle fünf Videos nacheinander.
-- **Textfelder:** Noten/s, Tonart und Akkord erscheinen mittig in einem abgerundeten, halbtransparenten Kasten. Der Kasten hat für das ganze Video dieselbe Größe, damit er nicht springt.
+- **Neon-Look:** Die Schrift ist Orbitron. Die Textfelder sind dunkle Glas-Panels mit leuchtendem Rahmen, darin großer Neon-Text mit Glow und eine Beschriftung in Großbuchstaben. Jedes Panel behält im ganzen Video seine Größe, damit nichts springt.
+- **Effekte:**
+  - **Akkordwechsel:** Das Akkordfeld blitzt kurz auf.
+  - **Noten/s:** Ein LED-Pegel zeigt die aktuelle Geschwindigkeit relativ zum Höchstwert des Stücks.
+  - **Rekord und Modulation:** Das Feld leuchtet 2–3 s lang stärker.
 - **Akkord bei Pausen:** Bei kurzen Pausen bleibt der letzte Akkord stehen, nach 2 s Stille verschwindet er.
-- **Heatmap:** Sie liegt am unteren Bildrand und ist so breit wie das Bild.
+- **Platzierung:** Alle Overlays liegen mittig im Bild, der Heatmap-Balken ist 90 % so breit wie das Bild. In Resolve lassen sie sich frei verschieben und skalieren.
 - **Rendern:** Es läuft im Hintergrund mit Fortschrittsanzeige. Fertige Dateien werden nach 60 Minuten gelöscht.
 
 **Richtwerte** für ein 77-s-Stück in 1080p30 als ProRes:
@@ -49,8 +52,8 @@ MIDI enthält keinen Klang, deshalb wird das Spektrum aus den Noten berechnet:
 | Video | Renderzeit | Größe |
 | --- | --- | --- |
 | Spektrum | ca. 55 s | ca. 0,9 GB |
-| Heatmap | ca. 60 s | ca. 0,4 GB |
-| Noten/s, Tonart, Akkord | je ca. 50 s | je 0,12–0,17 GB |
+| Heatmap | ca. 50 s | ca. 0,4 GB |
+| Noten/s, Tonart, Akkord | je ca. 50 s | je 0,25–0,4 GB |
 
 **In DaVinci Resolve:**
 1. Die `.mov`-Datei auf eine Spur über dem Hintergrund legen. Die Transparenz wird automatisch erkannt.
@@ -59,7 +62,7 @@ MIDI enthält keinen Klang, deshalb wird das Spektrum aus den Noten berechnet:
 ### Regeln der Auswertung
 
 - **Tempowechsel:** Sie werden bei der Umrechnung in Sekunden berücksichtigt.
-- **Haltepedal (CC 64):** Es verlängert den *Klang* der Noten bis zum Loslassen des Pedals. Das wirkt auf Spektrum und Velocity.
+- **Haltepedal (CC 64):** Es verlängert den *Klang* der Noten bis zum Loslassen des Pedals. Das wirkt auf das Spektrum.
 - **Akkorde aus gehaltenen Tasten:** Für die Akkorderkennung zählt zuerst, welche Tasten gerade *gedrückt* sind. Sonst würde ein gehaltenes oder nie losgelassenes Pedal alle Harmonien zu einem Cluster verschmelzen. Nur wenn die gedrückten Tasten keinen Akkord ergeben, werden die per Pedal nachklingenden Töne verwendet, z. B. bei einem ins Pedal gespielten Arpeggio.
 - **Toleranz:** Bis zu zwei Fremdtöne (Melodie, Durchgangstöne) und eine fehlende Quinte verhindern die Erkennung nicht. Eine exakte Übereinstimmung gewinnt immer, deshalb kann ein Melodieton den Namen ändern, z. B. `C` → `Cadd9`.
 - **Schlagzeug (MIDI-Kanal 10):** Es hat keine Tonhöhe und wird nur gezählt.
@@ -75,7 +78,7 @@ MIDI enthält keinen Klang, deshalb wird das Spektrum aus den Noten berechnet:
 | Bereich  | Technologie                                     | Begründung                                                                                      |
 | -------- | ----------------------------------------------- | ----------------------------------------------------------------------------------------------- |
 | Backend  | Python 3.14, FastAPI, Uvicorn, pydantic-settings, mido | Python bietet die besten MIDI-/Musiktheorie-Bibliotheken. FastAPI liefert typisierte APIs und automatische OpenAPI-Doku. |
-| Video    | numpy, Pillow, ffmpeg                           | numpy berechnet Spektrum und Frames mit Kantenglättung, Pillow rendert Text, ffmpeg erzeugt ProRes 4444 und PNG mit Alpha-Kanal. |
+| Video    | numpy, Pillow, ffmpeg, Schrift Orbitron         | numpy berechnet Spektrum und Frames, Pillow rendert Text und Glow, ffmpeg erzeugt ProRes 4444 und PNG mit Alpha-Kanal. Orbitron (SIL Open Font License) wird mitgeliefert, damit App und Videos überall gleich aussehen. |
 | Frontend | React 19, TypeScript, Vite 8                    | Moderne, schlanke UI mit sehr schnellem Hot Reload. Lässt sich später unverändert in eine Desktop-Shell einbetten. |
 | Docker   | Docker Compose                                  | Ein Befehl startet die gesamte Entwicklungsumgebung.                                            |
 
@@ -131,8 +134,7 @@ MidiAnalysis/
 │   │   │   ├── key.py             # Tonart und Modulationen
 │   │   │   ├── keyboard_activity.py # Anschläge pro Taste (Heatmap)
 │   │   │   ├── note_rate.py       # Noten pro Sekunde, Rekorde
-│   │   │   ├── spectrum.py        # synthetisches Frequenzspektrum
-│   │   │   └── timeline.py        # Velocity-Verlauf
+│   │   │   └── spectrum.py        # synthetisches Frequenzspektrum
 │   │   ├── midi/
 │   │   │   ├── models.py          # Note, MidiData
 │   │   │   ├── parser.py          # MIDI-Bytes -> Noten in Sekunden
@@ -140,16 +142,18 @@ MidiAnalysis/
 │   │   ├── services/
 │   │   │   └── analysis_service.py # führt alle Analysen aus
 │   │   ├── video/
-│   │   │   ├── chord_renderer.py  # Akkord-Textfeld
+│   │   │   ├── assets/            # Orbitron.ttf + Lizenz (OFL)
+│   │   │   ├── chord_renderer.py  # Akkord-Overlay
 │   │   │   ├── encoder.py         # ffmpeg: ProRes 4444 / PNG-Sequenz
-│   │   │   ├── fonts.py           # Schriftsuche
-│   │   │   ├── heatmap_renderer.py # Tasten-Heatmap (numpy)
+│   │   │   ├── fonts.py           # Orbitron + Ersatzschrift für ♯ ♭ →
+│   │   │   ├── heatmap_renderer.py # Heat-Balken (numpy)
 │   │   │   ├── jobs.py            # Hintergrundjobs
-│   │   │   ├── key_renderer.py    # Tonart-Textfeld
+│   │   │   ├── key_renderer.py    # Tonart-Overlay
 │   │   │   ├── labels.py          # Texte Deutsch/Englisch, ♯/♭
-│   │   │   ├── note_rate_renderer.py # Noten/s-Textfeld
+│   │   │   ├── neon.py            # Neon-Toolkit: Glow, Glas-Panel, Text
+│   │   │   ├── neon_overlay.py    # gemeinsame Basis der Text-Overlays
+│   │   │   ├── note_rate_renderer.py # Noten/s-Overlay mit LED-Pegel
 │   │   │   ├── options.py         # Export-Einstellungen
-│   │   │   ├── overlay_box.py     # gemeinsamer Kasten der Textfelder
 │   │   │   ├── render.py          # rendert ein komplettes Video
 │   │   │   └── spectrum_renderer.py # Spektrum-Frame (numpy)
 │   │   ├── config.py              # Settings aus Umgebungsvariablen
@@ -170,9 +174,9 @@ MidiAnalysis/
 │   │   │   │   ├── OverlayPreview.tsx # Wiedergabe aller Overlays
 │   │   │   │   ├── OverlayFields.tsx  # Noten/s-, Tonart-, Akkordfeld
 │   │   │   │   ├── SpectrumCanvas.tsx
-│   │   │   │   └── KeyboardHeatmap.tsx
-│   │   │   ├── TimelineChart.tsx  # Velocity und Akkordspur
+│   │   │   │   └── HeatBar.tsx        # Heat-Balken
 │   │   │   └── VideoExport.tsx    # Export-Einstellungen und Jobs
+│   │   ├── assets/fonts/          # Orbitron.ttf + Lizenz (OFL)
 │   │   ├── hooks/                 # usePlayback, useElementWidth
 │   │   ├── types/analysis.ts      # Typen der API-Antwort
 │   │   ├── utils/                 # labels, stats, spectrum, chords, canvas, format
@@ -236,7 +240,6 @@ curl -F "file=@song.mid" -F kind=spectrum -F format=prores http://localhost:8001
 
 Die Analyse-Antwort enthält:
 - **Kennzahlen:** `duration_seconds`, `note_count`, `percussion_note_count`
-- **`timeline`:** `points` mit `time`, `velocity`, `active_notes`
 - **`spectrum`:** Vorschau mit 20 fps und 256 Bändern, als Base64-codierte Bytes
 - **`chords`:** `start`, `end`, `name`, `root`, `quality`, `bass`, `notes`
 - **`keys`:** `overall` und `segments` (`start`, `end`, `key` mit `tonic` und `mode`); jedes Segment nach dem ersten ist eine Modulation

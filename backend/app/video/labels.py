@@ -4,9 +4,10 @@ from app.analysis.key import Key
 from app.video.options import Language
 
 _TEXTS: dict[str, dict[Language, str]] = {
+    "chord": {"de": "Akkord", "en": "Chord"},
     "key": {"de": "Tonart", "en": "Key"},
     "modulation": {"de": "Modulation", "en": "Key change"},
-    "notes_per_second": {"de": "Noten/s", "en": "notes/s"},
+    "notes_per_second": {"de": "Noten pro Sekunde", "en": "Notes per second"},
     "total": {"de": "Gesamt", "en": "Total"},
     "record": {"de": "Rekord", "en": "Record"},
     "new_record": {"de": "Neuer Rekord", "en": "New record"},

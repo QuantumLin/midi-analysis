@@ -7,17 +7,6 @@ from pydantic import BaseModel, Field
 from app.video.options import VideoFormat, VideoKind
 
 
-class TimelinePointOut(BaseModel):
-    time: float
-    velocity: float
-    active_notes: int
-
-
-class TimelineOut(BaseModel):
-    step_seconds: float
-    points: list[TimelinePointOut]
-
-
 class SpectrumOut(BaseModel):
     """Preview of the spectrum: frame i is at time i / fps; bins are log-spaced min_hz..max_hz."""
 
@@ -85,7 +74,6 @@ class AnalysisResponse(BaseModel):
     duration_seconds: float
     note_count: int
     percussion_note_count: int
-    timeline: TimelineOut
     spectrum: SpectrumOut
     chords: list[ChordOut]
     keys: KeysOut

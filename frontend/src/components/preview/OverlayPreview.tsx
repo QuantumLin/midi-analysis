@@ -5,7 +5,7 @@ import type { AnalysisResult, VideoSettings } from "../../types/analysis";
 import { chordAt } from "../../utils/chords";
 import { formatTime } from "../../utils/format";
 import { keySegmentAt, noteRateAt, runningMax } from "../../utils/stats";
-import KeyboardHeatmap from "./KeyboardHeatmap";
+import HeatBar from "./HeatBar";
 import { ChordField, KeyField, NoteRateField } from "./OverlayFields";
 import SpectrumCanvas from "./SpectrumCanvas";
 
@@ -40,11 +40,12 @@ export default function OverlayPreview({ result, settings }: Props) {
         <div className="player__fields">
           <NoteRateField
             state={noteRateAt(result.note_rate, bestSoFar, result.notes, time)}
+            peak={result.note_rate.peak_value}
             color={color}
             language={language}
           />
           <KeyField current={keySegmentAt(result.keys.segments, time)} color={color} language={language} />
-          <ChordField name={chord?.name ?? null} color={color} />
+          <ChordField name={chord?.name ?? null} start={chord?.start ?? null} color={color} language={language} />
         </div>
         <SpectrumCanvas
           spectrum={result.spectrum}
@@ -54,7 +55,7 @@ export default function OverlayPreview({ result, settings }: Props) {
           color={color}
           showGrid={settings.showGrid}
         />
-        <KeyboardHeatmap notes={result.notes} time={time} width={width} color={color} />
+        <HeatBar notes={result.notes} time={time} width={width} color={color} />
       </div>
       <div className="player__controls">
         <button type="button" className="button" onClick={toggle}>

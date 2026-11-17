@@ -83,14 +83,15 @@ def test_spectrum_grid_adds_labels_and_lines():
 
 
 def test_chord_frame_has_centered_box_with_text():
-    renderer = ChordRenderer(WIDTH, HEIGHT, (255, 200, 0), ["C", "Am7"])
+    renderer = ChordRenderer(WIDTH, HEIGHT, (255, 200, 0), "de", ["C", "Am7"])
     empty = as_image(renderer.render(None))
     frame = as_image(renderer.render("Am7"))
 
     assert empty.max() == 0
     alpha = frame[..., 3]
     assert alpha[HEIGHT // 2, WIDTH // 2] > 0 and alpha[0, 0] == 0 and alpha[-1, -1] == 0
-    text_pixels = (frame[..., 0] > 200) & (frame[..., 1] > 150) & (frame[..., 2] < 80) & (alpha > 200)
+    # Neon core: the accent colour mixed with white -> bright, warm pixels.
+    text_pixels = (frame[..., 0] > 230) & (frame[..., 1] > 200) & (frame[..., 2] < 200) & (alpha > 200)
     assert text_pixels.sum() > 20
     # Same box size for every chord, so the field doesn't jump.
     assert (as_image(renderer.render("C"))[..., 3] > 0).sum() == (alpha > 0).sum()

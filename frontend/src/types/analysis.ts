@@ -1,16 +1,5 @@
 // Mirrors the backend response models in backend/app/api/schemas.py.
 
-export interface TimelinePoint {
-  time: number; // seconds
-  velocity: number; // mean velocity of sounding notes, 0 when silent
-  active_notes: number;
-}
-
-export interface Timeline {
-  step_seconds: number;
-  points: TimelinePoint[];
-}
-
 /** Spectrum preview: frame i is at time i / fps; bins are log-spaced from min_hz to max_hz. */
 export interface SpectrumData {
   fps: number;
@@ -70,7 +59,6 @@ export interface AnalysisResult {
   duration_seconds: number;
   note_count: number;
   percussion_note_count: number;
-  timeline: Timeline;
   spectrum: SpectrumData;
   chords: Chord[];
   keys: Keys;

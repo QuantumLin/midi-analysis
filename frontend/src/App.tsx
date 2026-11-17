@@ -4,7 +4,6 @@ import AnalysisSummary from "./components/AnalysisSummary";
 import ChordTable from "./components/ChordTable";
 import FileUpload from "./components/FileUpload";
 import OverlayPreview from "./components/preview/OverlayPreview";
-import TimelineChart from "./components/TimelineChart";
 import VideoExport from "./components/VideoExport";
 import type { AnalysisResult, VideoSettings } from "./types/analysis";
 
@@ -15,7 +14,7 @@ const DEFAULT_VIDEO_SETTINGS: VideoSettings = {
   width: 1920,
   height: 1080,
   fps: 30,
-  color: "#ffffff",
+  color: "#00e5ff",
   showGrid: true,
   language: "de",
 };
@@ -72,10 +71,6 @@ export default function App() {
           <section className="card">
             <h2>Video-Export</h2>
             <VideoExport file={file} settings={videoSettings} onSettingsChange={setVideoSettings} />
-          </section>
-          <section className="card">
-            <h2>Velocity-Verlauf &amp; Akkordwechsel</h2>
-            <TimelineChart timeline={result.timeline} chords={result.chords} duration={result.duration_seconds} />
           </section>
           <section className="card">
             <h2>Akkorde</h2>

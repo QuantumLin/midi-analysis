@@ -1,88 +1,102 @@
-"""Keyboard heatmap: an 88-key piano along the bottom of the frame whose keys glow the
-more often they have been pressed so far; keys held right now light up brightly.
-
-Drawing uses a label map (pixel -> key index) built once; each frame only computes
-88 colours and maps them onto the pixels with one numpy lookup.
+"""Keyboard heatmap as a glowing bar: the 88 keys from A0 (left) to C8 (right) as a
+continuous colour distribution. The more often a range has been played so far, the
+hotter it glows (dark glass -> accent colour -> white-hot); keys held right now flare up.
+Small marks under the bar show where each C sits (C1 ... C8).
 """
 
 import numpy as np
+from PIL import Image, ImageDraw, ImageFilter
 
 from app.analysis.keyboard_activity import KEY_COUNT
-from app.midi.pitch import LOWEST_PIANO_KEY, is_black_key
+from app.midi.pitch import LOWEST_PIANO_KEY
+from app.video.neon import PANEL_FILL, Color, centered_frame, colorize, core_color, draw_text
 
-WHITE_KEY_COUNT = 52
-KEY_ASPECT = 5.6  # white key length / width
-MAX_HEIGHT_SHARE = 0.4  # of the frame height
-BLACK_WIDTH, BLACK_LENGTH = 0.6, 0.62  # relative to a white key
-TRANSPARENT = KEY_COUNT  # label of pixels between keys
-
-UNPLAYED_WHITE = ((255, 255, 255), 0.12)
-UNPLAYED_BLACK = ((16, 16, 16), 0.75)
-HEAT_GAMMA = 0.5  # lifts rarely used keys so they stay visible next to the busiest key
+HEAT_GAMMA = 0.55  # lifts rarely played keys so they stay visible next to the busiest one
+HELD_BOOST = 0.3  # held keys glow above the hottest played key
+SMOOTHING_SIGMA = 1.5  # in keys
+SMOOTHING_RADIUS = 5
+BAR_WIDTH_SHARE = 0.9  # of the frame width
+SUPERSAMPLING = 4
 
 
 class HeatmapRenderer:
-    def __init__(self, width: int, height: int, color: tuple[int, int, int]):
+    def __init__(self, width: int, height: int, color: Color):
         self.width, self.height = width, height
+        u = height / 1080
         self.color = np.array(color, dtype=np.float32)
-        self.labels = keyboard_labels(width, height)
-        self.top = height - self.labels.shape[0]
-        self.black = np.array([is_black_key(LOWEST_PIANO_KEY + k) for k in range(KEY_COUNT)])
+        self.core = np.array(core_color(color), dtype=np.float32)
+        self.bar_width = round(width * BAR_WIDTH_SHARE)
+        self.bar_height = max(6, round(44 * u))
+        self.margin = round(self.bar_height * 2.2)  # room for the glow (blur ~0.6 bar heights)
+        offsets = np.arange(-SMOOTHING_RADIUS, SMOOTHING_RADIUS + 1)
+        kernel = np.exp(-0.5 * (offsets / SMOOTHING_SIGMA) ** 2)
+        self.kernel = kernel / kernel.sum()
+        self.label_size = max(8, round(22 * u))
+        canvas_height = self.bar_height + 2 * self.margin + round(46 * u)
+        self.size = (self.bar_width + 2 * self.margin, canvas_height)
+        self.bar_box = (self.margin, self.margin, self.margin + self.bar_width, self.margin + self.bar_height)
+
+        # Column -> fractional key position, for a smooth distribution along the bar.
+        columns = (np.arange(self.bar_width) + 0.5) / self.bar_width * KEY_COUNT - 0.5
+        self.column_keys = np.clip(columns, 0, KEY_COUNT - 1)
+        self.shape_alpha = self._rounded_bar_alpha()  # (bar_height, bar_width) 0..1
+        self.background = self._static_layer(u)
 
     def render(self, press_counts: np.ndarray, held: np.ndarray, max_count: int) -> bytes:
-        palette = self._palette(press_counts, held, max_count)
-        frame = np.zeros((self.height, self.width, 4), dtype=np.uint8)
-        frame[self.top :] = palette[self.labels]
-        return frame.tobytes()
+        heat = (press_counts / max_count) ** HEAT_GAMMA if max_count > 0 else np.zeros(KEY_COUNT)
+        # Smooth across neighbouring keys: a distribution, not a barcode of white/black keys.
+        heat = np.convolve(np.pad(heat, SMOOTHING_RADIUS, mode="edge"), self.kernel, mode="valid")
+        if heat.max() > 0:
+            heat = heat / heat.max()  # the hottest region stays at full intensity
+        heat = np.where(held, np.maximum(heat, 1.0) + HELD_BOOST, heat)  # held keys: white-hot
+        column_heat = np.interp(self.column_keys, np.arange(KEY_COUNT), heat).astype(np.float32)
 
-    def _palette(self, counts: np.ndarray, held: np.ndarray, max_count: int) -> np.ndarray:
-        """RGBA (uint8) per key, plus a transparent last entry for the gaps."""
-        heat = (counts / max_count) ** HEAT_GAMMA if max_count > 0 else np.zeros(KEY_COUNT)
-        heat = heat[:, None].astype(np.float32)
-        played = (counts > 0)[:, None]
+        rgb, alpha = self._ramp(column_heat)
+        bar = np.zeros((self.bar_height, self.bar_width, 4), dtype=np.float32)
+        bar[..., :3] = rgb[None, :, :]
+        bar[..., 3] = alpha[None, :] * self.shape_alpha
+        bar_image = Image.fromarray((bar * [1, 1, 1, 255] + 0.5).clip(0, 255).astype(np.uint8), "RGBA")
 
-        white_rgb = np.where(played, self.color, np.float32(UNPLAYED_WHITE[0]))
-        white_alpha = np.where(played, 0.22 + 0.7 * heat, UNPLAYED_WHITE[1])
-        black_base = np.array(UNPLAYED_BLACK[0], dtype=np.float32)
-        black_rgb = np.where(played, black_base + (self.color - black_base) * (0.35 + 0.65 * heat), black_base)
-        black_alpha = np.where(played, 0.85, UNPLAYED_BLACK[1])
+        canvas = self.background.copy()
+        glow = Image.new("RGBA", self.size, (0, 0, 0, 0))
+        glow.paste(bar_image, self.bar_box[:2])
+        glow = glow.convert("RGBa").filter(ImageFilter.GaussianBlur(self.bar_height * 0.6)).convert("RGBA")
+        canvas.alpha_composite(glow)
+        canvas.alpha_composite(glow)  # twice: a stronger halo
+        canvas.alpha_composite(bar_image, self.bar_box[:2])
+        return centered_frame(canvas, self.width, self.height)
 
-        is_black = self.black[:, None]
-        rgb = np.where(is_black, black_rgb, white_rgb)
-        alpha = np.where(is_black, black_alpha, white_alpha)
-        # Held keys: bright, tinted towards white.
-        rgb = np.where(held[:, None], self.color + (255 - self.color) * 0.55, rgb)
-        alpha = np.where(held[:, None], 1.0, alpha)
+    def _ramp(self, heat: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        """heat 0 -> dark glass, 0.6 -> accent colour, >= 1 -> white-hot core colour."""
+        dark = np.array(PANEL_FILL, dtype=np.float32)
+        h = heat[:, None]
+        low = dark + (self.color - dark) * np.clip(h / 0.6, 0, 1)
+        high = self.color + (self.core - self.color) * np.clip((h - 0.6) / 0.6, 0, 1)
+        rgb = np.where(h <= 0.6, low, high)
+        alpha = np.where(heat <= 0, 0.55, np.clip(0.6 + heat * 0.5, 0, 1))
+        return rgb, alpha
 
-        palette = np.zeros((KEY_COUNT + 1, 4), dtype=np.uint8)
-        palette[:KEY_COUNT, :3] = np.clip(rgb + 0.5, 0, 255)
-        palette[:KEY_COUNT, 3] = np.clip(alpha * 255 + 0.5, 0, 255)[:, 0]
-        return palette
+    def _rounded_bar_alpha(self) -> np.ndarray:
+        s = SUPERSAMPLING
+        big = Image.new("L", (self.bar_width * s, self.bar_height * s))
+        ImageDraw.Draw(big).rounded_rectangle(
+            [(0, 0), (big.width - 1, big.height - 1)], radius=self.bar_height * s // 2, fill=255
+        )
+        small = big.resize((self.bar_width, self.bar_height), Image.Resampling.LANCZOS)
+        return np.asarray(small, dtype=np.float32) / 255
 
-
-def keyboard_labels(width: int, height: int) -> np.ndarray:
-    """Pixel -> key index (0 = A0) for a keyboard spanning the full width; TRANSPARENT in gaps."""
-    white_width = width / WHITE_KEY_COUNT
-    key_height = max(1, min(round(white_width * KEY_ASPECT), round(height * MAX_HEIGHT_SHARE)))
-    gap = max(1, round(width / 1920))
-    labels = np.full((key_height, width), TRANSPARENT, dtype=np.int16)
-
-    white_index = 0
-    black_keys: list[tuple[int, float]] = []
-    for key in range(KEY_COUNT):
-        if is_black_key(LOWEST_PIANO_KEY + key):
-            black_keys.append((key, white_index * white_width))  # centred on the boundary
-            continue
-        left = round(white_index * white_width)
-        right = round((white_index + 1) * white_width) - gap
-        labels[:, left:right] = key
-        white_index += 1
-
-    black_width = white_width * BLACK_WIDTH
-    black_height = round(key_height * BLACK_LENGTH)
-    for key, boundary in black_keys:
-        left = round(boundary - black_width / 2)
-        right = round(boundary + black_width / 2)
-        labels[:black_height, max(0, left - gap) : right + gap] = TRANSPARENT  # thin gap around black keys
-        labels[: black_height - gap, max(0, left) : right] = key
-    return labels
+    def _static_layer(self, u: float) -> Image.Image:
+        """Marks and labels for every C under the bar."""
+        layer = Image.new("RGBA", self.size, (0, 0, 0, 0))
+        marks = Image.new("L", self.size)
+        draw = ImageDraw.Draw(marks)
+        tick_top = self.bar_box[3] + round(8 * u)
+        for key in range(KEY_COUNT):
+            pitch = LOWEST_PIANO_KEY + key
+            if pitch % 12 != 0:
+                continue
+            x = self.margin + (key + 0.5) / KEY_COUNT * self.bar_width
+            draw.line([(x, tick_top), (x, tick_top + round(10 * u))], fill=255, width=max(1, round(2 * u)))
+            draw_text(marks, x, tick_top + round(14 * u) + self.label_size, f"C{pitch // 12 - 1}", self.label_size, 600)
+        layer.alpha_composite(colorize(marks, core_color(tuple(int(c) for c in self.color)), 0.55))
+        return layer
