@@ -45,12 +45,17 @@ def test_options_validation():
 
 def test_chord_at_holds_through_short_gaps_only():
     chords = [segment(0, 1.0, 2.0), segment(7, 2.5, 3.0)]  # C, then G after a 0.5 s gap
-    assert chord_at(chords, 0.5) is None
-    assert chord_at(chords, 1.5) == "C"
-    assert chord_at(chords, 2.2) == "C"  # held through the gap
-    assert chord_at(chords, 2.7) == "G"
-    assert chord_at(chords, 4.9) == "G"  # held 2 s after the last chord ...
-    assert chord_at(chords, 5.1) is None  # ... then hidden
+
+    def name(time):
+        chord = chord_at(chords, time)
+        return chord.chord.name if chord else None
+
+    assert name(0.5) is None
+    assert name(1.5) == "C"
+    assert name(2.2) == "C"  # held through the gap
+    assert name(2.7) == "G"
+    assert name(4.9) == "G"  # held 2 s after the last chord ...
+    assert name(5.1) is None  # ... then hidden
 
 
 # --- frame renderers -----------------------------------------------------------------
@@ -103,7 +108,7 @@ def probe(path) -> dict:
     return json.loads(output)["streams"][0]
 
 
-@pytest.mark.parametrize("kind", ["spectrum", "chords"])
+@pytest.mark.parametrize("kind", ["spectrum", "chords", "key", "note_rate", "heatmap"])
 def test_render_prores_with_alpha(tmp_path, kind):
     midi = parse_midi(build_midi(chord_events([60, 64, 67], 0, 2)))  # 1 s
     options = VideoOptions.create(kind, "prores", WIDTH, HEIGHT, 24, "#ffffff", True)

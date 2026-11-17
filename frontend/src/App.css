@@ -468,24 +468,53 @@ h2 {
   display: block;
 }
 
-.player__chord-area {
+.player__fields {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
-  align-items: center;
-  min-height: 88px;
-  padding: 12px;
-  border-top: 1px solid rgb(255 255 255 / 0.06);
+  gap: 12px;
+  padding: 16px 12px 4px;
 }
 
-.player__chord {
-  min-width: 160px;
-  padding: 10px 28px;
+/* Text overlays, styled like the exported videos: rounded, semi-transparent dark box. */
+.overlay-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 170px;
+  padding: 10px 22px;
   border-radius: 14px;
   background: rgb(0 0 0 / 0.55);
-  font-size: 2.25rem;
-  font-weight: 700;
-  text-align: center;
+  color: #fff;
   white-space: nowrap;
+}
+
+.overlay-box__label {
+  font-size: 0.8125rem;
+  color: rgb(255 255 255 / 0.7);
+}
+
+.overlay-box__label--accent {
+  font-weight: 700;
+}
+
+.overlay-box__value {
+  font-size: 1.875rem;
+  font-weight: 700;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+}
+
+.overlay-box__unit {
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: rgb(255 255 255 / 0.7);
+}
+
+.player__screen canvas + canvas {
+  margin-top: 8px;
 }
 
 .player__controls {

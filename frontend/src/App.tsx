@@ -3,7 +3,7 @@ import { analyzeMidi, fetchHealth } from "./api/client";
 import AnalysisSummary from "./components/AnalysisSummary";
 import ChordTable from "./components/ChordTable";
 import FileUpload from "./components/FileUpload";
-import SpectrumPlayer from "./components/SpectrumPlayer";
+import OverlayPreview from "./components/preview/OverlayPreview";
 import TimelineChart from "./components/TimelineChart";
 import VideoExport from "./components/VideoExport";
 import type { AnalysisResult, VideoSettings } from "./types/analysis";
@@ -17,6 +17,7 @@ const DEFAULT_VIDEO_SETTINGS: VideoSettings = {
   fps: 30,
   color: "#ffffff",
   showGrid: true,
+  language: "de",
 };
 
 export default function App() {
@@ -65,14 +66,8 @@ export default function App() {
         <>
           <AnalysisSummary result={result} />
           <section className="card">
-            <h2>Frequenzspektrum &amp; Akkord</h2>
-            <SpectrumPlayer
-              spectrum={result.spectrum}
-              chords={result.chords}
-              duration={result.duration_seconds}
-              color={videoSettings.color}
-              showGrid={videoSettings.showGrid}
-            />
+            <h2>Overlay-Vorschau</h2>
+            <OverlayPreview result={result} settings={videoSettings} />
           </section>
           <section className="card">
             <h2>Video-Export</h2>

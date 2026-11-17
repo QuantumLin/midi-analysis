@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createVideoJob, fetchVideoJob, videoDownloadUrl } from "../api/client";
-import type { VideoFormat, VideoJob, VideoKind, VideoSettings } from "../types/analysis";
+import type { Language, VideoFormat, VideoJob, VideoKind, VideoSettings } from "../types/analysis";
 
 interface Props {
   file: File;
@@ -15,7 +15,14 @@ const RESOLUTIONS = [
   { label: "3840 × 2160", width: 3840, height: 2160 },
 ];
 const FPS_OPTIONS = [24, 25, 30, 50, 60];
-const KIND_LABELS: Record<VideoKind, string> = { spectrum: "Frequenz-Video", chords: "Akkord-Video" };
+const KIND_LABELS: Record<VideoKind, string> = {
+  note_rate: "Noten/s",
+  key: "Tonart",
+  chords: "Akkord",
+  spectrum: "Frequenzspektrum",
+  heatmap: "Tasten-Heatmap",
+};
+const KINDS = Object.keys(KIND_LABELS) as VideoKind[];
 const POLL_INTERVAL_MS = 1000;
 
 export default function VideoExport({ file, settings, onSettingsChange }: Props) {
@@ -41,11 +48,14 @@ export default function VideoExport({ file, settings, onSettingsChange }: Props)
   // A new file invalidates earlier jobs.
   useEffect(() => setJobs([]), [file]);
 
-  async function start(kind: VideoKind) {
+  async function start(kinds: VideoKind[]) {
     setError(null);
     try {
-      const job = await createVideoJob(file, kind, settings);
-      setJobs((current) => [job, ...current]);
+      // Sequentially, so the jobs queue up in the listed order.
+      for (const kind of kinds) {
+        const job = await createVideoJob(file, kind, settings);
+        setJobs((current) => [...current, job]);
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Export fehlgeschlagen.");
     }
@@ -94,23 +104,32 @@ export default function VideoExport({ file, settings, onSettingsChange }: Props)
           <span>Farbe</span>
           <input type="color" value={settings.color} onChange={(e) => update({ color: e.target.value })} />
         </label>
+        <label className="field">
+          <span>Sprache der Texte</span>
+          <select value={settings.language} onChange={(e) => update({ language: e.target.value as Language })}>
+            <option value="de">Deutsch</option>
+            <option value="en">English</option>
+          </select>
+        </label>
         <label className="field field--checkbox">
           <input type="checkbox" checked={settings.showGrid} onChange={(e) => update({ showGrid: e.target.checked })} />
-          <span>Raster &amp; Hz-Beschriftung (Frequenz-Video)</span>
+          <span>Raster &amp; Hz-Beschriftung (Spektrum)</span>
         </label>
       </div>
 
       <p className="hint">
-        Beide Videos haben einen transparenten Hintergrund. ProRes 4444 ist das gängige Format für DaVinci Resolve,
-        aber groß (Frequenz-Video in 1080p30 ca. 0,7 GB pro Minute).
+        Jedes Overlay ist ein eigenes Video mit transparentem Hintergrund, so lässt es sich in DaVinci Resolve frei
+        platzieren. ProRes 4444 ist dafür das gängige Format, aber groß (Spektrum in 1080p30 ca. 0,7 GB pro Minute).
       </p>
 
       <div className="export__actions">
-        <button type="button" className="button button--primary" onClick={() => start("spectrum")}>
-          Frequenz-Video erstellen
-        </button>
-        <button type="button" className="button button--primary" onClick={() => start("chords")}>
-          Akkord-Video erstellen
+        {KINDS.map((kind) => (
+          <button key={kind} type="button" className="button" onClick={() => start([kind])}>
+            {KIND_LABELS[kind]}
+          </button>
+        ))}
+        <button type="button" className="button button--primary" onClick={() => start(KINDS)}>
+          Alle erstellen
         </button>
       </div>
 

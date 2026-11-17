@@ -2,6 +2,7 @@ import { useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { useElementWidth } from "../hooks/useElementWidth";
 import type { Chord, Timeline, TimelinePoint } from "../types/analysis";
 import { formatTime } from "../utils/format";
+import { displayAccidentals } from "../utils/labels";
 
 interface Props {
   timeline: Timeline;
@@ -108,7 +109,7 @@ export default function TimelineChart({ timeline, chords, duration }: Props) {
                     textAnchor="middle"
                     dominantBaseline="central"
                   >
-                    {chord.name}
+                    {displayAccidentals(chord.name)}
                   </text>
                 )}
               </g>
@@ -168,7 +169,7 @@ export default function TimelineChart({ timeline, chords, duration }: Props) {
             <strong>{hovered.active_notes}</strong> <span>klingende Noten</span>
           </div>
           <div className="tooltip__row">
-            <strong>{hoveredChord?.name ?? "–"}</strong> <span>Akkord</span>
+            <strong>{hoveredChord ? displayAccidentals(hoveredChord.name) : "–"}</strong> <span>Akkord</span>
           </div>
         </div>
       )}

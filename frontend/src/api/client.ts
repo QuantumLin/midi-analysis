@@ -45,6 +45,7 @@ export function createVideoJob(file: File, kind: VideoKind, settings: VideoSetti
   form.append("fps", String(settings.fps));
   form.append("color", settings.color);
   form.append("show_grid", String(settings.showGrid));
+  form.append("language", settings.language);
   return request<VideoJob>("/videos", { method: "POST", body: form });
 }
 

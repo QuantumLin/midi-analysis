@@ -6,11 +6,19 @@ from collections.abc import Callable
 from concurrent.futures import Future, ThreadPoolExecutor
 from pathlib import Path
 
+import numpy as np
+
 from app.analysis.chords import ChordSegment, detect_chords
+from app.analysis.key import detect_keys
+from app.analysis.keyboard_activity import KeyboardActivity
+from app.analysis.note_rate import note_rate, summarize
 from app.analysis.spectrum import compute_spectrum
 from app.midi.models import MidiData
 from app.video.chord_renderer import ChordRenderer
 from app.video.encoder import VideoEncoder
+from app.video.heatmap_renderer import HeatmapRenderer
+from app.video.key_renderer import KeyRenderer
+from app.video.note_rate_renderer import NoteRateRenderer
 from app.video.options import VideoOptions
 from app.video.spectrum_renderer import SpectrumRenderer
 
@@ -30,10 +38,7 @@ def render_video(
     on_progress: ProgressCallback,
     frame_prefix: str | None = None,
 ) -> Path:
-    if options.kind == "spectrum":
-        frames = _spectrum_frames(midi, options)
-    else:
-        frames = _chord_frames(midi, options)
+    frames = _FRAME_SOURCES[options.kind](midi, options)
 
     frame_count = _frame_count(midi, options.fps)
     encoder = VideoEncoder(output_base, options.format, options.width, options.height, options.fps, frame_prefix)
@@ -81,12 +86,52 @@ def _parallel_in_order(render: Callable[[int], bytes], count: int):
 
 def _chord_frames(midi: MidiData, options: VideoOptions):
     chords = detect_chords(midi)
-    renderer = ChordRenderer(options.width, options.height, options.color, [c.chord.name for c in chords])
+    keys = detect_keys(midi)
+    names = {id(c): c.chord.spelled(keys.prefer_flats_at(c.start)) for c in chords}
+    renderer = ChordRenderer(options.width, options.height, options.color, list(names.values()))
     for index in range(_frame_count(midi, options.fps)):
-        yield renderer.render(chord_at(chords, index / options.fps))
+        chord = chord_at(chords, index / options.fps)
+        yield renderer.render(names[id(chord)] if chord else None)
 
 
-def chord_at(chords: list[ChordSegment], time: float) -> str | None:
+def _key_frames(midi: MidiData, options: VideoOptions):
+    renderer = KeyRenderer(options.width, options.height, options.color, options.language, detect_keys(midi))
+    for index in range(_frame_count(midi, options.fps)):
+        yield renderer.render(index / options.fps)
+
+
+def _note_rate_frames(midi: MidiData, options: VideoOptions):
+    rate = note_rate(midi)
+    summary = summarize(rate, midi.duration, options.fps)
+    times = np.arange(_frame_count(midi, options.fps)) / options.fps
+    values = rate.rate_at(times)
+    totals = rate.total_at(times)
+    best = np.maximum.accumulate(values)
+    renderer = NoteRateRenderer(
+        options.width,
+        options.height,
+        options.color,
+        options.language,
+        max_rate=int(values.max(initial=0)),
+        max_total=int(totals.max(initial=0)),
+        records=summary.records,
+    )
+    for index, time in enumerate(times):
+        yield renderer.render(float(time), int(values[index]), int(totals[index]), int(best[index]))
+
+
+def _heatmap_frames(midi: MidiData, options: VideoOptions):
+    activity = KeyboardActivity(midi)
+    renderer = HeatmapRenderer(options.width, options.height, options.color)
+    running_max = 0
+    for index in range(_frame_count(midi, options.fps)):
+        time = index / options.fps
+        counts = activity.press_counts(time)
+        running_max = max(running_max, int(counts.max()))
+        yield renderer.render(counts, activity.held(time), running_max)
+
+
+def chord_at(chords: list[ChordSegment], time: float) -> ChordSegment | None:
     """Chord to display at `time` (chords sorted by start), holding through short gaps."""
     current = None
     for i, chord in enumerate(chords):
@@ -94,7 +139,16 @@ def chord_at(chords: list[ChordSegment], time: float) -> str | None:
             break
         next_start = chords[i + 1].start if i + 1 < len(chords) else float("inf")
         if time < chord.end or (time < next_start and time - chord.end < CHORD_HOLD_SECONDS):
-            current = chord.chord.name
+            current = chord
         else:
             current = None
     return current
+
+
+_FRAME_SOURCES = {
+    "spectrum": _spectrum_frames,
+    "chords": _chord_frames,
+    "key": _key_frames,
+    "note_rate": _note_rate_frames,
+    "heatmap": _heatmap_frames,
+}
