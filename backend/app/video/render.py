@@ -13,6 +13,8 @@ from app.analysis.chords import ChordSegment, detect_chords
 from app.analysis.harmony import analyze_harmony
 from app.analysis.key import detect_keys
 from app.analysis.keyboard_activity import KeyboardActivity
+from app.analysis.motifs import find_motifs
+from app.analysis.sections import find_sections
 from app.analysis.note_rate import note_rate, summarize
 from app.analysis.spectrum import compute_spectrum
 from app.midi.models import MidiData
@@ -22,8 +24,10 @@ from app.video.encoder import VideoEncoder
 from app.video.harmony_renderer import HarmonyRenderer
 from app.video.heatmap_renderer import HeatmapRenderer
 from app.video.key_renderer import KeyRenderer
+from app.video.motif_renderer import MotifRenderer
 from app.video.note_rate_renderer import NoteRateRenderer
 from app.video.options import VideoOptions
+from app.video.section_renderer import SectionRenderer
 from app.video.spectrum_renderer import SpectrumRenderer
 
 SPECTRUM_BINS = 1024  # interpolated to the pixel columns when drawing
@@ -181,6 +185,18 @@ def _achievement_frames(midi: MidiData, options: VideoOptions):
     yield from _render_states(states, renderer.render_state)
 
 
+def _motif_frames(midi: MidiData, options: VideoOptions):
+    renderer = MotifRenderer(options.width, options.height, options.color, options.language, find_motifs(midi))
+    states = [renderer.state(i / options.fps) for i in range(_frame_count(midi, options.fps))]
+    yield from _render_states(states, renderer.render_state)
+
+
+def _section_frames(midi: MidiData, options: VideoOptions):
+    renderer = SectionRenderer(options.width, options.height, options.color, options.language, find_sections(midi))
+    states = [renderer.state(i / options.fps) for i in range(_frame_count(midi, options.fps))]
+    yield from _render_states(states, renderer.render_state)
+
+
 def chord_at(chords: list[ChordSegment], time: float) -> ChordSegment | None:
     """Chord to display at `time` (chords sorted by start), holding through short gaps."""
     current = None
@@ -203,4 +219,6 @@ _FRAME_SOURCES = {
     "heatmap": _heatmap_frames,
     "harmony": _harmony_frames,
     "achievements": _achievement_frames,
+    "motifs": _motif_frames,
+    "sections": _section_frames,
 }

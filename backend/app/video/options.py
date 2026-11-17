@@ -4,7 +4,7 @@ import re
 from dataclasses import dataclass
 from typing import Literal
 
-VideoKind = Literal["spectrum", "chords", "key", "note_rate", "heatmap", "harmony", "achievements"]
+VideoKind = Literal["spectrum", "chords", "key", "note_rate", "heatmap", "harmony", "achievements", "motifs", "sections"]
 VideoFormat = Literal["prores", "png"]
 Language = Literal["de", "en"]
 

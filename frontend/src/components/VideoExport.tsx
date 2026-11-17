@@ -21,6 +21,8 @@ const KIND_LABELS: Record<VideoKind, string> = {
   chords: "Akkord",
   harmony: "Stufen",
   achievements: "Achievements",
+  sections: "Abschnitte",
+  motifs: "Motive",
   spectrum: "Frequenzspektrum",
   heatmap: "Tasten-Heatmap",
 };

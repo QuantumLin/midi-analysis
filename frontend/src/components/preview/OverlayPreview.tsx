@@ -3,11 +3,20 @@ import { useElementWidth } from "../../hooks/useElementWidth";
 import { usePlayback } from "../../hooks/usePlayback";
 import type { AnalysisResult, VideoSettings } from "../../types/analysis";
 import { chordAt } from "../../utils/chords";
+import { motifAt, sectionAt } from "../../utils/form";
 import { achievementAt, chainBefore, progressionAt } from "../../utils/harmony";
 import { formatTime } from "../../utils/format";
 import { keySegmentAt, noteRateAt, runningMax } from "../../utils/stats";
 import HeatBar from "./HeatBar";
-import { AchievementToast, ChordField, HarmonyField, KeyField, NoteRateField } from "./OverlayFields";
+import {
+  AchievementToast,
+  ChordField,
+  HarmonyField,
+  KeyField,
+  MotifField,
+  NoteRateField,
+  SectionField,
+} from "./OverlayFields";
 import SpectrumCanvas from "./SpectrumCanvas";
 
 interface Props {
@@ -59,6 +68,8 @@ export default function OverlayPreview({ result, settings }: Props) {
             color={color}
             language={language}
           />
+          <SectionField current={sectionAt(result.sections, time)} color={color} language={language} />
+          <MotifField current={motifAt(result.motifs, time)} color={color} language={language} />
         </div>
         <div className="player__stage">
           <SpectrumCanvas

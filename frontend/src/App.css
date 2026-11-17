@@ -640,6 +640,12 @@ h2 {
   filter: drop-shadow(0 0 4px var(--neon)) drop-shadow(0 0 10px var(--neon));
 }
 
+/* Overlay that is hidden in the video at this moment (preview only) */
+.neon-idle {
+  opacity: 0.3;
+  filter: saturate(0.4);
+}
+
 /* Neon colour swatches in the export settings */
 
 .swatches {
