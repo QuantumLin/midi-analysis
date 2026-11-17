@@ -13,10 +13,11 @@ from app.video.neon import PANEL_FILL, Color, centered_frame, colorize, core_col
 
 HEAT_GAMMA = 0.55  # lifts rarely played keys so they stay visible next to the busiest one
 HELD_BOOST = 0.3  # held keys glow above the hottest played key
-SMOOTHING_SIGMA = 1.5  # in keys
-SMOOTHING_RADIUS = 5
+SMOOTHING_SIGMA = 0.6  # in keys: a slight blend, single keys stay visible
+SMOOTHING_RADIUS = 2
 BAR_WIDTH_SHARE = 0.9  # of the frame width
 SUPERSAMPLING = 4
+GLOW_RADIUS = 0.15  # in bar heights: a subtle halo that keeps the bar crisp
 
 
 class HeatmapRenderer:
@@ -27,7 +28,7 @@ class HeatmapRenderer:
         self.core = np.array(core_color(color), dtype=np.float32)
         self.bar_width = round(width * BAR_WIDTH_SHARE)
         self.bar_height = max(6, round(44 * u))
-        self.margin = round(self.bar_height * 2.2)  # room for the glow (blur ~0.6 bar heights)
+        self.margin = round(self.bar_height * 0.8)  # room for the glow
         offsets = np.arange(-SMOOTHING_RADIUS, SMOOTHING_RADIUS + 1)
         kernel = np.exp(-0.5 * (offsets / SMOOTHING_SIGMA) ** 2)
         self.kernel = kernel / kernel.sum()
@@ -60,9 +61,8 @@ class HeatmapRenderer:
         canvas = self.background.copy()
         glow = Image.new("RGBA", self.size, (0, 0, 0, 0))
         glow.paste(bar_image, self.bar_box[:2])
-        glow = glow.convert("RGBa").filter(ImageFilter.GaussianBlur(self.bar_height * 0.6)).convert("RGBA")
+        glow = glow.convert("RGBa").filter(ImageFilter.GaussianBlur(self.bar_height * GLOW_RADIUS)).convert("RGBA")
         canvas.alpha_composite(glow)
-        canvas.alpha_composite(glow)  # twice: a stronger halo
         canvas.alpha_composite(bar_image, self.bar_box[:2])
         return centered_frame(canvas, self.width, self.height)
 
