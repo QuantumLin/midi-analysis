@@ -1,4 +1,4 @@
-name: midi-analytics
+name: midi-analysis
 
 services:
   backend:

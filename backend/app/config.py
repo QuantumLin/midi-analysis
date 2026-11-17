@@ -8,7 +8,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="BACKEND_")
 
-    app_name: str = "MIDI Analytics Backend"
+    app_name: str = "MIDI Analysis Backend"
     version: str = "0.1.0"
     environment: str = "development"
 

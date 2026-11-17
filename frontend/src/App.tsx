@@ -14,7 +14,7 @@ export default function App() {
 
   return (
     <main className="app">
-      <h1>MIDI Analytics</h1>
+      <h1>MIDI Analysis</h1>
       <p className={`status status--${backend}`}>Backend: {backend}</p>
     </main>
   );

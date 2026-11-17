@@ -1,4 +1,4 @@
-# MIDI Analytics
+# MIDI Analysis
 
 Eine Desktop-Anwendung, die MIDI-Dateien einliest und daraus musikalische Metriken, Statistiken und Analysen erstellt (z. B. Notenanzahl, Tonart, Tempo, Oktavverteilung, Harmonik).
 
