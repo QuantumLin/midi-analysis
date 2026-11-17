@@ -2,7 +2,10 @@ name: midi-analysis
 
 services:
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      args:
+        INSTALL_DEV: "true"  # include pytest for `docker compose exec backend pytest`
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     env_file:
       - path: .env
@@ -14,6 +17,7 @@ services:
       - "${BACKEND_PORT:-8001}:8000"
     volumes:
       - ./backend/app:/app/app
+      - ./backend/tests:/app/tests
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
       interval: 10s

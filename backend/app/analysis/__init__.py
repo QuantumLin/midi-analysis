@@ -1,5 +1,5 @@
-"""MIDI analysis modules (not yet implemented).
+"""MIDI analysis modules.
 
-Each future analysis (note counts, key detection, tempo, octaves, chords, ...)
-gets its own module in this package.
+Each analysis lives in its own module and works on the parsed note list
+(`app.midi.models.MidiData`), independent of HTTP and file handling.
 """
