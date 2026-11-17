@@ -13,8 +13,8 @@ interface Props {
 // Same look as backend/app/video/heatmap_renderer.py.
 const HEAT_GAMMA = 0.55;
 const HELD_BOOST = 0.3;
-const SMOOTHING_SIGMA = 1.5;
-const SMOOTHING_RADIUS = 5;
+const SMOOTHING_SIGMA = 0.6;
+const SMOOTHING_RADIUS = 2;
 const PANEL_FILL: [number, number, number] = [8, 10, 22];
 const KERNEL = (() => {
   const k = [];
@@ -69,7 +69,7 @@ function ramp(heat: number, color: [number, number, number]): string {
 function draw(canvas: HTMLCanvasElement, width: number, height: number, heat: number[], color: [number, number, number]) {
   const ctx = prepareCanvas(canvas, width, height);
   const barHeight = height * 0.26;
-  const margin = height * 0.3; // room for the glow (blur ~0.45 bar heights)
+  const margin = height * 0.3; // room for the glow
   const left = margin;
   const barWidth = width - 2 * margin;
   const top = margin;
@@ -79,11 +79,10 @@ function draw(canvas: HTMLCanvasElement, width: number, height: number, heat: nu
   const bar = new Path2D();
   bar.roundRect(left, top, barWidth, barHeight, barHeight / 2);
 
-  // Glow: the same bar, blurred, twice.
+  // Glow: the same bar, softly blurred.
   ctx.save();
-  ctx.filter = `blur(${barHeight * 0.45}px)`;
+  ctx.filter = `blur(${barHeight * 0.11}px)`;
   ctx.fillStyle = gradient;
-  ctx.fill(bar);
   ctx.fill(bar);
   ctx.restore();
   ctx.fillStyle = gradient;
