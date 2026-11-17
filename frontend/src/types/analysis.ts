@@ -33,6 +33,38 @@ export interface Chord {
   notes: string[];
 }
 
+export interface MusicalKey {
+  tonic: string; // ASCII accidentals: "D", "Bb", "F#"
+  mode: "major" | "minor";
+}
+
+export interface KeySegment {
+  start: number;
+  end: number;
+  key: MusicalKey;
+}
+
+export interface Keys {
+  overall: MusicalKey | null;
+  segments: KeySegment[]; // contiguous; every segment after the first is a modulation
+}
+
+/** Key presses in the last second; frame i is at time i / fps. */
+export interface NoteRate {
+  fps: number;
+  values: number[];
+  peak_value: number;
+  peak_time: number;
+  records: { time: number; value: number }[];
+}
+
+/** All pitched notes as parallel arrays, sorted by start; `end` is the key release. */
+export interface Notes {
+  start: number[];
+  end: number[];
+  pitch: number[];
+}
+
 export interface AnalysisResult {
   file_name: string;
   duration_seconds: number;
@@ -41,9 +73,13 @@ export interface AnalysisResult {
   timeline: Timeline;
   spectrum: SpectrumData;
   chords: Chord[];
+  keys: Keys;
+  note_rate: NoteRate;
+  notes: Notes;
 }
 
-export type VideoKind = "spectrum" | "chords";
+export type VideoKind = "spectrum" | "chords" | "key" | "note_rate" | "heatmap";
+export type Language = "de" | "en";
 export type VideoFormat = "prores" | "png";
 
 export interface VideoSettings {
@@ -53,6 +89,7 @@ export interface VideoSettings {
   fps: number;
   color: string; // hex, e.g. "#ffffff"
   showGrid: boolean;
+  language: Language; // texts in the key and notes-per-second overlays
 }
 
 export interface VideoJob {

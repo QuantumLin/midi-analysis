@@ -41,6 +41,45 @@ class ChordOut(BaseModel):
     notes: list[str]
 
 
+class KeyOut(BaseModel):
+    tonic: str  # spelled, ASCII accidentals: "D", "Bb", "F#"
+    mode: Literal["major", "minor"]
+
+
+class KeySegmentOut(BaseModel):
+    start: float
+    end: float
+    key: KeyOut
+
+
+class KeysOut(BaseModel):
+    overall: KeyOut | None
+    segments: list[KeySegmentOut]  # contiguous; a new segment after the first is a modulation
+
+
+class NoteRecordOut(BaseModel):
+    time: float
+    value: int
+
+
+class NoteRateOut(BaseModel):
+    """Key presses in the last second; frame i is at time i / fps."""
+
+    fps: float
+    values: list[int]
+    peak_value: int
+    peak_time: float
+    records: list[NoteRecordOut]
+
+
+class NotesOut(BaseModel):
+    """All pitched notes as parallel arrays (compact), sorted by start; `end` is the key release."""
+
+    start: list[float]
+    end: list[float]
+    pitch: list[int]
+
+
 class AnalysisResponse(BaseModel):
     file_name: str
     duration_seconds: float
@@ -49,6 +88,9 @@ class AnalysisResponse(BaseModel):
     timeline: TimelineOut
     spectrum: SpectrumOut
     chords: list[ChordOut]
+    keys: KeysOut
+    note_rate: NoteRateOut
+    notes: NotesOut
 
 
 JobStatus = Literal["queued", "running", "done", "failed"]

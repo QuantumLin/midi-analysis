@@ -72,9 +72,13 @@ class ChordMatch:
 
     @property
     def name(self) -> str:
-        name = pitch_class_name(self.root) + self.quality
+        return self.spelled(prefer_flats=False)
+
+    def spelled(self, prefer_flats: bool) -> str:
+        """Chord name with sharps ("A#") or flats ("Bb"), depending on the key."""
+        name = pitch_class_name(self.root, prefer_flats) + self.quality
         if self.bass != self.root:
-            name += "/" + pitch_class_name(self.bass)
+            name += "/" + pitch_class_name(self.bass, prefer_flats)
         return name
 
 
@@ -87,7 +91,10 @@ class ChordSegment:
 
     @property
     def note_names(self) -> list[str]:
-        return [pitch_name(p) for p in self.pitches]
+        return self.spelled_note_names(prefer_flats=False)
+
+    def spelled_note_names(self, prefer_flats: bool) -> list[str]:
+        return [pitch_name(p, prefer_flats) for p in self.pitches]
 
 
 def identify_chord(pitches: list[int] | tuple[int, ...]) -> ChordMatch | None:

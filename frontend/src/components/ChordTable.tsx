@@ -1,5 +1,6 @@
 import type { Chord } from "../types/analysis";
 import { formatTime } from "../utils/format";
+import { displayAccidentals } from "../utils/labels";
 
 export default function ChordTable({ chords }: { chords: Chord[] }) {
   if (chords.length === 0) {
@@ -27,8 +28,8 @@ export default function ChordTable({ chords }: { chords: Chord[] }) {
             <tr key={`${chord.start}-${chord.name}`}>
               <td className="num">{formatTime(chord.start, 2)}</td>
               <td className="num">{formatTime(chord.end, 2)}</td>
-              <td className="chord-name">{chord.name}</td>
-              <td className="notes">{chord.notes.join(" ")}</td>
+              <td className="chord-name">{displayAccidentals(chord.name)}</td>
+              <td className="notes">{chord.notes.map(displayAccidentals).join(" ")}</td>
             </tr>
           ))}
         </tbody>

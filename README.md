@@ -6,9 +6,13 @@ Eine Desktop-Anwendung, die MIDI-Dateien einliest und daraus musikalische Metrik
 
 MIDI-Datei (`.mid`, `.midi`) auswählen oder per Drag & Drop hochladen. Die Anwendung zeigt dann:
 
-- **Frequenzspektrum:** Ein Analyzer wie in einer DAW (z. B. ReaEQ in Reaper) über das gesamte Spektrum von 20 Hz bis 20 kHz, logarithmisch, in dB. Play, Pause und eine Zeitleiste spielen das Spektrum über die Dauer des Stücks ab.
-- **Akkord-Textfeld:** Zeigt während der Wiedergabe den aktuellen Akkord, z. B. `C`, `Am7`, `G7`, `Cmaj7`, `Bm7b5` oder Umkehrungen wie `C/E`.
-- **Video-Export:** Beides lässt sich als **transparentes Video** exportieren, um es in DaVinci Resolve über ein Video zu legen, z. B. neben einen Piano-Visualizer.
+- **Overlay-Vorschau:** Play, Pause und eine Zeitleiste spielen alle Overlays synchron ab:
+  - **Noten pro Sekunde:** Live-Wert (Tastenanschläge in der letzten Sekunde), Gesamtzahl bisher und bisheriger Rekord. Bei einem neuen Rekord erscheint „Neuer Rekord: 29 Noten/s“.
+  - **Tonart:** Die aktuelle Tonart, z. B. „d-Moll“. Bei einem Tonartwechsel steht 3 s lang „Modulation →“ darüber.
+  - **Akkord:** Der aktuelle Akkord, z. B. `C`, `Am7`, `G7`, `Cmaj7`, `Bm7b5` oder Umkehrungen wie `C/E`.
+  - **Frequenzspektrum:** Ein Analyzer wie in einer DAW (z. B. ReaEQ in Reaper) von 20 Hz bis 20 kHz, logarithmisch, in dB.
+  - **Tasten-Heatmap:** Alle 88 Tasten. Jede Taste leuchtet umso stärker, je öfter sie bisher gespielt wurde, gerade gedrückte Tasten leuchten hell.
+- **Video-Export:** Jedes Overlay lässt sich einzeln als **transparentes Video** exportieren und in DaVinci Resolve frei platzieren, z. B. neben einem Piano-Visualizer.
 - **Velocity-Verlauf und Akkordwechsel:** Diagramm der mittleren Velocity über die Zeit mit Akkordspur. Werte erscheinen beim Überfahren mit der Maus oder per Pfeiltasten.
 - **Akkordtabelle:** Jeder Akkord mit Start, Ende und Noten.
 
@@ -29,13 +33,24 @@ MIDI enthält keinen Klang, deshalb wird das Spektrum aus den Noten berechnet:
 | Format | **ProRes 4444 `.mov`** mit Alpha-Kanal (Standard für Resolve) oder **PNG-Sequenz** als `.zip` |
 | Auflösung | 1280×720 bis 3840×2160 |
 | Bildrate | 24, 25, 30, 50, 60 fps |
-| Farbe | Kurve bzw. Akkordtext |
-| Raster | Frequenz-Video mit Raster und Hz/dB-Beschriftung oder nur die Kurve |
+| Farbe | Akzentfarbe für Kurve, Werte, Text und Heatmap |
+| Sprache | Deutsch oder Englisch für die Texte („d-Moll“ / „D minor“, „Noten/s“ / „notes/s“) |
+| Raster | Spektrum mit Raster und Hz/dB-Beschriftung oder nur die Kurve |
 
-- **Vorschau:** Der Player in der App zeigt Farbe und Raster vorab so, wie das Video aussehen wird.
-- **Akkord-Video:** Es zeigt den Akkordnamen mittig in einem abgerundeten, halbtransparenten Kasten. Der Kasten hat für das ganze Video dieselbe Größe. Bei kurzen Pausen bleibt der letzte Akkord stehen, nach 2 s Stille verschwindet er.
+- **Vorschau:** Sie zeigt Farbe, Sprache und Raster vorab so, wie die Videos aussehen werden.
+- **„Alle erstellen“:** Rendert alle fünf Videos nacheinander.
+- **Textfelder:** Noten/s, Tonart und Akkord erscheinen mittig in einem abgerundeten, halbtransparenten Kasten. Der Kasten hat für das ganze Video dieselbe Größe, damit er nicht springt.
+- **Akkord bei Pausen:** Bei kurzen Pausen bleibt der letzte Akkord stehen, nach 2 s Stille verschwindet er.
+- **Heatmap:** Sie liegt am unteren Bildrand und ist so breit wie das Bild.
 - **Rendern:** Es läuft im Hintergrund mit Fortschrittsanzeige. Fertige Dateien werden nach 60 Minuten gelöscht.
-- **Richtwerte:** Für ein 77-s-Stück in 1080p30 dauert das Rendern etwa 55 s. Das Frequenz-Video ist ca. 0,9 GB groß, das Akkord-Video ca. 0,12 GB.
+
+**Richtwerte** für ein 77-s-Stück in 1080p30 als ProRes:
+
+| Video | Renderzeit | Größe |
+| --- | --- | --- |
+| Spektrum | ca. 55 s | ca. 0,9 GB |
+| Heatmap | ca. 60 s | ca. 0,4 GB |
+| Noten/s, Tonart, Akkord | je ca. 50 s | je 0,12–0,17 GB |
 
 **In DaVinci Resolve:**
 1. Die `.mov`-Datei auf eine Spur über dem Hintergrund legen. Die Transparenz wird automatisch erkannt.
@@ -50,7 +65,10 @@ MIDI enthält keinen Klang, deshalb wird das Spektrum aus den Noten berechnet:
 - **Schlagzeug (MIDI-Kanal 10):** Es hat keine Tonhöhe und wird nur gezählt.
 - **Kurze Abschnitte:** Abschnitte unter 80 ms werden ignoriert.
 - **Gebrochene Akkorde:** Arpeggien ohne Pedal werden nicht erkannt.
-- **Notennamen:** Es werden Kreuz-Vorzeichen verwendet (`A#` statt `B♭`).
+- **Tonart:** Sie wird nach Krumhansl-Schmuckler bestimmt. Ein 8-s-Fenster vergleicht, wie lange jede Tonstufe klingt, mit den Profilen aller 24 Dur- und Moll-Tonarten. Ein Wechsel wird erst gemeldet, wenn die neue Tonart einige Sekunden klar besser passt, kurze Ausweichungen zählen nicht als Modulation.
+- **Gesamt-Tonart:** Das ist die Tonart, in der das Stück am längsten steht. Bei fast gleicher Dauer gewinnt die zuerst erklingende.
+- **Schreibweise:** Notennamen und Akkorde werden passend zur Tonart geschrieben, z. B. `B♭` in d-Moll und `A♯` in H-Dur.
+- **Noten pro Sekunde:** Jede angeschlagene Taste zählt, ein Vierklang also als vier Noten. Rekorde zählen erst nach den ersten 5 s. Schnell aufeinanderfolgende Rekorde in einem Lauf werden zu einem zusammengefasst.
 
 ## Tech-Stack
 
@@ -110,6 +128,9 @@ MidiAnalysis/
 │   │   │   └── uploads.py         # Prüfung hochgeladener MIDI-Dateien
 │   │   ├── analysis/
 │   │   │   ├── chords.py          # Akkorderkennung
+│   │   │   ├── key.py             # Tonart und Modulationen
+│   │   │   ├── keyboard_activity.py # Anschläge pro Taste (Heatmap)
+│   │   │   ├── note_rate.py       # Noten pro Sekunde, Rekorde
 │   │   │   ├── spectrum.py        # synthetisches Frequenzspektrum
 │   │   │   └── timeline.py        # Velocity-Verlauf
 │   │   ├── midi/
@@ -119,11 +140,16 @@ MidiAnalysis/
 │   │   ├── services/
 │   │   │   └── analysis_service.py # führt alle Analysen aus
 │   │   ├── video/
-│   │   │   ├── chord_renderer.py  # Akkord-Textfeld (Pillow)
+│   │   │   ├── chord_renderer.py  # Akkord-Textfeld
 │   │   │   ├── encoder.py         # ffmpeg: ProRes 4444 / PNG-Sequenz
 │   │   │   ├── fonts.py           # Schriftsuche
+│   │   │   ├── heatmap_renderer.py # Tasten-Heatmap (numpy)
 │   │   │   ├── jobs.py            # Hintergrundjobs
+│   │   │   ├── key_renderer.py    # Tonart-Textfeld
+│   │   │   ├── labels.py          # Texte Deutsch/Englisch, ♯/♭
+│   │   │   ├── note_rate_renderer.py # Noten/s-Textfeld
 │   │   │   ├── options.py         # Export-Einstellungen
+│   │   │   ├── overlay_box.py     # gemeinsamer Kasten der Textfelder
 │   │   │   ├── render.py          # rendert ein komplettes Video
 │   │   │   └── spectrum_renderer.py # Spektrum-Frame (numpy)
 │   │   ├── config.py              # Settings aus Umgebungsvariablen
@@ -140,12 +166,16 @@ MidiAnalysis/
 │   │   │   ├── AnalysisSummary.tsx # Kennzahlen
 │   │   │   ├── ChordTable.tsx     # Akkordtabelle
 │   │   │   ├── FileUpload.tsx     # Dateiauswahl / Drag & Drop
-│   │   │   ├── SpectrumPlayer.tsx # Spektrum-Player + Akkordfeld
+│   │   │   ├── preview/           # Overlay-Vorschau
+│   │   │   │   ├── OverlayPreview.tsx # Wiedergabe aller Overlays
+│   │   │   │   ├── OverlayFields.tsx  # Noten/s-, Tonart-, Akkordfeld
+│   │   │   │   ├── SpectrumCanvas.tsx
+│   │   │   │   └── KeyboardHeatmap.tsx
 │   │   │   ├── TimelineChart.tsx  # Velocity und Akkordspur
 │   │   │   └── VideoExport.tsx    # Export-Einstellungen und Jobs
-│   │   ├── hooks/useElementWidth.ts
+│   │   ├── hooks/                 # usePlayback, useElementWidth
 │   │   ├── types/analysis.ts      # Typen der API-Antwort
-│   │   ├── utils/                 # chords, format, spectrum
+│   │   ├── utils/                 # labels, stats, spectrum, chords, canvas, format
 │   │   ├── App.tsx                # Seitenaufbau und Zustand
 │   │   ├── App.css
 │   │   └── main.tsx               # React-Einstiegspunkt
@@ -193,7 +223,7 @@ Die Startseite zeigt **„Backend: online"**, sobald die Kommunikation zwischen 
 | ------- | --------------- | -------------------------------------------------------------------- |
 | `GET`   | `/api/health`   | Health-Check                                                         |
 | `POST`  | `/api/analysis` | MIDI-Datei analysieren (`multipart/form-data`, Feld `file`)          |
-| `POST`  | `/api/videos`   | Video-Export starten (`file`, `kind`, `format`, `width`, `height`, `fps`, `color`, `show_grid`) → Job |
+| `POST`  | `/api/videos`   | Video-Export starten (`file`, `kind`, `format`, `width`, `height`, `fps`, `color`, `show_grid`, `language`) → Job |
 | `GET`   | `/api/videos/{id}` | Status eines Jobs (`status`, `progress`)                          |
 | `GET`   | `/api/videos/{id}/download` | Fertiges Video herunterladen                             |
 
@@ -208,7 +238,14 @@ Die Analyse-Antwort enthält:
 - **Kennzahlen:** `duration_seconds`, `note_count`, `percussion_note_count`
 - **`timeline`:** `points` mit `time`, `velocity`, `active_notes`
 - **`spectrum`:** Vorschau mit 20 fps und 256 Bändern, als Base64-codierte Bytes
-- **`chords`:** `start`, `end`, `name`, `root`, `quality`, `bass`, `notes` Fehlerhafte oder zu große Dateien werden mit `400` bzw. `413` abgelehnt. Das vollständige Schema steht unter `/docs`.
+- **`chords`:** `start`, `end`, `name`, `root`, `quality`, `bass`, `notes`
+- **`keys`:** `overall` und `segments` (`start`, `end`, `key` mit `tonic` und `mode`); jedes Segment nach dem ersten ist eine Modulation
+- **`note_rate`:** `values` pro Frame (20 fps), `peak_value`, `peak_time`, `records`
+- **`notes`:** alle Noten als parallele Listen `start`, `end` (Loslassen der Taste), `pitch`
+
+Für `kind` sind `spectrum`, `chords`, `key`, `note_rate` und `heatmap` möglich, für `language` `de` oder `en`.
+
+Fehlerhafte oder zu große Dateien werden mit `400` bzw. `413` abgelehnt. Das vollständige Schema steht unter `/docs`.
 
 ## Tests
 
@@ -262,6 +299,8 @@ docker compose up --build -V frontend
 ```
 
 ## Lokale Entwicklung ohne Docker (optional)
+
+Auch bei der Entwicklung mit Docker lohnt sich einmal `npm install` im Ordner `frontend/`. Sonst findet der Editor (z. B. VS Code) die TypeScript-Typen nicht, weil die Pakete nur im Container liegen. Mit Docker kommt sich das nicht in die Quere, der Container nutzt seine eigenen Pakete.
 
 ```bash
 # Backend
