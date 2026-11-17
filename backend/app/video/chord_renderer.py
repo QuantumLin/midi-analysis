@@ -1,38 +1,30 @@
-"""Chord text field: the current chord name in the shared overlay box.
+"""Chord overlay: "AKKORD" + the current chord in neon; it flashes on every chord change."""
 
-The box size is fixed for the whole video (sized for the longest chord name), so it
-doesn't jump when the chord changes. Each distinct chord is rendered once and cached.
-"""
-
-from app.video.fonts import load_font
-from app.video.labels import display_accidentals
-from app.video.overlay_box import OverlayCanvas, fill, text_width
+from app.video.labels import Language, display_accidentals, text
+from app.video.neon import Color
+from app.video.neon_overlay import NeonOverlay, flash_strength
 
 
-class ChordRenderer:
-    def __init__(self, width: int, height: int, color: tuple[int, int, int], chord_names: list[str]):
-        self.color = color
-        self.font_size = round(height * 0.12)
-        longest = max((text_width(display_accidentals(n), self.font_size) for n in chord_names), default=0)
-        longest = max(longest, text_width("C", self.font_size))
-        self.canvas = OverlayCanvas(
-            width,
-            height,
-            box_width=round(longest + 1.2 * self.font_size),
-            box_height=round(1.9 * self.font_size),
-            radius=round(0.3 * self.font_size),
+class ChordRenderer(NeonOverlay):
+    def __init__(self, width: int, height: int, color: Color, language: Language, chord_names: list[str]):
+        self.language = language
+        probe = NeonOverlay(width, height, color, 0, 0)  # for measurements only
+        names = [display_accidentals(n) for n in chord_names] or ["C"]
+        content_width = max(
+            max(probe.value_width(n) for n in names),
+            probe.label_width(text("chord", language)),
+            320 * probe.u,
         )
-        self._cache: dict[str | None, bytes] = {None: self.canvas.empty}
+        super().__init__(width, height, color, content_width, probe.header_height)
 
-    def render(self, chord_name: str | None) -> bytes:
-        if chord_name not in self._cache:
-            box, draw = self.canvas.draw()
-            draw.text(
-                (box.width / 2, box.height / 2),
-                display_accidentals(chord_name),
-                font=load_font(self.font_size, bold=True),
-                fill=fill(self.color),
-                anchor="mm",
-            )
-            self._cache[chord_name] = self.canvas.frame(box)
-        return self._cache[chord_name]
+    def state(self, chord_name: str | None, seconds_since_change: float):
+        return None if chord_name is None else (chord_name, flash_strength(seconds_since_change))
+
+    def render(self, chord_name: str | None, seconds_since_change: float = 1.0) -> bytes:
+        return self.render_state(self.state(chord_name, seconds_since_change))
+
+    def draw(self, state):
+        name, strength = state
+        canvas = self.new_canvas()
+        self.draw_header(canvas, text("chord", self.language), display_accidentals(name), strength)
+        return canvas

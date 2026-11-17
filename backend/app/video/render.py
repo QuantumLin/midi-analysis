@@ -70,6 +70,20 @@ def _spectrum_frames(midi: MidiData, options: VideoOptions):
     yield from _parallel_in_order(render, _frame_count(midi, options.fps))
 
 
+def _render_states(states: list, render_state: Callable[[object], bytes]):
+    """Draws each run of identical consecutive states once (in parallel) and repeats it."""
+    runs: list[tuple[object, int]] = []
+    for state in states:
+        if runs and runs[-1][0] == state:
+            runs[-1] = (state, runs[-1][1] + 1)
+        else:
+            runs.append((state, 1))
+    frames = _parallel_in_order(lambda i: render_state(runs[i][0]), len(runs))
+    for (_, length), frame in zip(runs, frames):
+        for _ in range(length):
+            yield frame
+
+
 def _parallel_in_order(render: Callable[[int], bytes], count: int):
     """Renders frames on several threads (numpy releases the GIL) and yields them in
     order, keeping only a few frames in memory at a time."""
@@ -88,16 +102,21 @@ def _chord_frames(midi: MidiData, options: VideoOptions):
     chords = detect_chords(midi)
     keys = detect_keys(midi)
     names = {id(c): c.chord.spelled(keys.prefer_flats_at(c.start)) for c in chords}
-    renderer = ChordRenderer(options.width, options.height, options.color, list(names.values()))
-    for index in range(_frame_count(midi, options.fps)):
-        chord = chord_at(chords, index / options.fps)
-        yield renderer.render(names[id(chord)] if chord else None)
+    renderer = ChordRenderer(options.width, options.height, options.color, options.language, list(names.values()))
+
+    def state(index: int):
+        time = index / options.fps
+        chord = chord_at(chords, time)
+        return renderer.state(names[id(chord)], time - chord.start) if chord else None
+
+    states = [state(i) for i in range(_frame_count(midi, options.fps))]
+    yield from _render_states(states, renderer.render_state)
 
 
 def _key_frames(midi: MidiData, options: VideoOptions):
     renderer = KeyRenderer(options.width, options.height, options.color, options.language, detect_keys(midi))
-    for index in range(_frame_count(midi, options.fps)):
-        yield renderer.render(index / options.fps)
+    states = [renderer.state(i / options.fps) for i in range(_frame_count(midi, options.fps))]
+    yield from _render_states(states, renderer.render_state)
 
 
 def _note_rate_frames(midi: MidiData, options: VideoOptions):
@@ -116,19 +135,23 @@ def _note_rate_frames(midi: MidiData, options: VideoOptions):
         max_total=int(totals.max(initial=0)),
         records=summary.records,
     )
-    for index, time in enumerate(times):
-        yield renderer.render(float(time), int(values[index]), int(totals[index]), int(best[index]))
+    states = [
+        renderer.state(float(time), int(values[i]), int(totals[i]), int(best[i])) for i, time in enumerate(times)
+    ]
+    yield from _render_states(states, renderer.render_state)
 
 
 def _heatmap_frames(midi: MidiData, options: VideoOptions):
     activity = KeyboardActivity(midi)
     renderer = HeatmapRenderer(options.width, options.height, options.color)
-    running_max = 0
-    for index in range(_frame_count(midi, options.fps)):
+
+    def render(index: int) -> bytes:
         time = index / options.fps
         counts = activity.press_counts(time)
-        running_max = max(running_max, int(counts.max()))
-        yield renderer.render(counts, activity.held(time), running_max)
+        # Counts only grow, so the current maximum is also the running maximum.
+        return renderer.render(counts, activity.held(time), int(counts.max()))
+
+    yield from _parallel_in_order(render, _frame_count(midi, options.fps))
 
 
 def chord_at(chords: list[ChordSegment], time: float) -> ChordSegment | None:

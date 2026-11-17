@@ -1,3 +1,11 @@
+/* Display font of the overlays (SIL Open Font License, see assets/fonts/OFL.txt). */
+@font-face {
+  font-family: "Orbitron";
+  src: url("./assets/fonts/Orbitron.ttf") format("truetype");
+  font-weight: 400 900;
+  font-display: swap;
+}
+
 :root {
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   color-scheme: light;
@@ -9,7 +17,6 @@
   --text-muted: #7a7974;
   --grid: #e8e7e2;
   --accent: #2a78d6;
-  --series-velocity: #2a78d6;
   --chord-fill: #e6e5e0;
   --chord-fill-active: #d2d0c8;
   --ok: #1a7f37;
@@ -27,7 +34,6 @@
     --text-muted: #8f8e86;
     --grid: #2a2a28;
     --accent: #3987e5;
-    --series-velocity: #3987e5;
     --chord-fill: #2c2c2a;
     --chord-fill-active: #403f3c;
     --ok: #3fb950;
@@ -201,125 +207,6 @@ h2 {
   color: var(--text-secondary);
 }
 
-/* Timeline chart */
-
-.timeline {
-  position: relative;
-  width: 100%;
-  outline: none;
-}
-
-.timeline:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 4px;
-  border-radius: 4px;
-}
-
-.timeline svg {
-  display: block;
-}
-
-.panel-title {
-  fill: var(--text-secondary);
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.tick {
-  fill: var(--text-muted);
-  font-size: 11px;
-  font-variant-numeric: tabular-nums;
-}
-
-.grid {
-  stroke: var(--grid);
-  stroke-width: 1;
-}
-
-.series {
-  fill: none;
-  stroke-width: 2;
-  stroke-linejoin: round;
-  stroke-linecap: round;
-}
-
-.series--velocity {
-  stroke: var(--series-velocity);
-}
-
-.series-fill--velocity {
-  fill: var(--series-velocity);
-  background: var(--series-velocity);
-}
-
-.crosshair {
-  stroke: var(--text-muted);
-  stroke-width: 1;
-}
-
-.marker {
-  stroke: var(--surface);
-  stroke-width: 2;
-}
-
-.chord-block {
-  fill: var(--chord-fill);
-}
-
-.chord-block--active {
-  fill: var(--chord-fill-active);
-}
-
-.chord-label {
-  fill: var(--text-primary);
-  font-size: 11px;
-  font-weight: 600;
-  pointer-events: none;
-}
-
-.tooltip {
-  position: absolute;
-  top: 24px;
-  min-width: 180px;
-  padding: 8px 12px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--surface);
-  box-shadow: 0 4px 12px rgb(0 0 0 / 0.12);
-  font-size: 0.8125rem;
-  white-space: nowrap;
-  pointer-events: none;
-}
-
-.tooltip__time {
-  margin-bottom: 4px;
-  color: var(--text-muted);
-  font-variant-numeric: tabular-nums;
-}
-
-.tooltip__row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  line-height: 1.6;
-}
-
-.tooltip__row strong {
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
-.tooltip__row span:last-child {
-  color: var(--text-secondary);
-}
-
-.line-key {
-  display: inline-block;
-  width: 12px;
-  height: 2px;
-  border-radius: 1px;
-}
-
 /* Chord table */
 
 .table-scroll {
@@ -459,8 +346,8 @@ h2 {
 }
 
 .player__screen {
-  border-radius: 10px;
-  background: #1f2228;
+  border-radius: 12px;
+  background: radial-gradient(120% 80% at 50% 0%, #1b1840 0%, #0b0c1a 60%, #07070f 100%);
   overflow: hidden;
 }
 
@@ -474,43 +361,6 @@ h2 {
   justify-content: center;
   gap: 12px;
   padding: 16px 12px 4px;
-}
-
-/* Text overlays, styled like the exported videos: rounded, semi-transparent dark box. */
-.overlay-box {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  min-width: 170px;
-  padding: 10px 22px;
-  border-radius: 14px;
-  background: rgb(0 0 0 / 0.55);
-  color: #fff;
-  white-space: nowrap;
-}
-
-.overlay-box__label {
-  font-size: 0.8125rem;
-  color: rgb(255 255 255 / 0.7);
-}
-
-.overlay-box__label--accent {
-  font-weight: 700;
-}
-
-.overlay-box__value {
-  font-size: 1.875rem;
-  font-weight: 700;
-  line-height: 1.15;
-  font-variant-numeric: tabular-nums;
-}
-
-.overlay-box__unit {
-  font-size: 0.8125rem;
-  font-weight: 400;
-  color: rgb(255 255 255 / 0.7);
 }
 
 .player__screen canvas + canvas {
@@ -608,4 +458,130 @@ h2 {
   flex: 1;
   height: 8px;
   accent-color: var(--accent);
+}
+
+/* Neon overlays (preview of the exported videos, see backend/app/video/neon*.py) */
+
+.neon-panel {
+  --neon: #00e5ff;
+  --neon-core: color-mix(in srgb, var(--neon) 45%, white);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 200px;
+  padding: 14px 26px 16px;
+  border: 2px solid var(--neon-core);
+  border-radius: 16px;
+  background: rgb(8 10 22 / 0.62);
+  box-shadow:
+    0 0 10px color-mix(in srgb, var(--neon) 70%, transparent),
+    0 0 26px color-mix(in srgb, var(--neon) 35%, transparent),
+    inset 0 0 14px color-mix(in srgb, var(--neon) 18%, transparent);
+  font-family: "Orbitron", system-ui, sans-serif;
+  color: var(--neon-core);
+  white-space: nowrap;
+  transition: box-shadow 0.3s;
+}
+
+.neon-panel--boosted {
+  box-shadow:
+    0 0 14px var(--neon),
+    0 0 40px color-mix(in srgb, var(--neon) 60%, transparent),
+    inset 0 0 20px color-mix(in srgb, var(--neon) 30%, transparent);
+}
+
+.neon-label,
+.neon-footer {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  opacity: 0.8;
+  text-shadow: 0 0 6px color-mix(in srgb, var(--neon) 60%, transparent);
+}
+
+.neon-footer {
+  letter-spacing: 0.13em;
+}
+
+.neon-label--accent {
+  opacity: 1;
+  text-shadow:
+    0 0 4px var(--neon),
+    0 0 12px var(--neon);
+}
+
+.neon-value {
+  display: block;
+  text-align: center;
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  text-shadow:
+    0 0 3px var(--neon),
+    0 0 12px var(--neon),
+    0 0 28px color-mix(in srgb, var(--neon) 70%, transparent);
+}
+
+/* Chord change / record / modulation: a short, bright flash that fades out. */
+.neon-flash {
+  animation: neon-flash 0.45s ease-out;
+}
+
+@keyframes neon-flash {
+  from {
+    filter: brightness(1.9) drop-shadow(0 0 14px var(--neon));
+  }
+  to {
+    filter: none;
+  }
+}
+
+.neon-meter {
+  display: grid;
+  grid-template-columns: repeat(24, 1fr);
+  gap: 3px;
+  width: 100%;
+  min-width: 220px;
+  margin: 8px 0 6px;
+}
+
+.neon-meter span {
+  height: 8px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--neon) 16%, transparent);
+}
+
+.neon-meter .neon-meter__on {
+  background: var(--neon-core);
+  box-shadow: 0 0 6px var(--neon);
+}
+
+/* Neon colour swatches in the export settings */
+
+.swatches {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.swatch {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 8px currentColor;
+}
+
+.swatch--active {
+  border-color: var(--text-primary);
+}
+
+.swatch:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }

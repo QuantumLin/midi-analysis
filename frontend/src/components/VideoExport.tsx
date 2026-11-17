@@ -24,6 +24,14 @@ const KIND_LABELS: Record<VideoKind, string> = {
 };
 const KINDS = Object.keys(KIND_LABELS) as VideoKind[];
 const POLL_INTERVAL_MS = 1000;
+const NEON_PRESETS = [
+  { name: "Cyan", value: "#00e5ff" },
+  { name: "Magenta", value: "#ff2bd6" },
+  { name: "Lime", value: "#39ff14" },
+  { name: "Orange", value: "#ff8a00" },
+  { name: "Violett", value: "#a855ff" },
+  { name: "Gelb", value: "#ffe600" },
+];
 
 export default function VideoExport({ file, settings, onSettingsChange }: Props) {
   const [jobs, setJobs] = useState<VideoJob[]>([]);
@@ -100,10 +108,29 @@ export default function VideoExport({ file, settings, onSettingsChange }: Props)
             ))}
           </select>
         </label>
-        <label className="field">
-          <span>Farbe</span>
-          <input type="color" value={settings.color} onChange={(e) => update({ color: e.target.value })} />
-        </label>
+        <div className="field">
+          <span>Neonfarbe</span>
+          <div className="swatches">
+            {NEON_PRESETS.map((preset) => (
+              <button
+                key={preset.value}
+                type="button"
+                className={`swatch${settings.color.toLowerCase() === preset.value ? " swatch--active" : ""}`}
+                style={{ background: preset.value, color: preset.value }}
+                aria-label={preset.name}
+                title={preset.name}
+                onClick={() => update({ color: preset.value })}
+              />
+            ))}
+            <input
+              type="color"
+              value={settings.color}
+              aria-label="Eigene Farbe"
+              title="Eigene Farbe"
+              onChange={(e) => update({ color: e.target.value })}
+            />
+          </div>
+        </div>
         <label className="field">
           <span>Sprache der Texte</span>
           <select value={settings.language} onChange={(e) => update({ language: e.target.value as Language })}>

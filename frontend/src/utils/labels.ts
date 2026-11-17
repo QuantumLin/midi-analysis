@@ -2,9 +2,10 @@
 import type { Language, MusicalKey } from "../types/analysis";
 
 const TEXTS = {
+  chord: { de: "Akkord", en: "Chord" },
   key: { de: "Tonart", en: "Key" },
   modulation: { de: "Modulation", en: "Key change" },
-  notesPerSecond: { de: "Noten/s", en: "notes/s" },
+  notesPerSecond: { de: "Noten pro Sekunde", en: "Notes per second" },
   total: { de: "Gesamt", en: "Total" },
   record: { de: "Rekord", en: "Record" },
   newRecord: { de: "Neuer Rekord", en: "New record" },
