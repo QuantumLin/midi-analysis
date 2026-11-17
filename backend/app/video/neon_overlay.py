@@ -69,9 +69,9 @@ class NeonOverlay:
     def new_mask(self) -> Image.Image:
         return Image.new("L", self.panel.size)
 
-    def draw_header(self, canvas: Image.Image, label: str, value: str, strength: float = 1.0,
+    def draw_header(self, canvas: Image.Image, label: str, value: str | None, strength: float = 1.0,
                     label_accent: bool = False) -> float:  # fmt: skip
-        """Label + big value; returns the value's baseline."""
+        """Label + big value (None: the subclass draws the value); returns the value's baseline."""
         label_baseline = self.top + self.label_size * 0.8
         mask = self.new_mask()
         draw_text(mask, self.center_x, label_baseline, label.upper(), self.label_size, LABEL_WEIGHT, LABEL_TRACKING)
@@ -79,6 +79,8 @@ class NeonOverlay:
                  strength=strength if label_accent else 0.35, core_alpha=1.0 if label_accent else 0.8)  # fmt: skip
 
         value_baseline = label_baseline + 22 * self.u + self.value_size * 0.78
+        if value is None:
+            return value_baseline
         mask = self.new_mask()
         draw_text(mask, self.center_x, value_baseline, value, self.value_size, VALUE_WEIGHT)
         add_neon(canvas, mask, self.color, radius=self.value_size * 0.22, strength=strength)

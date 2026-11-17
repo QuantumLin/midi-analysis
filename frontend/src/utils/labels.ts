@@ -9,6 +9,9 @@ const TEXTS = {
   total: { de: "Gesamt", en: "Total" },
   record: { de: "Rekord", en: "Record" },
   newRecord: { de: "Neuer Rekord", en: "New record" },
+  degree: { de: "Stufe", en: "Degree" },
+  inKey: { de: "in", en: "in" },
+  achievement: { de: "Erfolg freigeschaltet", en: "Achievement unlocked" },
 } satisfies Record<string, Record<Language, string>>;
 
 export function text(name: keyof typeof TEXTS, language: Language): string {

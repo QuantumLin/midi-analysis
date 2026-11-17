@@ -3,10 +3,11 @@ import { useElementWidth } from "../../hooks/useElementWidth";
 import { usePlayback } from "../../hooks/usePlayback";
 import type { AnalysisResult, VideoSettings } from "../../types/analysis";
 import { chordAt } from "../../utils/chords";
+import { achievementAt, chainBefore, progressionAt } from "../../utils/harmony";
 import { formatTime } from "../../utils/format";
 import { keySegmentAt, noteRateAt, runningMax } from "../../utils/stats";
 import HeatBar from "./HeatBar";
-import { ChordField, KeyField, NoteRateField } from "./OverlayFields";
+import { AchievementToast, ChordField, HarmonyField, KeyField, NoteRateField } from "./OverlayFields";
 import SpectrumCanvas from "./SpectrumCanvas";
 
 interface Props {
@@ -26,6 +27,9 @@ export default function OverlayPreview({ result, settings }: Props) {
 
   const { color, language } = settings;
   const chord = chordAt(result.chords, time);
+  const chordIndex = chord ? result.chords.indexOf(chord) : -1;
+  const chordKey = chord ? (keySegmentAt(result.keys.segments, chord.start)?.segment.key ?? result.keys.overall) : null;
+  const achievement = achievementAt(result.achievements, time);
 
   function onKeyDown(event: KeyboardEvent) {
     if (event.key === " " && event.target === event.currentTarget) {
@@ -46,15 +50,31 @@ export default function OverlayPreview({ result, settings }: Props) {
           />
           <KeyField current={keySegmentAt(result.keys.segments, time)} color={color} language={language} />
           <ChordField name={chord?.name ?? null} start={chord?.start ?? null} color={color} language={language} />
+          <HarmonyField
+            numeral={chord?.numeral ?? null}
+            start={chord?.start ?? null}
+            chain={chord ? chainBefore(result.chords, chordIndex) : []}
+            musicalKey={chordKey}
+            progression={chord ? progressionAt(result.progressions, time) : null}
+            color={color}
+            language={language}
+          />
         </div>
-        <SpectrumCanvas
-          spectrum={result.spectrum}
-          time={time}
-          width={width}
-          height={Math.round(Math.min(Math.max(width * 0.36, 200), 360))}
-          color={color}
-          showGrid={settings.showGrid}
-        />
+        <div className="player__stage">
+          <SpectrumCanvas
+            spectrum={result.spectrum}
+            time={time}
+            width={width}
+            height={Math.round(Math.min(Math.max(width * 0.36, 200), 360))}
+            color={color}
+            showGrid={settings.showGrid}
+          />
+          {achievement && (
+            <div className="player__popup">
+              <AchievementToast state={achievement} color={color} language={language} />
+            </div>
+          )}
+        </div>
         <HeatBar notes={result.notes} time={time} width={width} color={color} />
       </div>
       <div className="player__controls">

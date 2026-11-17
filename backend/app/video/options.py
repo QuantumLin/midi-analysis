@@ -4,7 +4,7 @@ import re
 from dataclasses import dataclass
 from typing import Literal
 
-VideoKind = Literal["spectrum", "chords", "key", "note_rate", "heatmap"]
+VideoKind = Literal["spectrum", "chords", "key", "note_rate", "heatmap", "harmony", "achievements"]
 VideoFormat = Literal["prores", "png"]
 Language = Literal["de", "en"]
 
@@ -23,7 +23,7 @@ class VideoOptions:
     fps: int
     color: tuple[int, int, int]  # accent colour: curve, text, heat
     show_grid: bool  # spectrum only: frequency/dB grid with labels
-    language: Language = "de"  # texts in the key / notes-per-second fields
+    language: Language = "de"  # texts in the overlays
 
     @staticmethod
     def create(

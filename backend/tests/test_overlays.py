@@ -1,10 +1,15 @@
 import numpy as np
 import pytest
 
+from app.analysis.achievements import Achievement
+from app.analysis.chords import ChordMatch, ChordSegment
+from app.analysis.harmony import HarmonyAnalysis, ProgressionHit
 from app.analysis.key import Key, KeyAnalysis, KeySegment
 from app.analysis.keyboard_activity import KEY_COUNT
 from app.analysis.note_rate import NoteRateRecord
 from app.video.fonts import display_font_has
+from app.video.achievement_renderer import AchievementRenderer
+from app.video.harmony_renderer import HarmonyRenderer
 from app.video.heatmap_renderer import HeatmapRenderer
 from app.video.key_renderer import KeyRenderer
 from app.video.labels import display_accidentals, key_name
@@ -120,3 +125,58 @@ def test_heatmap_bar_glows_where_keys_were_played():
     assert brightness(50) > brightness(10) > brightness(30)  # often > rarely > never
     assert brightness(70) >= brightness(50)  # held key flares up
     assert image[0, :, 3].max() == 0 and image[-1, :, 3].max() == 0  # transparent around the bar
+
+
+# --- degrees (harmony) -------------------------------------------------------------------------
+
+
+def harmony_renderer() -> HarmonyRenderer:
+    roots = [(0, ""), (7, ""), (9, "m"), (5, "")]  # C G Am F
+    chords = [ChordSegment(i * 1.0, i + 1.0, ChordMatch(r, q, r), ()) for i, (r, q) in enumerate(roots)]
+    harmony = HarmonyAnalysis(
+        chords, ["I", "V", "vi", "IV"], [Key(0, "major")] * 4, [ProgressionHit(3.0, 7.0, "pop", 1)]
+    )
+    return HarmonyRenderer(WIDTH, HEIGHT, ACCENT, "de", harmony)
+
+
+def test_harmony_overlay_shows_chain_and_glows_on_progression():
+    renderer = harmony_renderer()
+    assert renderer.state(None, 0.5) is None
+    numeral, chain, footer, highlighted, _ = renderer.state(2, 2.6)
+    assert (numeral, chain, footer, highlighted) == ("vi", ("I", "V", "vi"), "in C-Dur", False)
+    _, chain, footer, highlighted, strength = renderer.state(3, 3.1)
+    assert chain == ("I", "V", "vi", "IV") and footer == "Die Pop-Formel" and highlighted and strength > 1
+
+    plain = as_image(renderer.render_state(renderer.state(2, 2.6)))
+    progression = as_image(renderer.render_state(renderer.state(3, 3.6)))
+    assert glow(progression) > glow(plain) * 1.1
+
+
+def test_harmony_suffix_is_raised():
+    renderer = harmony_renderer()
+    plain = as_image(renderer.render_state(("V", ("V",), "", False, 1.0)))
+    seventh = as_image(renderer.render_state(("V7", ("V",), "", False, 1.0)))
+    assert glow(seventh) > glow(plain)  # the extra "7" is drawn
+    assert visible_rows(seventh) == visible_rows(plain)  # ... next to the numeral, not below it
+
+
+# --- achievements --------------------------------------------------------------------------
+
+
+def test_achievement_pops_in_stays_and_fades_out():
+    items = [Achievement(1.0, "big_chord", 8), Achievement(6.0, "milestone", 1000)]
+    renderer = AchievementRenderer(WIDTH, HEIGHT, ACCENT, "en", items)
+    assert renderer.state(0.5) is None and renderer.state(5.0) is None
+    assert renderer.render(0.5) == bytes(WIDTH * HEIGHT * 4)
+
+    appearing, shown, fading = (as_image(renderer.render(t)) for t in (1.05, 2.5, 1.0 + 3.1))
+    assert glow(appearing) < glow(shown)
+    assert glow(fading) < glow(shown)
+    assert (as_image(renderer.render(1.1))[..., 3] > 0).sum() < (shown[..., 3] > 0).sum()  # scaled down
+    assert renderer.state(6.5)[0] == 1  # second pop-up
+
+
+def test_achievement_panel_fits_the_longest_text():
+    items = [Achievement(0.0, "big_chord", 6), Achievement(4.0, "milestone", 10000)]
+    renderer = AchievementRenderer(1920, 1080, ACCENT, "de", items)
+    assert renderer.panel.width < 1920 * 0.6

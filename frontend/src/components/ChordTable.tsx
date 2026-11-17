@@ -20,6 +20,7 @@ export default function ChordTable({ chords }: { chords: Chord[] }) {
             <th>Start</th>
             <th>Ende</th>
             <th>Akkord</th>
+            <th>Stufe</th>
             <th>Noten</th>
           </tr>
         </thead>
@@ -29,6 +30,7 @@ export default function ChordTable({ chords }: { chords: Chord[] }) {
               <td className="num">{formatTime(chord.start, 2)}</td>
               <td className="num">{formatTime(chord.end, 2)}</td>
               <td className="chord-name">{displayAccidentals(chord.name)}</td>
+              <td className="chord-name">{chord.numeral ?? "–"}</td>
               <td className="notes">{chord.notes.map(displayAccidentals).join(" ")}</td>
             </tr>
           ))}

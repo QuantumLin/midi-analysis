@@ -10,10 +10,12 @@ MIDI-Datei (`.mid`, `.midi`) auswählen oder per Drag & Drop hochladen. Die Anwe
   - **Noten pro Sekunde:** Live-Wert (Tastenanschläge in der letzten Sekunde), Gesamtzahl bisher und bisheriger Rekord. Bei einem neuen Rekord erscheint „Neuer Rekord: 29 Noten/s“.
   - **Tonart:** Die aktuelle Tonart, z. B. „d-Moll“. Bei einem Tonartwechsel steht 3 s lang „Modulation →“ darüber.
   - **Akkord:** Der aktuelle Akkord, z. B. `C`, `Am7`, `G7`, `Cmaj7`, `Bm7b5` oder Umkehrungen wie `C/E`.
+  - **Stufe:** Der aktuelle Akkord als Stufe in der Tonart, z. B. „vi“ oder „V⁷“, darunter die letzten vier Stufen als Kette („I – V – vi – IV“) und die Bezugstonart („in C-Dur“). Erkennt das Programm eine bekannte Akkordfolge, erscheint ihr Name, z. B. „Die Pop-Formel ×2“.
+  - **Achievements:** Pop-ups wie in einem Videospiel („Erfolg freigeschaltet: 8-Finger-Akkord“) für besondere Momente.
   - **Frequenzspektrum:** Ein Analyzer wie in einer DAW (z. B. ReaEQ in Reaper) von 20 Hz bis 20 kHz, logarithmisch, in dB.
   - **Tasten-Heatmap:** Ein leuchtender Balken über alle 88 Tasten, von A0 links bis C8 rechts. Die Farbintensität zeigt, wie oft eine Lage bisher gespielt wurde: von dunkel über die Neonfarbe bis weißglühend. Gerade gedrückte Tasten leuchten als heller Punkt auf. Striche markieren die Cs (C1–C8).
 - **Video-Export:** Jedes Overlay lässt sich einzeln als **transparentes Video** exportieren und in DaVinci Resolve frei platzieren, z. B. neben einem Piano-Visualizer.
-- **Akkordtabelle:** Jeder Akkord mit Start, Ende und Noten.
+- **Akkordtabelle:** Jeder Akkord mit Start, Ende, Stufe und Noten.
 
 ### Spektrum
 
@@ -37,12 +39,13 @@ MIDI enthält keinen Klang, deshalb wird das Spektrum aus den Noten berechnet:
 | Raster | Spektrum mit Raster und Hz/dB-Beschriftung oder nur die Kurve |
 
 - **Vorschau:** Sie zeigt Farbe, Sprache und Raster vorab so, wie die Videos aussehen werden.
-- **„Alle erstellen“:** Rendert alle fünf Videos nacheinander.
+- **„Alle erstellen“:** Rendert alle sieben Videos nacheinander.
 - **Neon-Look:** Die Schrift ist Orbitron. Die Textfelder sind dunkle Glas-Panels mit leuchtendem Rahmen, darin großer Neon-Text mit Glow und eine Beschriftung in Großbuchstaben. Jedes Panel behält im ganzen Video seine Größe, damit nichts springt.
 - **Effekte:**
   - **Akkordwechsel:** Das Akkordfeld blitzt kurz auf.
   - **Noten/s:** Ein LED-Pegel zeigt die aktuelle Geschwindigkeit relativ zum Höchstwert des Stücks.
-  - **Rekord und Modulation:** Das Feld leuchtet 2–3 s lang stärker.
+  - **Rekord, Modulation und Akkordfolge:** Das Feld leuchtet 2–4 s lang stärker.
+  - **Achievements:** Das Pop-up springt mit einem kurzen Aufblitzen ins Bild, bleibt 3 s stehen und blendet aus. Dazwischen ist das Video leer.
 - **Akkord bei Pausen:** Bei kurzen Pausen bleibt der letzte Akkord stehen, nach 2 s Stille verschwindet er.
 - **Platzierung:** Alle Overlays liegen mittig im Bild, der Heatmap-Balken ist 90 % so breit wie das Bild. In Resolve lassen sie sich frei verschieben und skalieren.
 - **Rendern:** Es läuft im Hintergrund mit Fortschrittsanzeige. Fertige Dateien werden nach 60 Minuten gelöscht.
@@ -53,7 +56,8 @@ MIDI enthält keinen Klang, deshalb wird das Spektrum aus den Noten berechnet:
 | --- | --- | --- |
 | Spektrum | ca. 55 s | ca. 0,9 GB |
 | Heatmap | ca. 50 s | ca. 0,4 GB |
-| Noten/s, Tonart, Akkord | je ca. 50 s | je 0,25–0,4 GB |
+| Noten/s, Tonart, Akkord, Stufe | je ca. 50 s | je 0,25–0,4 GB |
+| Achievements | ca. 45 s | ca. 0,15 GB |
 
 **In DaVinci Resolve:**
 1. Die `.mov`-Datei auf eine Spur über dem Hintergrund legen. Die Transparenz wird automatisch erkannt.
@@ -71,6 +75,22 @@ MIDI enthält keinen Klang, deshalb wird das Spektrum aus den Noten berechnet:
 - **Tonart:** Sie wird nach Krumhansl-Schmuckler bestimmt. Ein 8-s-Fenster vergleicht, wie lange jede Tonstufe klingt, mit den Profilen aller 24 Dur- und Moll-Tonarten. Ein Wechsel wird erst gemeldet, wenn die neue Tonart einige Sekunden klar besser passt, kurze Ausweichungen zählen nicht als Modulation.
 - **Gesamt-Tonart:** Das ist die Tonart, in der das Stück am längsten steht. Bei fast gleicher Dauer gewinnt die zuerst erklingende.
 - **Schreibweise:** Notennamen und Akkorde werden passend zur Tonart geschrieben, z. B. `B♭` in d-Moll und `A♯` in H-Dur.
+- **Stufen:** Sie beziehen sich auf die Tonart in diesem Moment. Großbuchstaben stehen für Dur, Kleinbuchstaben für Moll, ° für vermindert, ø für halbvermindert, + für übermäßig. In Moll wird von natürlich Moll aus gezählt (i, ii°, III, iv, v, VI, VII). Akkorde ohne Terz (Powerchords, sus) bekommen die Schreibweise der leitereigenen Stufe.
+- **Akkordfolgen:** Erkannt werden die Pop-Formel I–V–vi–IV, die Doo-Wop-Folge I–vi–IV–V, Pachelbels Kanon, die Royal Road IV–V–iii–vi, die Andalusische Kadenz i–VII–VI–V, die Jazz-Kadenz ii–V–I und Quintfälle ab vier Akkorden. Verglichen werden Grundton-Abstände und Akkordtyp, daher funktioniert das in jeder Tonart. Schleifen wie die Pop-Formel werden auch erkannt, wenn sie mit einem anderen Akkord beginnen (vi–IV–I–V), und jede Wiederholung wird mitgezählt. Kurze Durchgangsakkorde und sus-/Powerchords werden dabei übersprungen.
+- **Achievements:** Sie werden allein aus den Noten erkannt:
+
+  | Achievement | Auslöser |
+  | --- | --- |
+  | n-Finger-Akkord | mindestens 6 gleichzeitig angeschlagene Töne; der erste und jeder neue Rekord |
+  | Riesensprung | ein Sprung über mindestens 2 Oktaven, ohne dass dazwischen eine Taste gehalten wird |
+  | Blitzlauf | mindestens 10 schnelle Einzeltöne (≤ 0,12 s Abstand) in eine Richtung; der erste und jeder deutlich längere |
+  | Triller | mindestens 8 schnelle Wechsel zwischen zwei benachbarten Tönen |
+  | Fortissimo! | der erste sehr harte Anschlag (Velocity ≥ 112), nur wenn das Stück nicht durchgehend so laut ist |
+  | Ganz unten / Ganz oben | der erste Ton bis E1 bzw. ab C7 |
+  | n Oktaven | 5, 6 oder 7 Oktaven Tonumfang bisher |
+  | n Noten | 500, 1.000, 2.000 … gespielte Noten |
+
+  Pop-ups überlappen sich nie. Kommt eines, während ein anderes zu sehen ist, wartet es bis zu 4 s und entfällt sonst.
 - **Noten pro Sekunde:** Jede angeschlagene Taste zählt, ein Vierklang also als vier Noten. Rekorde zählen erst nach den ersten 5 s. Schnell aufeinanderfolgende Rekorde in einem Lauf werden zu einem zusammengefasst.
 
 ## Tech-Stack
@@ -130,7 +150,9 @@ MidiAnalysis/
 │   │   │   ├── schemas.py         # Antwortmodelle (API-Vertrag)
 │   │   │   └── uploads.py         # Prüfung hochgeladener MIDI-Dateien
 │   │   ├── analysis/
+│   │   │   ├── achievements.py    # Achievements (Pop-ups)
 │   │   │   ├── chords.py          # Akkorderkennung
+│   │   │   ├── harmony.py         # Stufen und bekannte Akkordfolgen
 │   │   │   ├── key.py             # Tonart und Modulationen
 │   │   │   ├── keyboard_activity.py # Anschläge pro Taste (Heatmap)
 │   │   │   ├── note_rate.py       # Noten pro Sekunde, Rekorde
@@ -142,10 +164,12 @@ MidiAnalysis/
 │   │   ├── services/
 │   │   │   └── analysis_service.py # führt alle Analysen aus
 │   │   ├── video/
+│   │   │   ├── achievement_renderer.py # Achievement-Pop-ups
 │   │   │   ├── assets/            # Orbitron.ttf + Lizenz (OFL)
 │   │   │   ├── chord_renderer.py  # Akkord-Overlay
 │   │   │   ├── encoder.py         # ffmpeg: ProRes 4444 / PNG-Sequenz
 │   │   │   ├── fonts.py           # Orbitron + Ersatzschrift für ♯ ♭ →
+│   │   │   ├── harmony_renderer.py # Stufen-Overlay
 │   │   │   ├── heatmap_renderer.py # Heat-Balken (numpy)
 │   │   │   ├── jobs.py            # Hintergrundjobs
 │   │   │   ├── key_renderer.py    # Tonart-Overlay
@@ -172,7 +196,7 @@ MidiAnalysis/
 │   │   │   ├── FileUpload.tsx     # Dateiauswahl / Drag & Drop
 │   │   │   ├── preview/           # Overlay-Vorschau
 │   │   │   │   ├── OverlayPreview.tsx # Wiedergabe aller Overlays
-│   │   │   │   ├── OverlayFields.tsx  # Noten/s-, Tonart-, Akkordfeld
+│   │   │   │   ├── OverlayFields.tsx  # Text-Overlays und Achievement-Pop-up
 │   │   │   │   ├── SpectrumCanvas.tsx
 │   │   │   │   └── HeatBar.tsx        # Heat-Balken
 │   │   │   └── VideoExport.tsx    # Export-Einstellungen und Jobs
@@ -241,12 +265,14 @@ curl -F "file=@song.mid" -F kind=spectrum -F format=prores http://localhost:8001
 Die Analyse-Antwort enthält:
 - **Kennzahlen:** `duration_seconds`, `note_count`, `percussion_note_count`
 - **`spectrum`:** Vorschau mit 20 fps und 256 Bändern, als Base64-codierte Bytes
-- **`chords`:** `start`, `end`, `name`, `root`, `quality`, `bass`, `notes`
+- **`chords`:** `start`, `end`, `name`, `root`, `quality`, `bass`, `notes`, `numeral` (Stufe, z. B. `vi`)
 - **`keys`:** `overall` und `segments` (`start`, `end`, `key` mit `tonic` und `mode`); jedes Segment nach dem ersten ist eine Modulation
 - **`note_rate`:** `values` pro Frame (20 fps), `peak_value`, `peak_time`, `records`
+- **`progressions`:** erkannte Akkordfolgen mit `time`, `end`, `id`, `count` und `name` (`de`/`en`)
+- **`achievements`:** Pop-ups mit `time`, `end`, `kind`, `title` und `detail` (je `de`/`en`)
 - **`notes`:** alle Noten als parallele Listen `start`, `end` (Loslassen der Taste), `pitch`
 
-Für `kind` sind `spectrum`, `chords`, `key`, `note_rate` und `heatmap` möglich, für `language` `de` oder `en`.
+Für `kind` sind `spectrum`, `chords`, `key`, `note_rate`, `heatmap`, `harmony` und `achievements` möglich, für `language` `de` oder `en`.
 
 Fehlerhafte oder zu große Dateien werden mit `400` bzw. `413` abgelehnt. Das vollständige Schema steht unter `/docs`.
 

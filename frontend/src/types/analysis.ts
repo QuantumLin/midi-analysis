@@ -20,6 +20,7 @@ export interface Chord {
   quality: string;
   bass: string;
   notes: string[];
+  numeral: string | null; // scale degree in the key at that moment: "vi", "V7", "♭VII"
 }
 
 export interface MusicalKey {
@@ -47,6 +48,29 @@ export interface NoteRate {
   records: { time: number; value: number }[];
 }
 
+export interface Localized {
+  de: string;
+  en: string;
+}
+
+/** A known chord progression, complete at `time` and highlighted until `end`. */
+export interface Progression {
+  time: number;
+  end: number;
+  id: string;
+  count: number; // 1 = first time through, 2 = first repetition ...
+  name: Localized; // including the counter, e.g. "Die Pop-Formel ×2"
+}
+
+/** A pop-up shown from `time` to `end` (scheduled so pop-ups never overlap). */
+export interface Achievement {
+  time: number;
+  end: number;
+  kind: string;
+  title: Localized;
+  detail: Localized;
+}
+
 /** All pitched notes as parallel arrays, sorted by start; `end` is the key release. */
 export interface Notes {
   start: number[];
@@ -63,10 +87,12 @@ export interface AnalysisResult {
   chords: Chord[];
   keys: Keys;
   note_rate: NoteRate;
+  progressions: Progression[];
+  achievements: Achievement[];
   notes: Notes;
 }
 
-export type VideoKind = "spectrum" | "chords" | "key" | "note_rate" | "heatmap";
+export type VideoKind = "spectrum" | "chords" | "key" | "note_rate" | "heatmap" | "harmony" | "achievements";
 export type Language = "de" | "en";
 export type VideoFormat = "prores" | "png";
 
@@ -77,7 +103,7 @@ export interface VideoSettings {
   fps: number;
   color: string; // hex, e.g. "#ffffff"
   showGrid: boolean;
-  language: Language; // texts in the key and notes-per-second overlays
+  language: Language; // texts in the overlays
 }
 
 export interface VideoJob {
