@@ -12,6 +12,12 @@ const TEXTS = {
   degree: { de: "Stufe", en: "Degree" },
   inKey: { de: "in", en: "in" },
   achievement: { de: "Erfolg freigeschaltet", en: "Achievement unlocked" },
+  motif: { de: "Motiv", en: "Motif" },
+  firstAppearance: { de: "Erstes Auftreten", en: "First appearance" },
+  returns: { de: "Kehrt zurück", en: "Returns" },
+  section: { de: "Abschnitt", en: "Section" },
+  part: { de: "Teil", en: "Part" },
+  new: { de: "Neu", en: "New" },
 } satisfies Record<string, Record<Language, string>>;
 
 export function text(name: keyof typeof TEXTS, language: Language): string {
@@ -32,4 +38,21 @@ export function keyName(key: MusicalKey, language: Language): string {
     return key.mode === "minor" ? `${tonic.toLowerCase()}-Moll` : `${tonic}-Dur`;
   }
   return `${tonic} ${key.mode}`;
+}
+
+/** 1 -> "1st", 2 -> "2nd", 11 -> "11th", 23 -> "23rd". */
+export function ordinalEn(n: number): string {
+  const suffix = n % 100 >= 10 && n % 100 <= 20 ? "th" : ({ 1: "st", 2: "nd", 3: "rd" }[n % 10] ?? "th");
+  return `${n}${suffix}`;
+}
+
+/** "6. Mal" / "6th time". */
+export function motifCount(n: number, language: Language): string {
+  return language === "de" ? `${n}. Mal` : `${ordinalEn(n)} time`;
+}
+
+/** "Neu" for a part heard for the first time, otherwise "zum 3. Mal" / "3rd time". */
+export function sectionCount(n: number, language: Language): string {
+  if (n === 1) return text("new", language);
+  return language === "de" ? `zum ${n}. Mal` : `${ordinalEn(n)} time`;
 }

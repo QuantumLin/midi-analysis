@@ -35,6 +35,8 @@ def test_analysis_returns_all_sections():
     assert all(c["numeral"] for c in body["chords"])  # numerals themselves: test_harmony.py
     assert body["progressions"] == []
     assert body["achievements"] == []
+    assert body["motifs"] == []  # motif detection itself: test_motifs.py
+    assert [(s["label"], s["number"]) for s in body["sections"]] == [("A", 1)]  # see test_sections.py
 
 
 def test_analysis_returns_progressions_and_achievements_in_both_languages():

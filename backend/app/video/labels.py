@@ -16,6 +16,12 @@ _TEXTS: dict[str, dict[Language, str]] = {
     "degree": {"de": "Stufe", "en": "Degree"},
     "in_key": {"de": "in", "en": "in"},
     "achievement": {"de": "Erfolg freigeschaltet", "en": "Achievement unlocked"},
+    "motif": {"de": "Motiv", "en": "Motif"},
+    "first_appearance": {"de": "Erstes Auftreten", "en": "First appearance"},
+    "returns": {"de": "Kehrt zurück", "en": "Returns"},
+    "section": {"de": "Abschnitt", "en": "Section"},
+    "part": {"de": "Teil", "en": "Part"},
+    "new": {"de": "Neu", "en": "New"},
 }
 
 # Names of the known chord progressions (app/analysis/harmony.py).
@@ -105,3 +111,26 @@ def achievement_texts(item: Achievement, language: Language) -> tuple[str, str]:
             number = f"{v:,}".replace(",", "." if de else ",")
             return (f"{number} Noten" if de else f"{number} notes"), ("gespielt" if de else "played")
     raise ValueError(item.kind)
+
+
+def ordinal_en(n: int) -> str:
+    """1 -> '1st', 2 -> '2nd', 11 -> '11th', 23 -> '23rd'."""
+    suffix = "th" if 10 <= n % 100 <= 20 else {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
+    return f"{n}{suffix}"
+
+
+def motif_count(number: int, language: Language) -> str:
+    """'6. Mal' / '6th time'."""
+    return f"{number}. Mal" if language == "de" else f"{ordinal_en(number)} time"
+
+
+def section_name(label: str, language: Language) -> str:
+    """'Teil B' / 'Part B'."""
+    return f"{text('part', language)} {label}"
+
+
+def section_count(number: int, language: Language) -> str:
+    """'Neu' for a part heard for the first time, otherwise 'zum 3. Mal' / '3rd time'."""
+    if number == 1:
+        return text("new", language)
+    return f"zum {number}. Mal" if language == "de" else f"{ordinal_en(number)} time"

@@ -12,6 +12,8 @@ MIDI-Datei (`.mid`, `.midi`) auswählen oder per Drag & Drop hochladen. Die Anwe
   - **Akkord:** Der aktuelle Akkord, z. B. `C`, `Am7`, `G7`, `Cmaj7`, `Bm7b5` oder Umkehrungen wie `C/E`.
   - **Stufe:** Der aktuelle Akkord als Stufe in der Tonart, z. B. „vi“ oder „V⁷“, darunter die letzten vier Stufen als Kette („I – V – vi – IV“) und die Bezugstonart („in C-Dur“). Erkennt das Programm eine bekannte Akkordfolge, erscheint ihr Name, z. B. „Die Pop-Formel ×2“.
   - **Achievements:** Pop-ups wie in einem Videospiel („Erfolg freigeschaltet: 8-Finger-Akkord“) für besondere Momente.
+  - **Abschnitt:** Der aktuelle Teil des Stücks („Teil B“) und ob er neu ist oder wiederkehrt („zum 2. Mal“).
+  - **Motiv:** Erscheint, während ein wiederkehrendes Melodie-Motiv gespielt wird: „Motiv A, 5. Mal – kehrt zurück“. In der Vorschau ist das Feld sonst abgedunkelt, im Video ausgeblendet.
   - **Frequenzspektrum:** Ein Analyzer wie in einer DAW (z. B. ReaEQ in Reaper) von 20 Hz bis 20 kHz, logarithmisch, in dB.
   - **Tasten-Heatmap:** Ein leuchtender Balken über alle 88 Tasten, von A0 links bis C8 rechts. Die Farbintensität zeigt, wie oft eine Lage bisher gespielt wurde: von dunkel über die Neonfarbe bis weißglühend. Gerade gedrückte Tasten leuchten als heller Punkt auf. Striche markieren die Cs (C1–C8).
 - **Video-Export:** Jedes Overlay lässt sich einzeln als **transparentes Video** exportieren und in DaVinci Resolve frei platzieren, z. B. neben einem Piano-Visualizer.
@@ -39,12 +41,13 @@ MIDI enthält keinen Klang, deshalb wird das Spektrum aus den Noten berechnet:
 | Raster | Spektrum mit Raster und Hz/dB-Beschriftung oder nur die Kurve |
 
 - **Vorschau:** Sie zeigt Farbe, Sprache und Raster vorab so, wie die Videos aussehen werden.
-- **„Alle erstellen“:** Rendert alle sieben Videos nacheinander.
+- **„Alle erstellen“:** Rendert alle neun Videos nacheinander.
 - **Neon-Look:** Die Schrift ist Orbitron. Die Textfelder sind dunkle Glas-Panels mit leuchtendem Rahmen, darin großer Neon-Text mit Glow und eine Beschriftung in Großbuchstaben. Jedes Panel behält im ganzen Video seine Größe, damit nichts springt.
 - **Effekte:**
   - **Akkordwechsel:** Das Akkordfeld blitzt kurz auf.
   - **Noten/s:** Ein LED-Pegel zeigt die aktuelle Geschwindigkeit relativ zum Höchstwert des Stücks.
-  - **Rekord, Modulation und Akkordfolge:** Das Feld leuchtet 2–4 s lang stärker.
+  - **Rekord, Modulation, Akkordfolge, wiederkehrender Teil:** Das Feld leuchtet 2–4 s lang stärker.
+  - **Motiv:** Das Feld erscheint nur, während das Motiv erklingt (plus 1 s), und blitzt bei jedem neuen Auftreten auf.
   - **Achievements:** Das Pop-up springt mit einem kurzen Aufblitzen ins Bild, bleibt 3 s stehen und blendet aus. Dazwischen ist das Video leer.
 - **Akkord bei Pausen:** Bei kurzen Pausen bleibt der letzte Akkord stehen, nach 2 s Stille verschwindet er.
 - **Platzierung:** Alle Overlays liegen mittig im Bild, der Heatmap-Balken ist 90 % so breit wie das Bild. In Resolve lassen sie sich frei verschieben und skalieren.
@@ -56,8 +59,8 @@ MIDI enthält keinen Klang, deshalb wird das Spektrum aus den Noten berechnet:
 | --- | --- | --- |
 | Spektrum | ca. 55 s | ca. 0,9 GB |
 | Heatmap | ca. 50 s | ca. 0,4 GB |
-| Noten/s, Tonart, Akkord, Stufe | je ca. 50 s | je 0,25–0,4 GB |
-| Achievements | ca. 45 s | ca. 0,15 GB |
+| Noten/s, Tonart, Akkord, Stufe, Abschnitt | je ca. 50 s | je 0,25–0,4 GB |
+| Achievements, Motive | je ca. 45 s | je ca. 0,15 GB |
 
 **In DaVinci Resolve:**
 1. Die `.mov`-Datei auf eine Spur über dem Hintergrund legen. Die Transparenz wird automatisch erkannt.
@@ -91,6 +94,8 @@ MIDI enthält keinen Klang, deshalb wird das Spektrum aus den Noten berechnet:
   | n Noten | 500, 1.000, 2.000 … gespielte Noten |
 
   Pop-ups überlappen sich nie. Kommt eines, während ein anderes zu sehen ist, wartet es bis zu 4 s und entfällt sonst.
+- **Motive (Grundversion):** Als Melodie gilt der höchste Ton jedes Anschlags ab G3, tiefere Töne zählen als Begleitung. Ein Motiv ist eine Folge von mindestens 6 Tönen mit gleichen Intervallen und gleichem Rhythmus (Tondauern im Verhältnis, auf Faktor 2 gerundet), die mindestens dreimal vorkommt. Dadurch wird es auch transponiert und in anderem Tempo erkannt. Es wird so weit verlängert, wie alle Wiederholungen übereinstimmen (bis 16 Töne). Bis zu drei Motive (A, B, C) teilen sich keine Töne. Tonleitern, Triller und Tonwiederholungen zählen nicht als Motiv. Abgewandelte Wiederholungen (andere Verzierung, anderer Rhythmus) werden noch nicht erkannt.
+- **Abschnitte (Grundversion):** Alle 0,5 s wird der Klang beschrieben: welche Tonstufen klingen, wie dicht und wie hoch gespielt wird, gemittelt über 3 s. Grenzen liegen dort, wo sich diese Beschreibung vorher und nachher am stärksten unterscheidet (Neuheitskurve nach Foote), mindestens 6 s auseinander. Teile mit ähnlichem Verlauf bekommen denselben Buchstaben. Ob ein Teil Strophe oder Refrain ist, wird noch nicht bestimmt.
 - **Noten pro Sekunde:** Jede angeschlagene Taste zählt, ein Vierklang also als vier Noten. Rekorde zählen erst nach den ersten 5 s. Schnell aufeinanderfolgende Rekorde in einem Lauf werden zu einem zusammengefasst.
 
 ## Tech-Stack
@@ -155,7 +160,9 @@ MidiAnalysis/
 │   │   │   ├── harmony.py         # Stufen und bekannte Akkordfolgen
 │   │   │   ├── key.py             # Tonart und Modulationen
 │   │   │   ├── keyboard_activity.py # Anschläge pro Taste (Heatmap)
+│   │   │   ├── motifs.py          # wiederkehrende Melodie-Motive
 │   │   │   ├── note_rate.py       # Noten pro Sekunde, Rekorde
+│   │   │   ├── sections.py        # Abschnitte (A B A …)
 │   │   │   └── spectrum.py        # synthetisches Frequenzspektrum
 │   │   ├── midi/
 │   │   │   ├── models.py          # Note, MidiData
@@ -174,11 +181,13 @@ MidiAnalysis/
 │   │   │   ├── jobs.py            # Hintergrundjobs
 │   │   │   ├── key_renderer.py    # Tonart-Overlay
 │   │   │   ├── labels.py          # Texte Deutsch/Englisch, ♯/♭
+│   │   │   ├── motif_renderer.py  # Motiv-Overlay
 │   │   │   ├── neon.py            # Neon-Toolkit: Glow, Glas-Panel, Text
 │   │   │   ├── neon_overlay.py    # gemeinsame Basis der Text-Overlays
 │   │   │   ├── note_rate_renderer.py # Noten/s-Overlay mit LED-Pegel
 │   │   │   ├── options.py         # Export-Einstellungen
 │   │   │   ├── render.py          # rendert ein komplettes Video
+│   │   │   ├── section_renderer.py # Abschnitt-Overlay
 │   │   │   └── spectrum_renderer.py # Spektrum-Frame (numpy)
 │   │   ├── config.py              # Settings aus Umgebungsvariablen
 │   │   └── main.py                # FastAPI-Einstiegspunkt
@@ -203,7 +212,7 @@ MidiAnalysis/
 │   │   ├── assets/fonts/          # Orbitron.ttf + Lizenz (OFL)
 │   │   ├── hooks/                 # usePlayback, useElementWidth
 │   │   ├── types/analysis.ts      # Typen der API-Antwort
-│   │   ├── utils/                 # labels, stats, spectrum, chords, canvas, format
+│   │   ├── utils/                 # labels, stats, harmony, form, spectrum, chords, canvas, format
 │   │   ├── App.tsx                # Seitenaufbau und Zustand
 │   │   ├── App.css
 │   │   └── main.tsx               # React-Einstiegspunkt
@@ -270,9 +279,11 @@ Die Analyse-Antwort enthält:
 - **`note_rate`:** `values` pro Frame (20 fps), `peak_value`, `peak_time`, `records`
 - **`progressions`:** erkannte Akkordfolgen mit `time`, `end`, `id`, `count` und `name` (`de`/`en`)
 - **`achievements`:** Pop-ups mit `time`, `end`, `kind`, `title` und `detail` (je `de`/`en`)
+- **`motifs`:** `label`, `length` (Töne) und `occurrences` (`start`, `end`, `number`)
+- **`sections`:** `start`, `end`, `label` (gleicher Buchstabe = gleicher Teil) und `number`
 - **`notes`:** alle Noten als parallele Listen `start`, `end` (Loslassen der Taste), `pitch`
 
-Für `kind` sind `spectrum`, `chords`, `key`, `note_rate`, `heatmap`, `harmony` und `achievements` möglich, für `language` `de` oder `en`.
+Für `kind` sind `spectrum`, `chords`, `key`, `note_rate`, `heatmap`, `harmony`, `achievements`, `motifs` und `sections` möglich, für `language` `de` oder `en`.
 
 Fehlerhafte oder zu große Dateien werden mit `400` bzw. `413` abgelehnt. Das vollständige Schema steht unter `/docs`.
 

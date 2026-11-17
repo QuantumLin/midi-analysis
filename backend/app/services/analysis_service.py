@@ -6,6 +6,8 @@ from app.analysis.achievements import find_achievements
 from app.analysis.chords import detect_chords
 from app.analysis.harmony import analyze_harmony
 from app.analysis.key import Key, KeyAnalysis, detect_keys
+from app.analysis.motifs import find_motifs
+from app.analysis.sections import find_sections
 from app.analysis.note_rate import note_rate, summarize
 from app.analysis.spectrum import MAX_DB, MAX_HZ, MIN_DB, MIN_HZ, compute_spectrum, quantize
 from app.api.schemas import (
@@ -16,10 +18,13 @@ from app.api.schemas import (
     KeySegmentOut,
     KeysOut,
     LocalizedOut,
+    MotifOccurrenceOut,
+    MotifOut,
     NoteRateOut,
     NoteRecordOut,
     NotesOut,
     ProgressionOut,
+    SectionOut,
     SpectrumOut,
 )
 from app.midi.parser import parse_midi
@@ -89,6 +94,21 @@ def analyze_midi(data: bytes, file_name: str) -> AnalysisResponse:
                 detail=_localized(lambda language: achievement_texts(a, language)[1]),
             )
             for a in find_achievements(midi)
+        ],
+        motifs=[
+            MotifOut(
+                label=m.label,
+                length=m.length,
+                occurrences=[
+                    MotifOccurrenceOut(start=round(o.start, 3), end=round(o.end, 3), number=o.number)
+                    for o in m.occurrences
+                ],
+            )
+            for m in find_motifs(midi)
+        ],
+        sections=[
+            SectionOut(start=round(s.start, 3), end=round(s.end, 3), label=s.label, number=s.number)
+            for s in find_sections(midi)
         ],
         notes=NotesOut(
             start=[round(n.start, 3) for n in midi.notes],

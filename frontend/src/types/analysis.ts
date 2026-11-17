@@ -71,6 +71,27 @@ export interface Achievement {
   detail: Localized;
 }
 
+export interface MotifOccurrence {
+  start: number;
+  end: number; // end of the motif's last note
+  number: number; // 1 = first appearance
+}
+
+/** A melodic fragment that recurs (also transposed): label "A", "B", "C". */
+export interface Motif {
+  label: string;
+  length: number; // notes
+  occurrences: MotifOccurrence[];
+}
+
+/** A section of the piece; sections with the same label are the same part (A B A ...). */
+export interface Section {
+  start: number;
+  end: number;
+  label: string;
+  number: number; // 1 = first time this part is heard
+}
+
 /** All pitched notes as parallel arrays, sorted by start; `end` is the key release. */
 export interface Notes {
   start: number[];
@@ -89,10 +110,12 @@ export interface AnalysisResult {
   note_rate: NoteRate;
   progressions: Progression[];
   achievements: Achievement[];
+  motifs: Motif[];
+  sections: Section[];
   notes: Notes;
 }
 
-export type VideoKind = "spectrum" | "chords" | "key" | "note_rate" | "heatmap" | "harmony" | "achievements";
+export type VideoKind = "spectrum" | "chords" | "key" | "note_rate" | "heatmap" | "harmony" | "achievements" | "motifs" | "sections";
 export type Language = "de" | "en";
 export type VideoFormat = "prores" | "png";
 

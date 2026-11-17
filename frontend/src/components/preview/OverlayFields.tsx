@@ -1,9 +1,9 @@
 // The neon text overlays and the achievement pop-up, styled like the exported videos
 // (backend/app/video/neon_overlay.py and the *_renderer.py files).
 import type { CSSProperties, ReactNode } from "react";
-import type { KeySegment, Language, MusicalKey, Progression } from "../../types/analysis";
+import type { KeySegment, Language, MotifOccurrence, MusicalKey, Progression, Section } from "../../types/analysis";
 import { type AchievementState, splitNumeral } from "../../utils/harmony";
-import { displayAccidentals, keyName, text } from "../../utils/labels";
+import { displayAccidentals, keyName, motifCount, sectionCount, text } from "../../utils/labels";
 import type { NoteRateState } from "../../utils/stats";
 
 const METER_SEGMENTS = 24;
@@ -183,3 +183,50 @@ const STAR_POINTS = Array.from({ length: 10 }, (_, i) => {
   const angle = (Math.PI * i) / 5 - Math.PI / 2;
   return `${(r * Math.cos(angle)).toFixed(3)},${(r * Math.sin(angle)).toFixed(3)}`;
 }).join(" ");
+
+export function MotifField({
+  current,
+  color,
+  language,
+}: {
+  current: { label: string; occurrence: MotifOccurrence } | null; // null = no motif playing
+  color: string;
+  language: Language;
+}) {
+  // The video shows the panel only while a motif plays; the preview dims it instead,
+  // so the other fields don't jump around.
+  return (
+    <div className={current ? undefined : "neon-idle"}>
+      <NeonPanel
+        color={color}
+        label={`${text("motif", language)} ${current?.label ?? ""}`}
+        flashKey={current?.occurrence.start}
+      >
+        <span className="neon-value">{current ? motifCount(current.occurrence.number, language) : "–"}</span>
+        <span className="neon-footer">
+          {current ? text(current.occurrence.number === 1 ? "firstAppearance" : "returns", language) : " "}
+        </span>
+      </NeonPanel>
+    </div>
+  );
+}
+
+export function SectionField({
+  current,
+  color,
+  language,
+}: {
+  current: { section: Section; repeated: boolean } | null;
+  color: string;
+  language: Language;
+}) {
+  const repeated = current?.repeated ?? false;
+  return (
+    <NeonPanel color={color} label={text("section", language)} boosted={repeated} flashKey={current?.section.start}>
+      <span className="neon-value">{current ? `${text("part", language)} ${current.section.label}` : "–"}</span>
+      <span className={`neon-footer${repeated ? " neon-label--accent" : ""}`}>
+        {current ? sectionCount(current.section.number, language) : "\u00a0"}
+      </span>
+    </NeonPanel>
+  );
+}

@@ -109,7 +109,7 @@ def probe(path) -> dict:
     return json.loads(output)["streams"][0]
 
 
-@pytest.mark.parametrize("kind", ["spectrum", "chords", "key", "note_rate", "heatmap", "harmony", "achievements"])
+@pytest.mark.parametrize("kind", ["spectrum", "chords", "key", "note_rate", "heatmap", "harmony", "achievements", "motifs", "sections"])
 def test_render_prores_with_alpha(tmp_path, kind):
     midi = parse_midi(build_midi(chord_events([60, 64, 67], 0, 2)))  # 1 s
     options = VideoOptions.create(kind, "prores", WIDTH, HEIGHT, 24, "#ffffff", True)
