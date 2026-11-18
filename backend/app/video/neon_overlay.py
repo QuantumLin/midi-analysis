@@ -62,6 +62,11 @@ class NeonOverlay:
     def draw(self, state) -> Image.Image:
         raise NotImplementedError
 
+    def hide_frame(self) -> None:
+        """No glass panel and no glowing border: only the glowing content is drawn.
+        The canvas keeps its size, so the layout stays the same."""
+        self.panel = Image.new("RGBA", self.panel.size, (0, 0, 0, 0))
+
     # Drawing helpers.
     def new_canvas(self) -> Image.Image:
         return self.panel.copy()

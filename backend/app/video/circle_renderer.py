@@ -87,6 +87,10 @@ class CircleRenderer(NeonOverlay):
         add_neon(canvas, names, self.color, radius=2 * self.u, strength=0.2, core_alpha=0.6)
         return canvas
 
+    def hide_frame(self) -> None:
+        super().hide_frame()
+        self.base = self._base_layer()  # the base layer contains the panel
+
     def state(self, step_index: int | None, time: float):
         """step_index: the chord shown at `time` (see render.chord_at), None = no chord now."""
         played = [s for s in self.steps if s.start <= time]

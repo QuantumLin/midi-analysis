@@ -18,6 +18,7 @@ const DEFAULT_VIDEO_SETTINGS: VideoSettings = {
   color: "#00e5ff",
   showGrid: true,
   language: "de",
+  showFrame: true,
 };
 
 export default function App() {

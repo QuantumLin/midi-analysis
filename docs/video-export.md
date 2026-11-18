@@ -12,6 +12,7 @@ Jedes Overlay wird als eigenes Video mit transparentem Hintergrund gerendert, da
 | Neonfarbe | Vorlagen (Cyan, Magenta, Lime, Orange, Violett, Gelb) oder eine eigene Farbe für alle Overlays |
 | Sprache | Deutsch oder Englisch für die Texte („d-Moll“ / „D minor“) |
 | Raster | Spektrum mit Raster und Hz/dB-Beschriftung oder nur die Kurve |
+| Rahmen | Glas-Panel mit leuchtendem Rahmen um die Text- und Spiel-Overlays, oder nur der leuchtende Inhalt (Song Wrapped, Spektrum und Heatmap sind nicht betroffen) |
 
 - **Einzeln oder alle:** Jede Videoart hat einen eigenen Button. „Alle erstellen“ rendert alle 13 Videos nacheinander.
 - **Rendern:** Es läuft im Hintergrund mit Fortschrittsanzeige. Fertige Dateien werden nach 60 Minuten gelöscht (einstellbar, siehe [Entwicklung](development.md#konfiguration)).

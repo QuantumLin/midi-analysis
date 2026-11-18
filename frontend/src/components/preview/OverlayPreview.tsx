@@ -52,7 +52,7 @@ export default function OverlayPreview({ result, settings }: Props) {
 
   return (
     <div className="player" tabIndex={0} onKeyDown={onKeyDown} aria-label="Vorschau, Leertaste startet und pausiert">
-      <div ref={screenRef} className="player__screen">
+      <div ref={screenRef} className={`player__screen${settings.showFrame ? "" : " player__screen--frameless"}`}>
         <div className="player__fields">
           <NoteRateField
             state={noteRateAt(result.note_rate, bestSoFar, result.notes, time)}

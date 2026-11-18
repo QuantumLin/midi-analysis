@@ -32,6 +32,7 @@ from app.video.harmony_renderer import HarmonyRenderer
 from app.video.heatmap_renderer import HeatmapRenderer
 from app.video.key_renderer import KeyRenderer
 from app.video.motif_renderer import MotifRenderer
+from app.video.neon_overlay import NeonOverlay
 from app.video.note_rate_renderer import NoteRateRenderer
 from app.video.options import VideoOptions
 from app.video.section_renderer import SectionRenderer
@@ -84,6 +85,11 @@ def render_video(
     return path
 
 
+def _apply_frame(renderer: NeonOverlay, options: VideoOptions) -> None:
+    if not options.show_frame:
+        renderer.hide_frame()
+
+
 def _frame_count(midi: MidiData, fps: int) -> int:
     return max(1, int(midi.duration * fps) + 1)
 
@@ -132,6 +138,7 @@ def _chord_frames(midi: MidiData, options: VideoOptions):
     keys = detect_keys(midi)
     names = {id(c): c.chord.spelled(keys.prefer_flats_at(c.start)) for c in chords}
     renderer = ChordRenderer(options.width, options.height, options.color, options.language, list(names.values()))
+    _apply_frame(renderer, options)
 
     def state(index: int):
         time = index / options.fps
@@ -144,6 +151,7 @@ def _chord_frames(midi: MidiData, options: VideoOptions):
 
 def _key_frames(midi: MidiData, options: VideoOptions):
     renderer = KeyRenderer(options.width, options.height, options.color, options.language, detect_keys(midi))
+    _apply_frame(renderer, options)
     states = [renderer.state(i / options.fps) for i in range(_frame_count(midi, options.fps))]
     yield from _render_states(states, renderer.render_state)
 
@@ -164,6 +172,7 @@ def _note_rate_frames(midi: MidiData, options: VideoOptions):
         max_total=int(totals.max(initial=0)),
         records=summary.records,
     )
+    _apply_frame(renderer, options)
     states = [
         renderer.state(float(time), int(values[i]), int(totals[i]), int(best[i])) for i, time in enumerate(times)
     ]
@@ -187,6 +196,7 @@ def _harmony_frames(midi: MidiData, options: VideoOptions):
     chords = detect_chords(midi)
     harmony = analyze_harmony(chords, detect_keys(midi))
     renderer = HarmonyRenderer(options.width, options.height, options.color, options.language, harmony)
+    _apply_frame(renderer, options)
     index_of = {id(c): i for i, c in enumerate(chords)}
 
     def state(index: int):
@@ -202,24 +212,28 @@ def _achievement_frames(midi: MidiData, options: VideoOptions):
     renderer = AchievementRenderer(
         options.width, options.height, options.color, options.language, find_achievements(midi)
     )
+    _apply_frame(renderer, options)
     states = [renderer.state(i / options.fps) for i in range(_frame_count(midi, options.fps))]
     yield from _render_states(states, renderer.render_state)
 
 
 def _motif_frames(midi: MidiData, options: VideoOptions):
     renderer = MotifRenderer(options.width, options.height, options.color, options.language, find_motifs(midi))
+    _apply_frame(renderer, options)
     states = [renderer.state(i / options.fps) for i in range(_frame_count(midi, options.fps))]
     yield from _render_states(states, renderer.render_state)
 
 
 def _section_frames(midi: MidiData, options: VideoOptions):
     renderer = SectionRenderer(options.width, options.height, options.color, options.language, find_sections(midi))
+    _apply_frame(renderer, options)
     states = [renderer.state(i / options.fps) for i in range(_frame_count(midi, options.fps))]
     yield from _render_states(states, renderer.render_state)
 
 
 def _boss_frames(midi: MidiData, options: VideoOptions):
     renderer = BossRenderer(options.width, options.height, options.color, options.language, find_boss_fight(midi))
+    _apply_frame(renderer, options)
     states = [renderer.state(i / options.fps) for i in range(_frame_count(midi, options.fps))]
     yield from _render_states(states, renderer.render_state)
 
@@ -230,6 +244,7 @@ def _circle_frames(midi: MidiData, options: VideoOptions):
     names = [c.chord.spelled(keys.prefer_flats_at(c.start)) for c in chords]
     renderer = CircleRenderer(options.width, options.height, options.color, options.language, circle_path(chords),
                               names)  # fmt: skip
+    _apply_frame(renderer, options)
     index_of = {id(c): i for i, c in enumerate(chords)}
 
     def state(index: int):
@@ -247,6 +262,7 @@ def _bingo_frames(midi: MidiData, options: VideoOptions):
     harmony = analyze_harmony(chords, keys)
     card = play_bingo(BingoContext(midi, chords, keys, harmony.progressions, find_motifs(midi)))
     renderer = BingoRenderer(options.width, options.height, options.color, options.language, card)
+    _apply_frame(renderer, options)
     states = [renderer.state(i / options.fps) for i in range(_frame_count(midi, options.fps))]
     yield from _render_states(states, renderer.render_state)
 
