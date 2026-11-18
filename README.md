@@ -1,4 +1,6 @@
-# MIDI Analysis
+<p align="center"><img src="frontend/public/logo.svg" alt="" width="96" height="96"></p>
+
+<h1 align="center">MIDI Analysis</h1>
 
 Eine Anwendung, die MIDI-Dateien analysiert und die Ergebnisse als transparente Neon-Overlays für Piano-Visualizer-Videos exportiert, z. B. für den Schnitt in DaVinci Resolve.
 
