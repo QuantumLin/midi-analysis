@@ -119,6 +119,7 @@ MidiAnalysis/
 │   │   │   ├── AnalysisSummary.tsx # Kennzahlen
 │   │   │   ├── ChordTable.tsx     # Akkordtabelle
 │   │   │   ├── FileUpload.tsx     # Dateiauswahl / Drag & Drop
+│   │   │   ├── Logo.tsx           # Logo (Icon + Schriftzug)
 │   │   │   ├── preview/           # Overlay-Vorschau
 │   │   │   │   ├── OverlayPreview.tsx # Wiedergabe aller Overlays
 │   │   │   │   ├── OverlayFields.tsx  # Text-Overlays und Achievement-Pop-up
@@ -133,6 +134,7 @@ MidiAnalysis/
 │   │   ├── App.tsx                # Seitenaufbau und Zustand
 │   │   ├── App.css
 │   │   └── main.tsx               # React-Einstiegspunkt
+│   ├── public/logo.svg        # Logo-Icon, auch Favicon
 │   ├── index.html
 │   ├── vite.config.ts             # Dev-Server, Proxy, Polling
 │   ├── tsconfig.json

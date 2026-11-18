@@ -21,6 +21,9 @@
   --chord-fill-active: #d2d0c8;
   --ok: #1a7f37;
   --err: #cf222e;
+  /* Logo gradient: deeper on the light background so the wordmark stays readable */
+  --logo-from: #0095b3;
+  --logo-to: #c4169f;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -38,6 +41,8 @@
     --chord-fill-active: #403f3c;
     --ok: #3fb950;
     --err: #f85149;
+    --logo-from: #00e5ff;
+    --logo-to: #ff2bd6;
   }
 }
 
@@ -67,13 +72,49 @@ h2 {
 
 .app__header {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 16px;
 }
 
-.app__header h1 {
-  font-size: 1.75rem;
+/* Logo: icon + wordmark in the overlays' font */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+}
+
+.logo__icon {
+  display: block;
+  flex: none;
+  border-radius: 9px;
+  box-shadow: 0 0 18px color-mix(in srgb, var(--logo-to) 30%, transparent);
+}
+
+.logo__word {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45em;
+  font-family: "Orbitron", system-ui, sans-serif;
+  font-size: 1.5rem;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.logo__midi {
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  background: linear-gradient(90deg, var(--logo-from), var(--logo-to));
+  background-clip: text;
+  color: transparent;
+}
+
+.logo__analysis {
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  color: var(--text-primary);
 }
 
 .status {

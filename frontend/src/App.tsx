@@ -3,6 +3,7 @@ import { analyzeMidi, fetchHealth } from "./api/client";
 import AnalysisSummary from "./components/AnalysisSummary";
 import ChordTable from "./components/ChordTable";
 import FileUpload from "./components/FileUpload";
+import Logo from "./components/Logo";
 import { WrappedPreview } from "./components/preview/GameFields";
 import OverlayPreview from "./components/preview/OverlayPreview";
 import VideoExport from "./components/VideoExport";
@@ -51,7 +52,7 @@ export default function App() {
   return (
     <main className="app">
       <header className="app__header">
-        <h1>MIDI Analysis</h1>
+        <Logo />
         <span className={`status status--${backend}`}>Backend: {backend}</span>
       </header>
 
