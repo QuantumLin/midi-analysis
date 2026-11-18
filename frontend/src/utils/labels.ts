@@ -18,6 +18,15 @@ const TEXTS = {
   section: { de: "Abschnitt", en: "Section" },
   part: { de: "Teil", en: "Part" },
   new: { de: "Neu", en: "New" },
+  finalBoss: { de: "Endgegner", en: "Final boss" },
+  bossWarning: { de: "Achtung: Boss naht!", en: "Warning: boss ahead!" },
+  defeated: { de: "Besiegt!", en: "Defeated!" },
+  health: { de: "HP", en: "HP" },
+  difficulty: { de: "Schwierigkeit", en: "Difficulty" },
+  circleOfFifths: { de: "Quintenzirkel", en: "Circle of fifths" },
+  bingoTitle: { de: "Tastatur-Bingo", en: "Keyboard bingo" },
+  bingo: { de: "Bingo!", en: "Bingo!" },
+  songWrapped: { de: "Song Wrapped", en: "Song Wrapped" },
 } satisfies Record<string, Record<Language, string>>;
 
 export function text(name: keyof typeof TEXTS, language: Language): string {
@@ -55,4 +64,15 @@ export function motifCount(n: number, language: Language): string {
 export function sectionCount(n: number, language: Language): string {
   if (n === 1) return text("new", language);
   return language === "de" ? `zum ${n}. Mal` : `${ordinalEn(n)} time`;
+}
+
+/** "Bingo!" for the first completed line, then "2× Bingo!" ... */
+export function bingoBanner(lines: number, language: Language): string {
+  return lines <= 1 ? text("bingo", language) : `${lines}× ${text("bingo", language)}`;
+}
+
+/** 8.7 -> "8,7" in German. */
+export function decimal(value: number, language: Language): string {
+  const formatted = value.toFixed(1);
+  return language === "de" ? formatted.replace(".", ",") : formatted;
 }

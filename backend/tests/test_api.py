@@ -37,6 +37,10 @@ def test_analysis_returns_all_sections():
     assert body["achievements"] == []
     assert body["motifs"] == []  # motif detection itself: test_motifs.py
     assert [(s["label"], s["number"]) for s in body["sections"]] == [("A", 1)]  # see test_sections.py
+    assert body["boss"] is None  # 2 s: too short for a boss
+    assert len(body["bingo"]["fields"]) == 9 and body["bingo"]["fields"][0]["label"]["de"]
+    assert body["wrapped"][0]["title"] == {"de": "Gespielte Noten", "en": "Notes played"}
+    assert body["chords"][0]["circle"] == {"ring": "major", "index": 0, "name": "C"}
 
 
 def test_analysis_returns_progressions_and_achievements_in_both_languages():

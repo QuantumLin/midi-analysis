@@ -7,6 +7,8 @@ Eine Anwendung, die MIDI-Dateien analysiert und die Ergebnisse als transparente 
 - **Live-Statistiken:** Noten pro Sekunde mit Rekorden, Tonart mit Modulationen, Akkorde und ihre Stufen
 - **Musikalische Struktur:** bekannte Akkordfolgen („Die Pop-Formel ×2“), wiederkehrende Motive, Abschnitte (Teil A, B, …)
 - **Achievements:** Pop-ups wie in einem Videospiel, z. B. „8-Finger-Akkord“ oder „Riesensprung“
+- **Spiel-Elemente:** die schwerste Stelle als Endgegner mit HP-Balken, Tastatur-Bingo, ein leuchtender Quintenzirkel
+- **Song Wrapped:** ein Abspann mit den Zahlen des Stücks
 - **Visualisierungen:** Frequenzspektrum wie in einer DAW, Tasten-Heatmap über alle 88 Tasten
 - **Video-Export:** Jedes Overlay als eigenes Video mit Alpha-Kanal (ProRes 4444 oder PNG-Sequenz), in eigener Neonfarbe, auf Deutsch oder Englisch
 - **Vorschau:** Alle Overlays laufen synchron im Browser, so wie sie im Video aussehen werden

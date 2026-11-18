@@ -65,6 +65,46 @@ Pop-ups überlappen sich nie. Kommt eines, während ein anderes zu sehen ist, wa
 - **Teile:** Abschnitte mit ähnlichem Verlauf bekommen denselben Buchstaben.
 - **Grenzen der Grundversion:** Ob ein Teil Strophe oder Refrain ist, wird noch nicht bestimmt.
 
+## Endgegner
+
+- **Schwierigkeit:** Alle 0,5 s wird aus mehreren Faktoren ein Wert von 0 bis 10 berechnet, jeweils über die letzte Sekunde und über 2 s geglättet:
+
+  | Faktor | Gewicht | Maximal schwer bei | Boss-Name |
+  | --- | --- | --- | --- |
+  | Tempo | 50 % | 12 Anschlägen pro Sekunde (ein Akkord zählt einmal) | Notensturm |
+  | Sprünge | 25 % | 12 Halbtönen mittlerem Sprung zwischen Anschlägen | Sprungriese |
+  | Akkordgröße | 25 % | 8 gleichzeitig angeschlagenen Tönen | Akkord-Koloss |
+
+- **Boss:** Das 8-s-Fenster mit dem höchsten mittleren Wert. Der Faktor mit dem größten Anteil darin gibt dem Boss seinen Namen. Jede Note in der Passage ist ein Treffer, die HP sinken entsprechend. Stücke unter 10 s haben keinen Boss.
+- **Erweitern:** Einen weiteren Faktor in `FACTORS` (`backend/app/analysis/boss_fight.py`) eintragen und seinen Boss-Namen in `BOSS_NAMES` (`backend/app/video/labels.py`).
+
+## Quintenzirkel
+
+Dur-Akkorde (auch Dominant- und Major-Septakkorde) liegen außen auf ihrem Grundton, Moll- und verminderte Akkorde innen neben ihrer Paralleltonart (a-Moll neben C-Dur). Die Leuchtspur verbindet die letzten sechs verschiedenen Positionen. Der „Fingerabdruck“ zeigt in vier Helligkeitsstufen, wie oft eine Position bisher vorkam, relativ zur häufigsten Position des Stücks.
+
+## Tastatur-Bingo
+
+- **Felder:** Jedes Feld hat einen eigenen Detektor, der den Zeitpunkt des ersten Auftretens liefert:
+
+  | Feld | Ereignis |
+  | --- | --- |
+  | Oktave | zwei Töne im Oktavabstand gleichzeitig angeschlagen |
+  | Septakkord | erster Septakkord (7, maj7, m7, dim7, m7b5 …) |
+  | Tiefer Bass / Höhenflug | erster Ton unter C2 bzw. ab C6 |
+  | Blitzlauf | 6 Einzeltöne in Folge, je höchstens 0,125 s auseinander |
+  | Akkordfolge | erste erkannte bekannte Akkordfolge |
+  | Pause | 1 s völlige Stille mitten im Stück |
+  | Motiv zurück | erste Wiederkehr eines Motivs |
+  | 6-Ton-Akkord | 6 verschiedene Töne gleichzeitig angeschlagen |
+  | Fortissimo / Pianissimo / Modulation | stehen bereit, sind aber nicht auf der Standardkarte |
+
+- **Karte:** Seltene Ereignisse liegen in den Ecken und in der Mitte, häufige an den Rändern. Jede Linie enthält so mindestens zwei seltene Ereignisse, und das erste Bingo kommt nicht schon in den ersten Sekunden.
+- **Erweitern:** Einen Detektor in `FIELDS` (`backend/app/analysis/bingo.py`) eintragen, seine Beschriftung in `BINGO_LABELS` (`backend/app/video/labels.py`) und ihn in `CARD` platzieren. Ein Feld `free` ist von Anfang an abgehakt.
+
+## Song Wrapped
+
+Jede Karte ist eine kleine Funktion, die aus den Fakten des Stücks Titel und Wert in einer Sprache baut, oder nichts, wenn es dazu nichts zu sagen gibt (z. B. kein Boss bei sehr kurzen Stücken). Höchstens 8 Karten werden gezeigt. **Erweitern:** eine Funktion schreiben und in `CARDS` (`backend/app/video/wrapped.py`) eintragen; die Reihenfolge dort ist die Reihenfolge im Video.
+
 ## Spektrum
 
 MIDI enthält keinen Klang, deshalb wird das Spektrum aus den Noten berechnet:

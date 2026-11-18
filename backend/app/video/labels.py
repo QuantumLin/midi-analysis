@@ -22,6 +22,39 @@ _TEXTS: dict[str, dict[Language, str]] = {
     "section": {"de": "Abschnitt", "en": "Section"},
     "part": {"de": "Teil", "en": "Part"},
     "new": {"de": "Neu", "en": "New"},
+    "final_boss": {"de": "Endgegner", "en": "Final boss"},
+    "boss_warning": {"de": "Achtung: Boss naht!", "en": "Warning: boss ahead!"},
+    "defeated": {"de": "Besiegt!", "en": "Defeated!"},
+    "health": {"de": "HP", "en": "HP"},
+    "difficulty": {"de": "Schwierigkeit", "en": "Difficulty"},
+    "circle_of_fifths": {"de": "Quintenzirkel", "en": "Circle of fifths"},
+    "bingo_title": {"de": "Tastatur-Bingo", "en": "Keyboard bingo"},
+    "bingo": {"de": "Bingo!", "en": "Bingo!"},
+    "song_wrapped": {"de": "Song Wrapped", "en": "Song Wrapped"},
+}
+
+# Boss names by the difficulty factor that dominates the passage (app/analysis/boss_fight.py).
+BOSS_NAMES: dict[str, dict[Language, str]] = {
+    "speed": {"de": "Notensturm", "en": "Note Storm"},
+    "leaps": {"de": "Sprungriese", "en": "Leaping Giant"},
+    "chords": {"de": "Akkord-Koloss", "en": "Chord Colossus"},
+}
+
+# Bingo fields (app/analysis/bingo.py).
+BINGO_LABELS: dict[str, dict[Language, str]] = {
+    "free": {"de": "Frei", "en": "Free"},
+    "octave": {"de": "Oktave", "en": "Octave"},
+    "seventh_chord": {"de": "Septakkord", "en": "7th chord"},
+    "deep_bass": {"de": "Tiefer Bass", "en": "Deep bass"},
+    "high_notes": {"de": "Höhenflug", "en": "Sky high"},
+    "fast_run": {"de": "Blitzlauf", "en": "Fast run"},
+    "progression": {"de": "Akkordfolge", "en": "Progression"},
+    "pause": {"de": "Pause", "en": "Pause"},
+    "motif_return": {"de": "Motiv zurück", "en": "Motif returns"},
+    "fortissimo": {"de": "Fortissimo", "en": "Fortissimo"},
+    "pianissimo": {"de": "Pianissimo", "en": "Pianissimo"},
+    "modulation": {"de": "Modulation", "en": "Key change"},
+    "big_chord": {"de": "6-Ton-Akkord", "en": "6-note chord"},
 }
 
 # Names of the known chord progressions (app/analysis/harmony.py).
@@ -134,3 +167,15 @@ def section_count(number: int, language: Language) -> str:
     if number == 1:
         return text("new", language)
     return f"zum {number}. Mal" if language == "de" else f"{ordinal_en(number)} time"
+
+
+def bingo_banner(lines: int, language: Language) -> str:
+    """'Bingo!' for the first completed line, then '2× Bingo!' ..."""
+    banner = text("bingo", language)
+    return banner if lines <= 1 else f"{lines}× {banner}"
+
+
+def decimal(value: float, language: Language) -> str:
+    """8.7 -> '8,7' in German."""
+    formatted = f"{value:.1f}"
+    return formatted.replace(".", ",") if language == "de" else formatted

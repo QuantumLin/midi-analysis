@@ -2,6 +2,9 @@ import numpy as np
 import pytest
 
 from app.analysis.achievements import Achievement
+from app.analysis.bingo import BingoCard, BingoField, BingoLine
+from app.analysis.boss_fight import BossFight
+from app.analysis.circle_of_fifths import CirclePosition, CircleStep
 from app.analysis.chords import ChordMatch, ChordSegment
 from app.analysis.harmony import HarmonyAnalysis, ProgressionHit
 from app.analysis.key import Key, KeyAnalysis, KeySegment
@@ -11,6 +14,9 @@ from app.analysis.keyboard_activity import KEY_COUNT
 from app.analysis.note_rate import NoteRateRecord
 from app.video.fonts import display_font_has
 from app.video.achievement_renderer import AchievementRenderer
+from app.video.bingo_renderer import BingoRenderer
+from app.video.boss_renderer import BossRenderer
+from app.video.circle_renderer import CircleRenderer
 from app.video.harmony_renderer import HarmonyRenderer
 from app.video.heatmap_renderer import HeatmapRenderer
 from app.video.key_renderer import KeyRenderer
@@ -20,6 +26,8 @@ from app.video.neon import text_width
 from app.video.neon_overlay import flash_strength
 from app.video.note_rate_renderer import NoteRateRenderer
 from app.video.section_renderer import SectionRenderer
+from app.video.wrapped import WrappedCard
+from app.video.wrapped_renderer import WrappedRenderer
 
 WIDTH, HEIGHT = 640, 360
 ACCENT = (0, 229, 255)
@@ -218,3 +226,78 @@ def test_section_overlay_glows_when_a_part_returns():
     assert renderer.state(31) is None
     returning, later = as_image(renderer.render(21)), as_image(renderer.render(25))
     assert glow(returning) > glow(later) * 1.1
+
+
+# --- boss fight ----------------------------------------------------------------------------
+
+
+def test_boss_overlay_warns_fights_and_is_defeated():
+    boss = BossFight(10.0, 18.0, "speed", 8.4, np.array([10.0 + k for k in range(8)]))
+    renderer = BossRenderer(WIDTH, HEIGHT, ACCENT, "de", boss)
+    assert renderer.state(5.0) is None and renderer.state(22.0) is None
+    assert renderer.state(8.0)[:2] == ("warning", 100)
+    assert renderer.state(13.5)[:2] == ("fight", 50)  # 4 of 8 hits
+    assert renderer.state(19.0)[:2] == ("defeated", 0)
+    full, half = as_image(renderer.render(10.3)), as_image(renderer.render(13.5))
+    assert glow(full) > glow(half)  # more lit HP segments
+    assert BossRenderer(WIDTH, HEIGHT, ACCENT, "de", None).render(12.0) == bytes(WIDTH * HEIGHT * 4)
+
+
+# --- circle of fifths ------------------------------------------------------------------------
+
+
+def circle_renderer() -> CircleRenderer:
+    steps = [
+        CircleStep(0, 1, CirclePosition("major", 0)),
+        CircleStep(1, 2, CirclePosition("minor", 0)),
+        CircleStep(2, 3, CirclePosition("major", 1)),
+        CircleStep(3, 4, CirclePosition("major", 0)),
+    ]
+    return CircleRenderer(WIDTH, HEIGHT, ACCENT, "de", steps, ["C", "Am", "G", "C"])
+
+
+def test_circle_overlay_trail_fingerprint_and_current_chord():
+    renderer = circle_renderer()
+    current, trail, levels, name, _ = renderer.state(2, 2.5)
+    assert current == CirclePosition("major", 1) and name == "G"
+    assert trail == (CirclePosition("major", 0), CirclePosition("minor", 0), CirclePosition("major", 1))
+    assert levels[0] == 2 and levels[12] == 2  # C and a visited once (of at most 2 visits)
+    before = renderer.state(None, -1.0)
+    assert before[0] is None and before[1] == () and not any(before[2])
+    empty, playing = as_image(renderer.render_state(before)), as_image(renderer.render_state(renderer.state(2, 2.5)))
+    assert glow(playing) > glow(empty) > 0  # the circle itself is always visible
+
+
+# --- bingo ----------------------------------------------------------------------------------
+
+
+def bingo_renderer() -> BingoRenderer:
+    fields = [BingoField("octave", 1.0), BingoField("pause", 2.0), BingoField("fast_run", 3.0)]
+    fields += [BingoField("deep_bass", None)] * 6
+    card = BingoCard(fields, [BingoLine((0, 1, 2), 3.0)])
+    return BingoRenderer(WIDTH, HEIGHT, ACCENT, "en", card)
+
+
+def test_bingo_overlay_ticks_fields_and_shows_bingo():
+    renderer = bingo_renderer()
+    ticked, lines, fresh, _, banner, _ = renderer.state(2.1)
+    assert ticked[:3] == (True, True, False) and lines == () and fresh == 1 and banner is None
+    ticked, lines, _, _, banner, _ = renderer.state(3.5)
+    assert lines == ((0, 1, 2),) and banner == "Bingo!"
+    assert renderer.state(7.0)[4] is None  # banner gone after a few seconds
+    assert glow(as_image(renderer.render(3.5))) > glow(as_image(renderer.render(0.5)))
+
+
+# --- Song Wrapped -----------------------------------------------------------------------------
+
+
+def test_wrapped_cards_pop_in_one_after_another():
+    cards = [WrappedCard(str(k), f"Title {k}", f"Value {k}") for k in range(3)]
+    renderer = WrappedRenderer(WIDTH, HEIGHT, ACCENT, "en", cards)
+    assert renderer.state(-0.1) is None and renderer.state(renderer.duration()) is None
+    _, scales, _ = renderer.state(renderer.card_start(1) + 0.5)
+    assert scales == (1.0, 1.0, 0.0)  # third card not there yet
+    _, _, opacity = renderer.state(renderer.duration() - 0.1)
+    assert opacity < 1.0  # fading out
+    early, all_shown = as_image(renderer.render(1.0)), as_image(renderer.render(renderer.card_start(2) + 1))
+    assert glow(all_shown) > glow(early) > 0

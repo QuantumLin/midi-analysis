@@ -55,6 +55,13 @@ def text_width(text: str, size: int, weight: int = 700, tracking: float = 0.0) -
     return sum(_advance(c, size, weight) for c in text) + tracking * size * max(len(text) - 1, 0)
 
 
+def fitting_size(text: str, size: int, weight: int, max_width: float, tracking: float = 0.0, minimum: int = 8) -> int:
+    """The largest font size <= size at which `text` fits into max_width."""
+    while size > minimum and text_width(text, size, weight, tracking) > max_width:
+        size -= 1
+    return size
+
+
 def draw_text(
     mask: Image.Image,
     center_x: float,

@@ -3,6 +3,7 @@ import { analyzeMidi, fetchHealth } from "./api/client";
 import AnalysisSummary from "./components/AnalysisSummary";
 import ChordTable from "./components/ChordTable";
 import FileUpload from "./components/FileUpload";
+import { WrappedPreview } from "./components/preview/GameFields";
 import OverlayPreview from "./components/preview/OverlayPreview";
 import VideoExport from "./components/VideoExport";
 import type { AnalysisResult, VideoSettings } from "./types/analysis";
@@ -67,6 +68,16 @@ export default function App() {
           <section className="card">
             <h2>Overlay-Vorschau</h2>
             <OverlayPreview result={result} settings={videoSettings} />
+          </section>
+          <section className="card">
+            <h2>Song Wrapped</h2>
+            <p className="hint">
+              Abspann mit den Zahlen des Stücks. Im Video springen die Karten nacheinander ins Bild; es ist ein eigener
+              Clip, der im Schnitt hinter das Stück gelegt wird.
+            </p>
+            <div className="player__screen">
+              <WrappedPreview cards={result.wrapped} color={videoSettings.color} language={videoSettings.language} />
+            </div>
           </section>
           <section className="card">
             <h2>Video-Export</h2>
