@@ -2,14 +2,18 @@
 
 import os
 from collections import deque
-from collections.abc import Callable
+from collections.abc import Callable, Iterable, Iterator
 from concurrent.futures import Future, ThreadPoolExecutor
+from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
 
 from app.analysis.achievements import find_achievements
+from app.analysis.bingo import BingoContext, play_bingo
+from app.analysis.boss_fight import find_boss_fight
 from app.analysis.chords import ChordSegment, detect_chords
+from app.analysis.circle_of_fifths import circle_path
 from app.analysis.harmony import analyze_harmony
 from app.analysis.key import detect_keys
 from app.analysis.keyboard_activity import KeyboardActivity
@@ -19,7 +23,10 @@ from app.analysis.note_rate import note_rate, summarize
 from app.analysis.spectrum import compute_spectrum
 from app.midi.models import MidiData
 from app.video.achievement_renderer import AchievementRenderer
+from app.video.bingo_renderer import BingoRenderer
+from app.video.boss_renderer import BossRenderer
 from app.video.chord_renderer import ChordRenderer
+from app.video.circle_renderer import CircleRenderer
 from app.video.encoder import VideoEncoder
 from app.video.harmony_renderer import HarmonyRenderer
 from app.video.heatmap_renderer import HeatmapRenderer
@@ -29,6 +36,8 @@ from app.video.note_rate_renderer import NoteRateRenderer
 from app.video.options import VideoOptions
 from app.video.section_renderer import SectionRenderer
 from app.video.spectrum_renderer import SpectrumRenderer
+from app.video.wrapped import collect_facts, wrapped_cards
+from app.video.wrapped_renderer import WrappedRenderer
 
 SPECTRUM_BINS = 1024  # interpolated to the pixel columns when drawing
 RENDER_THREADS = 8
@@ -37,6 +46,18 @@ RENDER_THREADS = 8
 CHORD_HOLD_SECONDS = 2.0
 
 ProgressCallback = Callable[[float], None]
+
+
+@dataclass(frozen=True, slots=True)
+class FrameStream:
+    """Frames of a video whose length differs from the piece's (e.g. the Wrapped end screen).
+    Frame sources normally yield one frame per 1/fps of the piece."""
+
+    count: int
+    frames: Iterable[bytes]
+
+    def __iter__(self) -> Iterator[bytes]:
+        return iter(self.frames)
 
 
 def render_video(
@@ -48,7 +69,7 @@ def render_video(
 ) -> Path:
     frames = _FRAME_SOURCES[options.kind](midi, options)
 
-    frame_count = _frame_count(midi, options.fps)
+    frame_count = frames.count if isinstance(frames, FrameStream) else _frame_count(midi, options.fps)
     encoder = VideoEncoder(output_base, options.format, options.width, options.height, options.fps, frame_prefix)
     try:
         for index, frame in enumerate(frames):
@@ -197,6 +218,47 @@ def _section_frames(midi: MidiData, options: VideoOptions):
     yield from _render_states(states, renderer.render_state)
 
 
+def _boss_frames(midi: MidiData, options: VideoOptions):
+    renderer = BossRenderer(options.width, options.height, options.color, options.language, find_boss_fight(midi))
+    states = [renderer.state(i / options.fps) for i in range(_frame_count(midi, options.fps))]
+    yield from _render_states(states, renderer.render_state)
+
+
+def _circle_frames(midi: MidiData, options: VideoOptions):
+    chords = detect_chords(midi)
+    keys = detect_keys(midi)
+    names = [c.chord.spelled(keys.prefer_flats_at(c.start)) for c in chords]
+    renderer = CircleRenderer(options.width, options.height, options.color, options.language, circle_path(chords),
+                              names)  # fmt: skip
+    index_of = {id(c): i for i, c in enumerate(chords)}
+
+    def state(index: int):
+        time = index / options.fps
+        chord = chord_at(chords, time)
+        return renderer.state(index_of[id(chord)] if chord else None, time)
+
+    states = [state(i) for i in range(_frame_count(midi, options.fps))]
+    yield from _render_states(states, renderer.render_state)
+
+
+def _bingo_frames(midi: MidiData, options: VideoOptions):
+    chords = detect_chords(midi)
+    keys = detect_keys(midi)
+    harmony = analyze_harmony(chords, keys)
+    card = play_bingo(BingoContext(midi, chords, keys, harmony.progressions, find_motifs(midi)))
+    renderer = BingoRenderer(options.width, options.height, options.color, options.language, card)
+    states = [renderer.state(i / options.fps) for i in range(_frame_count(midi, options.fps))]
+    yield from _render_states(states, renderer.render_state)
+
+
+def _wrapped_frames(midi: MidiData, options: VideoOptions) -> FrameStream:
+    cards = wrapped_cards(collect_facts(midi), options.language)
+    renderer = WrappedRenderer(options.width, options.height, options.color, options.language, cards)
+    count = renderer.frame_count(options.fps)
+    states = [renderer.state(i / options.fps) for i in range(count)]
+    return FrameStream(count, _render_states(states, renderer.render_state))
+
+
 def chord_at(chords: list[ChordSegment], time: float) -> ChordSegment | None:
     """Chord to display at `time` (chords sorted by start), holding through short gaps."""
     current = None
@@ -221,4 +283,8 @@ _FRAME_SOURCES = {
     "achievements": _achievement_frames,
     "motifs": _motif_frames,
     "sections": _section_frames,
+    "boss": _boss_frames,
+    "circle": _circle_frames,
+    "bingo": _bingo_frames,
+    "wrapped": _wrapped_frames,
 }

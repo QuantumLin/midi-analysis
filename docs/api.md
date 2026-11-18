@@ -25,13 +25,16 @@ curl -F "file=@song.mid" -F kind=spectrum -F format=prores http://localhost:8001
 
 - **Kennzahlen:** `duration_seconds`, `note_count`, `percussion_note_count`
 - **`spectrum`:** Vorschau mit 20 fps und 256 Bändern, als Base64-codierte Bytes
-- **`chords`:** `start`, `end`, `name`, `root`, `quality`, `bass`, `notes`, `numeral` (Stufe, z. B. `vi`)
+- **`chords`:** `start`, `end`, `name`, `root`, `quality`, `bass`, `notes`, `numeral` (Stufe, z. B. `vi`), `circle` (Platz im Quintenzirkel: `ring`, `index`, `name`)
 - **`keys`:** `overall` und `segments` (`start`, `end`, `key` mit `tonic` und `mode`); jedes Segment nach dem ersten ist eine Modulation
 - **`note_rate`:** `values` pro Frame (20 fps), `peak_value`, `peak_time`, `records`
 - **`progressions`:** erkannte Akkordfolgen mit `time`, `end`, `id`, `count` und `name` (`de`/`en`)
 - **`achievements`:** Pop-ups mit `time`, `end`, `kind`, `title` und `detail` (je `de`/`en`)
 - **`motifs`:** `label`, `length` (Töne) und `occurrences` (`start`, `end`, `number`)
 - **`sections`:** `start`, `end`, `label` (gleicher Buchstabe = gleicher Teil) und `number`
+- **`boss`:** `start`, `end`, `factor`, `name` (`de`/`en`), `difficulty` (0–10), `hits` (Notenstarts in der Passage); `null` bei Stücken unter 10 s
+- **`bingo`:** `fields` (3×3 zeilenweise, je `id`, `label` (`de`/`en`), `time` oder `null`) und `lines` (vollständige Linien mit `cells` und `time`)
+- **`wrapped`:** Karten mit `id`, `title` und `value` (je `de`/`en`)
 - **`notes`:** alle Noten als parallele Listen `start`, `end` (Loslassen der Taste), `pitch`
 
 Die Typen sind im Frontend in `frontend/src/types/analysis.ts` gespiegelt.
@@ -40,7 +43,7 @@ Die Typen sind im Frontend in `frontend/src/types/analysis.ts` gespiegelt.
 
 | Parameter | Werte |
 | --- | --- |
-| `kind` | `spectrum`, `chords`, `key`, `note_rate`, `heatmap`, `harmony`, `achievements`, `motifs`, `sections` |
+| `kind` | `spectrum`, `chords`, `key`, `note_rate`, `heatmap`, `harmony`, `achievements`, `motifs`, `sections`, `boss`, `circle`, `bingo`, `wrapped` |
 | `format` | `prores` (Standard) oder `png` |
 | `width` × `height` | 320×180 bis 3840×2160, gerade Zahlen |
 | `fps` | 24, 25, 30, 50, 60 |

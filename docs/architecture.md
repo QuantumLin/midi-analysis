@@ -37,7 +37,9 @@
 2. Feld in `backend/app/api/schemas.py` ergänzen.
 3. Analyse in `backend/app/services/analysis_service.py` aufrufen.
 4. Typ in `frontend/src/types/analysis.ts` spiegeln.
-5. Für ein Video: Renderer in `backend/app/video/` (Basis `neon_overlay.py`) anlegen und in `render.py` sowie `options.py` als neue Art eintragen.
+5. Für ein Video: Renderer in `backend/app/video/` (Basis `neon_overlay.py`) anlegen und in `render.py` (`_FRAME_SOURCES`) sowie `options.py` als neue Art eintragen. Ein Video, das nicht so lang ist wie das Stück, gibt einen `FrameStream` mit eigener Bildanzahl zurück (siehe Song Wrapped).
+
+**Erweiterungspunkte ohne neues Modul:** Boss-Faktoren (`FACTORS`), Bingo-Felder (`FIELDS`, `CARD`), Wrapped-Karten (`CARDS`), Akkordfolgen (`PROGRESSIONS`) und Achievements sind Listen, die sich um einen Eintrag erweitern lassen (siehe [Analyse](analysis.md)).
 
 ## Desktop-Anwendung und Docker
 
@@ -62,7 +64,10 @@ MidiAnalysis/
 │   │   │   └── uploads.py         # Prüfung hochgeladener MIDI-Dateien
 │   │   ├── analysis/
 │   │   │   ├── achievements.py    # Achievements (Pop-ups)
+│   │   │   ├── bingo.py           # Tastatur-Bingo
+│   │   │   ├── boss_fight.py      # Schwierigkeit und Endgegner
 │   │   │   ├── chords.py          # Akkorderkennung
+│   │   │   ├── circle_of_fifths.py # Akkorde im Quintenzirkel
 │   │   │   ├── harmony.py         # Stufen und bekannte Akkordfolgen
 │   │   │   ├── key.py             # Tonart und Modulationen
 │   │   │   ├── keyboard_activity.py # Anschläge pro Taste (Heatmap)
@@ -79,7 +84,10 @@ MidiAnalysis/
 │   │   ├── video/
 │   │   │   ├── achievement_renderer.py # Achievement-Pop-ups
 │   │   │   ├── assets/            # Orbitron.ttf + Lizenz (OFL)
+│   │   │   ├── bingo_renderer.py  # Bingo-Karte
+│   │   │   ├── boss_renderer.py   # Endgegner mit HP-Balken
 │   │   │   ├── chord_renderer.py  # Akkord-Overlay
+│   │   │   ├── circle_renderer.py # Quintenzirkel
 │   │   │   ├── encoder.py         # ffmpeg: ProRes 4444 / PNG-Sequenz
 │   │   │   ├── fonts.py           # Orbitron + Ersatzschrift für ♯ ♭ →
 │   │   │   ├── harmony_renderer.py # Stufen-Overlay
@@ -94,7 +102,9 @@ MidiAnalysis/
 │   │   │   ├── options.py         # Export-Einstellungen
 │   │   │   ├── render.py          # rendert ein komplettes Video
 │   │   │   ├── section_renderer.py # Abschnitt-Overlay
-│   │   │   └── spectrum_renderer.py # Spektrum-Frame (numpy)
+│   │   │   ├── spectrum_renderer.py # Spektrum-Frame (numpy)
+│   │   │   ├── wrapped.py         # Song-Wrapped-Karten
+│   │   │   └── wrapped_renderer.py # Song-Wrapped-Abspann
 │   │   ├── config.py              # Settings aus Umgebungsvariablen
 │   │   └── main.py                # FastAPI-Einstiegspunkt
 │   ├── tests/                     # pytest (erzeugt Test-MIDIs selbst)
@@ -112,13 +122,14 @@ MidiAnalysis/
 │   │   │   ├── preview/           # Overlay-Vorschau
 │   │   │   │   ├── OverlayPreview.tsx # Wiedergabe aller Overlays
 │   │   │   │   ├── OverlayFields.tsx  # Text-Overlays und Achievement-Pop-up
+│   │   │   │   ├── GameFields.tsx     # Endgegner, Quintenzirkel, Bingo, Song Wrapped
 │   │   │   │   ├── SpectrumCanvas.tsx
 │   │   │   │   └── HeatBar.tsx        # Heat-Balken
 │   │   │   └── VideoExport.tsx    # Export-Einstellungen und Jobs
 │   │   ├── assets/fonts/          # Orbitron.ttf + Lizenz (OFL)
 │   │   ├── hooks/                 # usePlayback, useElementWidth
 │   │   ├── types/analysis.ts      # Typen der API-Antwort
-│   │   ├── utils/                 # labels, stats, harmony, form, spectrum, chords, canvas, format
+│   │   ├── utils/                 # labels, stats, harmony, form, games, spectrum, chords, canvas, format
 │   │   ├── App.tsx                # Seitenaufbau und Zustand
 │   │   ├── App.css
 │   │   └── main.tsx               # React-Einstiegspunkt

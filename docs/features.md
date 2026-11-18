@@ -17,12 +17,19 @@ Play, Pause und eine Zeitleiste spielen alle Overlays synchron ab. Die Vorschau 
 | Abschnitt | Der aktuelle Teil des Stücks („Teil B“) und ob er neu ist oder wiederkehrt („zum 2. Mal“). |
 | Motiv | Erscheint, während ein wiederkehrendes Melodie-Motiv gespielt wird: „Motiv A, 5. Mal – kehrt zurück“. In der Vorschau ist das Feld sonst abgedunkelt, im Video ausgeblendet. |
 | Achievements | Pop-ups wie in einem Videospiel („Erfolg freigeschaltet: 8-Finger-Akkord“) für besondere Momente. |
+| Endgegner | Die schwerste Stelle des Stücks als „Boss“. 3 s vorher blinkt „Achtung: Boss naht!“, dann sinkt der HP-Balken mit jeder gespielten Note, am Ende steht „Besiegt!“. Der Name richtet sich nach dem, was die Stelle schwer macht: „Notensturm“ (Tempo), „Sprungriese“ (Sprünge), „Akkord-Koloss“ (große Akkorde). |
+| Quintenzirkel | Alle 12 Dur-Tonarten außen, die parallelen Moll-Tonarten innen. Der aktuelle Akkord leuchtet auf und steht groß in der Mitte, eine Leuchtspur verbindet die letzten Akkorde. Jede bisher besuchte Tonart glüht umso stärker, je öfter sie vorkam: Am Ende zeigt der Kreis den harmonischen „Fingerabdruck“ des Stücks. |
+| Tastatur-Bingo | Eine 3×3-Karte mit musikalischen Ereignissen (Oktave, Septakkord, Blitzlauf, Pause …). Ein Feld leuchtet auf, sobald sein Ereignis zum ersten Mal vorkommt. Eine volle Reihe, Spalte oder Diagonale wird durchgestrichen, darunter erscheint „Bingo!“. |
 | Frequenzspektrum | Ein Analyzer wie in einer DAW (z. B. ReaEQ in Reaper) von 20 Hz bis 20 kHz, logarithmisch, in dB. |
 | Tasten-Heatmap | Ein leuchtender Balken über alle 88 Tasten, von A0 links bis C8 rechts. Die Farbintensität zeigt, wie oft eine Lage bisher gespielt wurde: von dunkel über die Neonfarbe bis weißglühend. Gerade gedrückte Tasten leuchten als heller Punkt auf. Striche markieren die Cs (C1–C8). |
 
 ## Video-Export
 
 Jedes Overlay lässt sich einzeln als **transparentes Video** exportieren und in DaVinci Resolve frei platzieren, z. B. neben einem Piano-Visualizer. Details: [Video-Export](video-export.md).
+
+## Song Wrapped
+
+Ein Abspann im Stil von „Spotify Wrapped“ mit den Zahlen des Stücks: gespielte Noten, schnellste Stelle, Lieblingsakkord, Tonart, Tonumfang, Endgegner, Hauptmotiv, Anzahl der Achievements. Die Karten springen nacheinander ins Bild. Anders als die anderen Overlays ist es ein eigener Clip (ca. 13 s), der im Schnitt hinter das Stück gelegt wird. Die App zeigt die Karten unter der Vorschau.
 
 ## Akkordtabelle
 

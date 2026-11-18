@@ -93,3 +93,9 @@ def flash_strength(seconds_since_event: float) -> float:
         return 1.0
     remaining = 1 - seconds_since_event / FLASH_SECONDS
     return 1.0 + round(FLASH_BOOST * remaining * 5) / 5
+
+
+def ease_out_back(p: float) -> float:
+    """0 -> 1 with a small overshoot near the end (a "pop")."""
+    c1 = 1.70158
+    return 1 + (c1 + 1) * (p - 1) ** 3 + c1 * (p - 1) ** 2

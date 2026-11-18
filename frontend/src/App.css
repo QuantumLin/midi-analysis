@@ -646,6 +646,158 @@ h2 {
   filter: saturate(0.4);
 }
 
+/* Boss fight: HP bar (30 segments) and the blinking warning */
+.neon-meter--hp {
+  grid-template-columns: repeat(30, 1fr);
+  min-width: 260px;
+}
+
+.neon-blink {
+  animation: neon-blink 1s steps(1) infinite;
+}
+
+@keyframes neon-blink {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+/* Circle of fifths */
+.circle {
+  font-family: "Orbitron", system-ui, sans-serif;
+  font-weight: 700;
+}
+
+.circle__guide {
+  fill: none;
+  stroke: var(--neon);
+  stroke-opacity: 0.18;
+}
+
+.circle__trail {
+  fill: none;
+  stroke: var(--neon-core);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 4px var(--neon));
+}
+
+.circle__dot circle {
+  fill: var(--neon);
+  stroke: var(--neon);
+  stroke-opacity: 0.45;
+}
+
+.circle__dot text {
+  fill: var(--neon-core);
+  fill-opacity: 0.7;
+  text-anchor: middle;
+}
+
+.circle__dot--current circle {
+  fill: var(--neon-core);
+  filter: drop-shadow(0 0 6px var(--neon)) drop-shadow(0 0 14px var(--neon));
+}
+
+.circle__dot--current text {
+  fill: #080a16;
+  fill-opacity: 1;
+}
+
+.circle__center {
+  fill: var(--neon-core);
+  font-size: 30px;
+  font-weight: 800;
+  text-anchor: middle;
+  filter: drop-shadow(0 0 4px var(--neon)) drop-shadow(0 0 12px var(--neon));
+}
+
+/* Keyboard bingo */
+.neon-panel > .bingo {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin: 6px 0 4px;
+}
+
+.bingo__cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 96px;
+  min-height: 44px;
+  padding: 4px 6px;
+  border: 1px solid color-mix(in srgb, var(--neon) 35%, transparent);
+  border-radius: 8px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-align: center;
+  text-transform: uppercase;
+  opacity: 0.45;
+}
+
+.bingo__cell--ticked {
+  border: 2px solid var(--neon-core);
+  background: color-mix(in srgb, var(--neon) 22%, transparent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--neon) 70%, transparent);
+  text-shadow: 0 0 6px var(--neon);
+  opacity: 1;
+}
+
+.bingo__cell--line {
+  box-shadow:
+    0 0 10px var(--neon),
+    inset 0 0 12px color-mix(in srgb, var(--neon) 45%, transparent);
+}
+
+.bingo__banner {
+  font-size: 1.75rem;
+  text-transform: uppercase;
+}
+
+/* Song Wrapped */
+.wrapped {
+  --neon-core: color-mix(in srgb, var(--neon) 45%, white);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 20px 12px;
+  font-family: "Orbitron", system-ui, sans-serif;
+  color: var(--neon-core);
+}
+
+.wrapped__title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-shadow:
+    0 0 3px var(--neon),
+    0 0 12px var(--neon);
+}
+
+.wrapped__cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 260px));
+  gap: 10px;
+}
+
+.wrapped__card {
+  min-width: 0;
+  padding: 10px 14px;
+}
+
+.wrapped__value {
+  font-size: 1.125rem;
+  font-weight: 800;
+  text-align: center;
+  white-space: normal;
+  text-shadow:
+    0 0 3px var(--neon),
+    0 0 10px var(--neon);
+}
+
 /* Neon colour swatches in the export settings */
 
 .swatches {

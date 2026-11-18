@@ -3,10 +3,13 @@ import { useElementWidth } from "../../hooks/useElementWidth";
 import { usePlayback } from "../../hooks/usePlayback";
 import type { AnalysisResult, VideoSettings } from "../../types/analysis";
 import { chordAt } from "../../utils/chords";
+import { displayAccidentals } from "../../utils/labels";
 import { motifAt, sectionAt } from "../../utils/form";
+import { bingoAt, bossAt, circleAt } from "../../utils/games";
 import { achievementAt, chainBefore, progressionAt } from "../../utils/harmony";
 import { formatTime } from "../../utils/format";
 import { keySegmentAt, noteRateAt, runningMax } from "../../utils/stats";
+import { BingoBoard, BossField, CircleOfFifths } from "./GameFields";
 import HeatBar from "./HeatBar";
 import {
   AchievementToast,
@@ -70,6 +73,16 @@ export default function OverlayPreview({ result, settings }: Props) {
           />
           <SectionField current={sectionAt(result.sections, time)} color={color} language={language} />
           <MotifField current={motifAt(result.motifs, time)} color={color} language={language} />
+          <BossField boss={result.boss} state={bossAt(result.boss, time)} color={color} language={language} />
+        </div>
+        <div className="player__fields">
+          <CircleOfFifths
+            state={circleAt(result.chords, chord, time)}
+            chordName={chord ? displayAccidentals(chord.name) : null}
+            color={color}
+            language={language}
+          />
+          <BingoBoard bingo={result.bingo} state={bingoAt(result.bingo, time)} color={color} language={language} />
         </div>
         <div className="player__stage">
           <SpectrumCanvas

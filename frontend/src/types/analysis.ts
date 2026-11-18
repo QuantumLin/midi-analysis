@@ -21,6 +21,14 @@ export interface Chord {
   bass: string;
   notes: string[];
   numeral: string | null; // scale degree in the key at that moment: "vi", "V7", "♭VII"
+  circle: CirclePosition; // place on the circle of fifths
+}
+
+/** Major chords on the outer ring, minor chords inside next to their relative major; index 0 = top. */
+export interface CirclePosition {
+  ring: "major" | "minor";
+  index: number;
+  name: string; // "C", "F♯", "a", "b♭"
 }
 
 export interface MusicalKey {
@@ -92,6 +100,27 @@ export interface Section {
   number: number; // 1 = first time this part is heard
 }
 
+/** The hardest passage as "final boss"; every note in it is a hit. */
+export interface Boss {
+  start: number;
+  end: number;
+  factor: string; // "speed", "leaps", "chords"
+  name: Localized;
+  difficulty: number; // 0-10
+  hits: number[]; // note start times in the passage
+}
+
+export interface Bingo {
+  fields: { id: string; label: Localized; time: number | null }[]; // 3x3, row by row
+  lines: { cells: number[]; time: number }[]; // completed lines, in order
+}
+
+export interface WrappedCard {
+  id: string;
+  title: Localized;
+  value: Localized;
+}
+
 /** All pitched notes as parallel arrays, sorted by start; `end` is the key release. */
 export interface Notes {
   start: number[];
@@ -112,10 +141,13 @@ export interface AnalysisResult {
   achievements: Achievement[];
   motifs: Motif[];
   sections: Section[];
+  boss: Boss | null; // null for pieces shorter than 10 s
+  bingo: Bingo;
+  wrapped: WrappedCard[];
   notes: Notes;
 }
 
-export type VideoKind = "spectrum" | "chords" | "key" | "note_rate" | "heatmap" | "harmony" | "achievements" | "motifs" | "sections";
+export type VideoKind = "spectrum" | "chords" | "key" | "note_rate" | "heatmap" | "harmony" | "achievements" | "motifs" | "sections" | "boss" | "circle" | "bingo" | "wrapped";
 export type Language = "de" | "en";
 export type VideoFormat = "prores" | "png";
 

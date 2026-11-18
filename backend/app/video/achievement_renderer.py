@@ -12,7 +12,7 @@ from PIL import Image
 from app.analysis.achievements import Achievement
 from app.video.labels import Language, achievement_texts, text
 from app.video.neon import Color, add_neon, centered_frame, draw_star, draw_text, text_width
-from app.video.neon_overlay import LABEL_TRACKING, LABEL_WEIGHT, NeonOverlay, flash_strength
+from app.video.neon_overlay import LABEL_TRACKING, LABEL_WEIGHT, NeonOverlay, ease_out_back, flash_strength
 
 APPEAR_SECONDS = 0.3
 FADE_SECONDS = 0.4
@@ -20,12 +20,6 @@ ANIMATION_STEPS = 8  # quantisation of the in/out animation (identical frames ar
 START_SCALE = 0.6
 TITLE_WEIGHT = 800
 DETAIL_TRACKING = 0.06
-
-
-def ease_out_back(p: float) -> float:
-    """0 -> 1 with a small overshoot near the end (a "pop")."""
-    c1 = 1.70158
-    return 1 + (c1 + 1) * (p - 1) ** 3 + c1 * (p - 1) ** 2
 
 
 class AchievementRenderer(NeonOverlay):

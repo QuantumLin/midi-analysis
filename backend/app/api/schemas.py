@@ -29,6 +29,7 @@ class ChordOut(BaseModel):
     bass: str
     notes: list[str]
     numeral: str | None  # scale degree in the key at that moment: "vi", "V7", "♭VII"
+    circle: "CirclePositionOut"  # place on the circle of fifths
 
 
 class KeyOut(BaseModel):
@@ -110,6 +111,48 @@ class SectionOut(BaseModel):
     number: int  # 1 = first time this part is heard
 
 
+class CirclePositionOut(BaseModel):
+    """Major chords on the outer ring at their root, minor chords on the inner ring next to
+    their relative major; index 0 = top (C / a), clockwise in fifths."""
+
+    ring: Literal["major", "minor"]
+    index: int
+    name: str  # "C", "F♯", "a", "b♭"
+
+
+class BossOut(BaseModel):
+    """The hardest passage as "final boss"; every note in it is a hit."""
+
+    start: float
+    end: float
+    factor: str  # what makes it hard: "speed", "leaps", "chords"
+    name: LocalizedOut  # "Notensturm" / "Note Storm"
+    difficulty: float  # 0-10
+    hits: list[float]  # note start times in the passage
+
+
+class BingoFieldOut(BaseModel):
+    id: str
+    label: LocalizedOut
+    time: float | None  # when it was ticked; None = never
+
+
+class BingoLineOut(BaseModel):
+    cells: list[int]  # indices into fields (row by row)
+    time: float
+
+
+class BingoOut(BaseModel):
+    fields: list[BingoFieldOut]  # 3x3, row by row
+    lines: list[BingoLineOut]  # completed lines, in order
+
+
+class WrappedCardOut(BaseModel):
+    id: str
+    title: LocalizedOut
+    value: LocalizedOut
+
+
 class NotesOut(BaseModel):
     """All pitched notes as parallel arrays (compact), sorted by start; `end` is the key release."""
 
@@ -131,6 +174,9 @@ class AnalysisResponse(BaseModel):
     achievements: list[AchievementOut]
     motifs: list[MotifOut]
     sections: list[SectionOut]
+    boss: BossOut | None  # None for pieces shorter than 10 s
+    bingo: BingoOut
+    wrapped: list[WrappedCardOut]
     notes: NotesOut
 
 
@@ -146,3 +192,6 @@ class VideoJobOut(BaseModel):
     error: str | None = None
     file_name: str | None = None  # set when done
     size_bytes: int | None = None
+
+
+ChordOut.model_rebuild()

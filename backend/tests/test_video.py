@@ -109,7 +109,7 @@ def probe(path) -> dict:
     return json.loads(output)["streams"][0]
 
 
-@pytest.mark.parametrize("kind", ["spectrum", "chords", "key", "note_rate", "heatmap", "harmony", "achievements", "motifs", "sections"])
+@pytest.mark.parametrize("kind", ["spectrum", "chords", "key", "note_rate", "heatmap", "harmony", "achievements", "motifs", "sections", "boss", "circle", "bingo"])
 def test_render_prores_with_alpha(tmp_path, kind):
     midi = parse_midi(build_midi(chord_events([60, 64, 67], 0, 2)))  # 1 s
     options = VideoOptions.create(kind, "prores", WIDTH, HEIGHT, 24, "#ffffff", True)
@@ -121,6 +121,23 @@ def test_render_prores_with_alpha(tmp_path, kind):
     assert info["codec_name"] == "prores" and info["pix_fmt"] == "yuva444p12le"
     assert (info["width"], info["height"]) == (WIDTH, HEIGHT)
     assert int(info["nb_read_frames"]) == 25  # 0..1 s at 24 fps
+    assert progress[-1] == 1.0
+
+
+def test_render_wrapped_has_its_own_length(tmp_path):
+    """The end screen is a clip of its own, not as long as the piece."""
+    from app.video.wrapped import collect_facts, wrapped_cards
+    from app.video.wrapped_renderer import WrappedRenderer
+
+    midi = parse_midi(build_midi(chord_events([60, 64, 67], 0, 2)))
+    options = VideoOptions.create("wrapped", "prores", WIDTH, HEIGHT, 24, "#ffffff", True)
+    progress = []
+    path = render_video(midi, options, tmp_path / "out", progress.append)
+
+    renderer = WrappedRenderer(WIDTH, HEIGHT, (255, 255, 255), "de", wrapped_cards(collect_facts(midi), "de"))
+    info = probe(path)
+    assert info["pix_fmt"] == "yuva444p12le"
+    assert int(info["nb_read_frames"]) == renderer.frame_count(24) > 25
     assert progress[-1] == 1.0
 
 

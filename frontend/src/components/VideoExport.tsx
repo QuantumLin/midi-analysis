@@ -23,6 +23,10 @@ const KIND_LABELS: Record<VideoKind, string> = {
   achievements: "Achievements",
   sections: "Abschnitte",
   motifs: "Motive",
+  boss: "Endgegner",
+  circle: "Quintenzirkel",
+  bingo: "Bingo",
+  wrapped: "Song Wrapped",
   spectrum: "Frequenzspektrum",
   heatmap: "Tasten-Heatmap",
 };
