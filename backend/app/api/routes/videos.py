@@ -39,10 +39,11 @@ async def create_video(
     color: Annotated[str, Form()] = "#ffffff",
     show_grid: Annotated[bool, Form()] = True,
     language: Annotated[Language, Form()] = "de",
+    show_frame: Annotated[bool, Form()] = True,
 ) -> VideoJobOut:
     data, file_name = await read_midi_upload(file)
     try:
-        options = VideoOptions.create(kind, format, width, height, fps, color, show_grid, language)
+        options = VideoOptions.create(kind, format, width, height, fps, color, show_grid, language, show_frame)
         job = await run_in_threadpool(jobs.submit, data, file_name, options)
     except (ValueError, MidiParseError) as exc:  # MidiParseError is a ValueError, listed for clarity
         raise HTTPException(status.HTTP_400_BAD_REQUEST, str(exc)) from exc

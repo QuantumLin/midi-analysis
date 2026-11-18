@@ -159,6 +159,7 @@ export interface VideoSettings {
   color: string; // hex, e.g. "#ffffff"
   showGrid: boolean;
   language: Language; // texts in the overlays
+  showFrame: boolean; // glass panel with glowing border around the text and game overlays
 }
 
 export interface VideoJob {

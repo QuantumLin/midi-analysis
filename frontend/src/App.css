@@ -798,6 +798,13 @@ h2 {
     0 0 10px var(--neon);
 }
 
+/* Export without frame: the panels lose glass and border, the glowing content stays */
+.player__screen--frameless .neon-panel {
+  border-color: transparent;
+  background: none;
+  box-shadow: none;
+}
+
 /* Neon colour swatches in the export settings */
 
 .swatches {

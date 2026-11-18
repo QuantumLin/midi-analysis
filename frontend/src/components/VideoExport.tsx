@@ -147,6 +147,10 @@ export default function VideoExport({ file, settings, onSettingsChange }: Props)
           </select>
         </label>
         <label className="field field--checkbox">
+          <input type="checkbox" checked={settings.showFrame} onChange={(e) => update({ showFrame: e.target.checked })} />
+          <span>Rahmen um Text- und Spiel-Overlays</span>
+        </label>
+        <label className="field field--checkbox">
           <input type="checkbox" checked={settings.showGrid} onChange={(e) => update({ showGrid: e.target.checked })} />
           <span>Raster &amp; Hz-Beschriftung (Spektrum)</span>
         </label>

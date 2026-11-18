@@ -35,6 +35,7 @@ def segment(name_root: int, start: float, end: float) -> ChordSegment:
 def test_options_validation():
     options = VideoOptions.create("spectrum", "prores", 1920, 1080, 30, "#4da3ff", True)
     assert options.color == (0x4D, 0xA3, 0xFF)
+    assert options.show_frame  # the frame is on unless switched off
     for bad in [(1921, 1080, 30, "#ffffff"), (1920, 1080, 29, "#ffffff"), (1920, 1080, 30, "red"), (100, 100, 30, "#ffffff")]:
         with pytest.raises(ValueError):
             VideoOptions.create("spectrum", "prores", *bad, True)
@@ -139,6 +140,22 @@ def test_render_wrapped_has_its_own_length(tmp_path):
     assert info["pix_fmt"] == "yuva444p12le"
     assert int(info["nb_read_frames"]) == renderer.frame_count(24) > 25
     assert progress[-1] == 1.0
+
+
+@pytest.mark.parametrize("kind", ["chords", "key", "note_rate", "harmony", "sections", "circle", "bingo"])
+def test_frame_can_be_switched_off(kind):
+    """Without the frame the glass panel and border disappear, the glowing content stays."""
+    from app.video.render import _FRAME_SOURCES
+
+    midi = parse_midi(build_midi(chord_events([60, 64, 67], 0, 2) + chord_events([55, 59, 62], 2, 2)))
+
+    def visible_pixels(show_frame: bool) -> int:
+        options = VideoOptions.create(kind, "png", WIDTH, HEIGHT, 24, "#00e5ff", True, "de", show_frame)
+        frame = list(_FRAME_SOURCES[kind](midi, options))[12]  # 0.5 s
+        return int((as_image(frame)[..., 3] > 0).sum())
+
+    framed, frameless = visible_pixels(True), visible_pixels(False)
+    assert 0 < frameless < framed * 0.8
 
 
 def test_render_png_sequence_zip(tmp_path):
