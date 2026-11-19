@@ -37,6 +37,7 @@ from app.video.note_rate_renderer import NoteRateRenderer
 from app.video.options import VideoOptions
 from app.video.section_renderer import SectionRenderer
 from app.video.spectrum_renderer import SpectrumRenderer
+from app.video.style import Style, using
 from app.video.wrapped import collect_facts, wrapped_cards
 from app.video.wrapped_renderer import WrappedRenderer
 
@@ -68,19 +69,19 @@ def render_video(
     on_progress: ProgressCallback,
     frame_prefix: str | None = None,
 ) -> Path:
-    frames = _FRAME_SOURCES[options.kind](midi, options)
-
-    frame_count = frames.count if isinstance(frames, FrameStream) else _frame_count(midi, options.fps)
-    encoder = VideoEncoder(output_base, options.format, options.width, options.height, options.fps, frame_prefix)
-    try:
-        for index, frame in enumerate(frames):
-            encoder.write(frame)
-            if index % 10 == 0:
-                on_progress(index / frame_count)
-        path = encoder.finish()
-    except BaseException:
-        encoder.abort()
-        raise
+    with using(Style(options.font, options.glow)):  # font and glow for everything drawn below
+        frames = _FRAME_SOURCES[options.kind](midi, options)
+        frame_count = frames.count if isinstance(frames, FrameStream) else _frame_count(midi, options.fps)
+        encoder = VideoEncoder(output_base, options.format, options.width, options.height, options.fps, frame_prefix)
+        try:
+            for index, frame in enumerate(frames):
+                encoder.write(frame)
+                if index % 10 == 0:
+                    on_progress(index / frame_count)
+            path = encoder.finish()
+        except BaseException:
+            encoder.abort()
+            raise
     on_progress(1.0)
     return path
 

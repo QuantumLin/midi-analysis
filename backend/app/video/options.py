@@ -4,6 +4,8 @@ import re
 from dataclasses import dataclass
 from typing import Literal
 
+from app.video.style import FontId, GlowLevel
+
 VideoKind = Literal["spectrum", "chords", "key", "note_rate", "heatmap", "harmony", "achievements", "motifs", "sections", "boss", "circle", "bingo", "wrapped"]
 VideoFormat = Literal["prores", "png"]
 Language = Literal["de", "en"]
@@ -25,6 +27,8 @@ class VideoOptions:
     show_grid: bool  # spectrum only: frequency/dB grid with labels
     language: Language = "de"  # texts in the overlays
     show_frame: bool = True  # glass panel with glowing border around the text and game overlays
+    font: FontId = "orbitron"  # display font, see style.py
+    glow: GlowLevel = "normal"
 
     @staticmethod
     def create(
@@ -37,6 +41,8 @@ class VideoOptions:
         show_grid: bool,
         language: Language = "de",
         show_frame: bool = True,
+        font: FontId = "orbitron",
+        glow: GlowLevel = "normal",
     ) -> "VideoOptions":
         """Validates raw values; raises ValueError with a readable message."""
         if not (MIN_WIDTH <= width <= MAX_WIDTH and MIN_HEIGHT <= height <= MAX_HEIGHT):
@@ -48,4 +54,4 @@ class VideoOptions:
         if not _HEX_COLOR.match(color):
             raise ValueError("Color must be a hex value like #4da3ff.")
         rgb = tuple(int(color[i : i + 2], 16) for i in (1, 3, 5))
-        return VideoOptions(kind, format, width, height, fps, rgb, show_grid, language, show_frame)  # type: ignore[arg-type]
+        return VideoOptions(kind, format, width, height, fps, rgb, show_grid, language, show_frame, font, glow)  # type: ignore[arg-type]

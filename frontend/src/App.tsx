@@ -8,6 +8,7 @@ import { WrappedPreview } from "./components/preview/GameFields";
 import OverlayPreview from "./components/preview/OverlayPreview";
 import VideoExport from "./components/VideoExport";
 import type { AnalysisResult, VideoSettings } from "./types/analysis";
+import { overlayStyle } from "./utils/style";
 
 type BackendState = "checking" | "online" | "offline";
 
@@ -20,6 +21,8 @@ const DEFAULT_VIDEO_SETTINGS: VideoSettings = {
   showGrid: true,
   language: "de",
   showFrame: true,
+  font: "orbitron",
+  glow: "normal",
 };
 
 export default function App() {
@@ -77,7 +80,7 @@ export default function App() {
               Abspann mit den Zahlen des Stücks. Im Video springen die Karten nacheinander ins Bild; es ist ein eigener
               Clip, der im Schnitt hinter das Stück gelegt wird.
             </p>
-            <div className="player__screen">
+            <div className="player__screen" style={overlayStyle(videoSettings)}>
               <WrappedPreview cards={result.wrapped} color={videoSettings.color} language={videoSettings.language} />
             </div>
           </section>

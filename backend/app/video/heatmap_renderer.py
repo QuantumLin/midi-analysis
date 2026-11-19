@@ -10,6 +10,7 @@ from PIL import Image, ImageDraw, ImageFilter
 from app.analysis.keyboard_activity import KEY_COUNT
 from app.midi.pitch import LOWEST_PIANO_KEY
 from app.video.neon import PANEL_FILL, Color, centered_frame, colorize, core_color, draw_text
+from app.video.style import current
 
 HEAT_GAMMA = 0.55  # lifts rarely played keys so they stay visible next to the busiest one
 HELD_BOOST = 0.3  # held keys glow above the hottest played key
@@ -62,6 +63,11 @@ class HeatmapRenderer:
         glow = Image.new("RGBA", self.size, (0, 0, 0, 0))
         glow.paste(bar_image, self.bar_box[:2])
         glow = glow.convert("RGBa").filter(ImageFilter.GaussianBlur(self.bar_height * GLOW_RADIUS)).convert("RGBA")
+        factor = current().glow_factor
+        if factor != 1.0:  # the user's glow setting (style.py)
+            pixels = np.asarray(glow).copy()
+            pixels[..., 3] = np.clip(pixels[..., 3] * factor, 0, 255).astype(np.uint8)
+            glow = Image.fromarray(pixels, "RGBA")
         canvas.alpha_composite(glow)
         canvas.alpha_composite(bar_image, self.bar_box[:2])
         return centered_frame(canvas, self.width, self.height)

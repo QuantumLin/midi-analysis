@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
 import { createVideoJob, fetchVideoJob, videoDownloadUrl } from "../api/client";
-import type { Language, VideoFormat, VideoJob, VideoKind, VideoSettings } from "../types/analysis";
+import type {
+  Language,
+  VideoFormat,
+  VideoJob,
+  VideoKind,
+  VideoSettings,
+} from "../types/analysis";
+import { FONTS, GLOW_LEVELS } from "../utils/style";
 
 interface Props {
   file: File;
@@ -41,21 +48,35 @@ const NEON_PRESETS = [
   { name: "Gelb", value: "#ffe600" },
 ];
 
-export default function VideoExport({ file, settings, onSettingsChange }: Props) {
+export default function VideoExport({
+  file,
+  settings,
+  onSettingsChange,
+}: Props) {
   const [jobs, setJobs] = useState<VideoJob[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   // Poll unfinished jobs until they are done or failed.
-  const pendingIds = jobs.filter((j) => j.status === "queued" || j.status === "running").map((j) => j.id);
+  const pendingIds = jobs
+    .filter((j) => j.status === "queued" || j.status === "running")
+    .map((j) => j.id);
   const pendingKey = pendingIds.join(",");
   useEffect(() => {
     if (!pendingKey) return;
     const timer = setInterval(async () => {
       try {
-        const updates = await Promise.all(pendingKey.split(",").map(fetchVideoJob));
-        setJobs((current) => current.map((job) => updates.find((u) => u.id === job.id) ?? job));
+        const updates = await Promise.all(
+          pendingKey.split(",").map(fetchVideoJob),
+        );
+        setJobs((current) =>
+          current.map((job) => updates.find((u) => u.id === job.id) ?? job),
+        );
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Status konnte nicht abgefragt werden.");
+        setError(
+          e instanceof Error
+            ? e.message
+            : "Status konnte nicht abgefragt werden.",
+        );
       }
     }, POLL_INTERVAL_MS);
     return () => clearInterval(timer);
@@ -77,97 +98,174 @@ export default function VideoExport({ file, settings, onSettingsChange }: Props)
     }
   }
 
-  const update = (patch: Partial<VideoSettings>) => onSettingsChange({ ...settings, ...patch });
+  const update = (patch: Partial<VideoSettings>) =>
+    onSettingsChange({ ...settings, ...patch });
   const resolution = `${settings.width}x${settings.height}`;
 
   return (
     <div className="export">
-      <div className="export__settings">
-        <label className="field">
-          <span>Format</span>
-          <select value={settings.format} onChange={(e) => update({ format: e.target.value as VideoFormat })}>
-            <option value="prores">ProRes 4444 (.mov)</option>
-            <option value="png">PNG-Sequenz (.zip)</option>
-          </select>
-        </label>
-        <label className="field">
-          <span>Auflösung</span>
-          <select
-            value={resolution}
-            onChange={(e) => {
-              const r = RESOLUTIONS.find((o) => `${o.width}x${o.height}` === e.target.value)!;
-              update({ width: r.width, height: r.height });
-            }}
-          >
-            {RESOLUTIONS.map((r) => (
-              <option key={r.label} value={`${r.width}x${r.height}`}>
-                {r.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="field">
-          <span>Bildrate</span>
-          <select value={settings.fps} onChange={(e) => update({ fps: Number(e.target.value) })}>
-            {FPS_OPTIONS.map((fps) => (
-              <option key={fps} value={fps}>
-                {fps} fps
-              </option>
-            ))}
-          </select>
-        </label>
-        <div className="field">
-          <span>Neonfarbe</span>
-          <div className="swatches">
-            {NEON_PRESETS.map((preset) => (
-              <button
-                key={preset.value}
-                type="button"
-                className={`swatch${settings.color.toLowerCase() === preset.value ? " swatch--active" : ""}`}
-                style={{ background: preset.value, color: preset.value }}
-                aria-label={preset.name}
-                title={preset.name}
-                onClick={() => update({ color: preset.value })}
-              />
-            ))}
-            <input
-              type="color"
-              value={settings.color}
-              aria-label="Eigene Farbe"
-              title="Eigene Farbe"
-              onChange={(e) => update({ color: e.target.value })}
-            />
-          </div>
+      <fieldset className="export__group">
+        <legend>Video</legend>
+        <div className="export__settings">
+          <label className="field">
+            <span>Format</span>
+            <select
+              value={settings.format}
+              onChange={(e) =>
+                update({ format: e.target.value as VideoFormat })
+              }
+            >
+              <option value="prores">ProRes 4444 (.mov)</option>
+              <option value="png">PNG-Sequenz (.zip)</option>
+            </select>
+          </label>
+          <label className="field">
+            <span>Auflösung</span>
+            <select
+              value={resolution}
+              onChange={(e) => {
+                const r = RESOLUTIONS.find(
+                  (o) => `${o.width}x${o.height}` === e.target.value,
+                )!;
+                update({ width: r.width, height: r.height });
+              }}
+            >
+              {RESOLUTIONS.map((r) => (
+                <option key={r.label} value={`${r.width}x${r.height}`}>
+                  {r.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="field">
+            <span>Bildrate</span>
+            <select
+              value={settings.fps}
+              onChange={(e) => update({ fps: Number(e.target.value) })}
+            >
+              {FPS_OPTIONS.map((fps) => (
+                <option key={fps} value={fps}>
+                  {fps} fps
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="field">
+            <span>Sprache der Texte</span>
+            <select
+              value={settings.language}
+              onChange={(e) => update({ language: e.target.value as Language })}
+            >
+              <option value="de">Deutsch</option>
+              <option value="en">English</option>
+            </select>
+          </label>
         </div>
-        <label className="field">
-          <span>Sprache der Texte</span>
-          <select value={settings.language} onChange={(e) => update({ language: e.target.value as Language })}>
-            <option value="de">Deutsch</option>
-            <option value="en">English</option>
-          </select>
-        </label>
-        <label className="field field--checkbox">
-          <input type="checkbox" checked={settings.showFrame} onChange={(e) => update({ showFrame: e.target.checked })} />
-          <span>Rahmen um Text- und Spiel-Overlays</span>
-        </label>
-        <label className="field field--checkbox">
-          <input type="checkbox" checked={settings.showGrid} onChange={(e) => update({ showGrid: e.target.checked })} />
-          <span>Raster &amp; Hz-Beschriftung (Spektrum)</span>
-        </label>
-      </div>
+      </fieldset>
+      <fieldset className="export__group">
+        <legend>Design</legend>
+        <div className="export__settings">
+          <div className="field">
+            <span>Neonfarbe</span>
+            <div className="swatches">
+              {NEON_PRESETS.map((preset) => (
+                <button
+                  key={preset.value}
+                  type="button"
+                  className={`swatch${settings.color.toLowerCase() === preset.value ? " swatch--active" : ""}`}
+                  style={{ background: preset.value, color: preset.value }}
+                  aria-label={preset.name}
+                  title={preset.name}
+                  onClick={() => update({ color: preset.value })}
+                />
+              ))}
+              <input
+                type="color"
+                value={settings.color}
+                aria-label="Eigene Farbe"
+                title="Eigene Farbe"
+                onChange={(e) => update({ color: e.target.value })}
+              />
+            </div>
+          </div>
+          <div className="field">
+            <span>Schriftart</span>
+            <div className="choices" role="radiogroup" aria-label="Schriftart">
+              {FONTS.map((font) => (
+                <button
+                  key={font.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={settings.font === font.id}
+                  className={`choice${settings.font === font.id ? " choice--active" : ""}`}
+                  style={{ fontFamily: font.family, fontSize: `calc(0.8125rem * ${font.scale})` }}
+                  title={font.hint}
+                  onClick={() => update({ font: font.id })}
+                >
+                  {font.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="field">
+            <span>Leuchten</span>
+            <div className="choices" role="radiogroup" aria-label="Leuchten">
+              {GLOW_LEVELS.map((level) => (
+                <button
+                  key={level.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={settings.glow === level.id}
+                  className={`choice${settings.glow === level.id ? " choice--active" : ""}`}
+                  onClick={() => update({ glow: level.id })}
+                >
+                  {level.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <label className="field field--checkbox">
+            <input
+              type="checkbox"
+              checked={settings.showFrame}
+              onChange={(e) => update({ showFrame: e.target.checked })}
+            />
+            <span>Rahmen um Text- und Spiel-Overlays</span>
+          </label>
+          <label className="field field--checkbox">
+            <input
+              type="checkbox"
+              checked={settings.showGrid}
+              onChange={(e) => update({ showGrid: e.target.checked })}
+            />
+            <span>Raster &amp; Hz-Beschriftung (Spektrum)</span>
+          </label>
+        </div>
+      </fieldset>
 
       <p className="hint">
-        Jedes Overlay ist ein eigenes Video mit transparentem Hintergrund, so lässt es sich in DaVinci Resolve frei
-        platzieren. ProRes 4444 ist dafür das gängige Format, aber groß (Spektrum in 1080p30 ca. 0,7 GB pro Minute).
+        Jedes Overlay ist ein eigenes Video mit transparentem Hintergrund, so
+        lässt es sich in DaVinci Resolve frei platzieren. ProRes 4444 ist dafür
+        das gängige Format, aber groß (Spektrum in 1080p30 ca. 0,7 GB pro
+        Minute).
       </p>
 
       <div className="export__actions">
         {KINDS.map((kind) => (
-          <button key={kind} type="button" className="button" onClick={() => start([kind])}>
+          <button
+            key={kind}
+            type="button"
+            className="button"
+            onClick={() => start([kind])}
+          >
             {KIND_LABELS[kind]}
           </button>
         ))}
-        <button type="button" className="button button--primary" onClick={() => start(KINDS)}>
+        <button
+          type="button"
+          className="button button--primary"
+          onClick={() => start(KINDS)}
+        >
           Alle erstellen
         </button>
       </div>
@@ -199,14 +297,22 @@ function JobRow({ job }: { job: VideoJob }) {
         <span className="job__meta">{format}</span>
       </div>
       {job.status === "done" ? (
-        <a className="button" href={videoDownloadUrl(job.id)} download={job.file_name ?? undefined}>
+        <a
+          className="button"
+          href={videoDownloadUrl(job.id)}
+          download={job.file_name ?? undefined}
+        >
           Download {job.file_name} ({formatBytes(job.size_bytes ?? 0)})
         </a>
       ) : job.status === "failed" ? (
         <p className="message message--error">Fehlgeschlagen: {job.error}</p>
       ) : (
         <div className="job__progress">
-          <progress max={100} value={percent} aria-label={`${KIND_LABELS[job.kind]} wird erstellt`} />
+          <progress
+            max={100}
+            value={percent}
+            aria-label={`${KIND_LABELS[job.kind]} wird erstellt`}
+          />
           <span>{job.status === "queued" ? "Wartet …" : `${percent} %`}</span>
         </div>
       )}
