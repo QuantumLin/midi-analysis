@@ -149,5 +149,6 @@ MidiAnalysis/
 ├── .gitignore
 ├── .gitattributes
 ├── .dockerignore
+├── LICENSE                    # MIT
 └── README.md
 ```

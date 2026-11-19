@@ -41,3 +41,7 @@ Danach die Anwendung unter http://localhost:5173 öffnen und eine MIDI-Datei hin
 ## Tech-Stack
 
 Python 3.14 mit FastAPI, numpy, Pillow und ffmpeg im Backend, React 19 mit TypeScript und Vite im Frontend, Docker Compose für die Entwicklungsumgebung. Details: [Architektur](docs/architecture.md).
+
+## Lizenz
+
+Der Code steht unter der [MIT-Lizenz](LICENSE). Die mitgelieferten Schriften stehen unter der SIL Open Font License; die Lizenz liegt jeweils neben der Schrift in `assets/fonts/`.
