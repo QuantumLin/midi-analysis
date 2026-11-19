@@ -8,6 +8,8 @@ interface Props {
   time: number;
   width: number;
   color: string;
+  font: string; // CSS font family of the C labels
+  glow: number; // glow strength factor (1 = normal)
 }
 
 // Same look as backend/app/video/heatmap_renderer.py.
@@ -28,15 +30,15 @@ export function heatBarHeight(width: number): number {
 }
 
 /** The 88 keys (A0 left, C8 right) as one glowing bar with a smooth intensity distribution. */
-export default function HeatBar({ notes, time, width, color }: Props) {
+export default function HeatBar({ notes, time, width, color, font, glow }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const height = heatBarHeight(width);
 
   useEffect(() => {
     if (!canvasRef.current || width === 0) return;
     const { counts, held } = keyboardAt(notes, time);
-    draw(canvasRef.current, width, height, keyHeat(counts, held), hexToRgb(color));
-  }, [notes, time, width, height, color]);
+    draw(canvasRef.current, width, height, keyHeat(counts, held), hexToRgb(color), font, glow);
+  }, [notes, time, width, height, color, font, glow]);
 
   return <canvas ref={canvasRef} style={{ width, height }} role="img" aria-label="Tasten-Heatmap" />;
 }
@@ -66,7 +68,15 @@ function ramp(heat: number, color: [number, number, number]): string {
   return `rgb(${rgb[0]} ${rgb[1]} ${rgb[2]} / ${alpha})`;
 }
 
-function draw(canvas: HTMLCanvasElement, width: number, height: number, heat: number[], color: [number, number, number]) {
+function draw(
+  canvas: HTMLCanvasElement,
+  width: number,
+  height: number,
+  heat: number[],
+  color: [number, number, number],
+  font: string,
+  glow: number,
+) {
   const ctx = prepareCanvas(canvas, width, height);
   const barHeight = height * 0.26;
   const margin = height * 0.3; // room for the glow
@@ -83,7 +93,10 @@ function draw(canvas: HTMLCanvasElement, width: number, height: number, heat: nu
   ctx.save();
   ctx.filter = `blur(${barHeight * 0.11}px)`;
   ctx.fillStyle = gradient;
-  ctx.fill(bar);
+  for (let rest = glow; rest > 0; rest -= 1) {
+    ctx.globalAlpha = Math.min(rest, 1); // > 1: an extra, partial layer
+    ctx.fill(bar);
+  }
   ctx.restore();
   ctx.fillStyle = gradient;
   ctx.fill(bar);
@@ -92,7 +105,7 @@ function draw(canvas: HTMLCanvasElement, width: number, height: number, heat: nu
   const core = `rgb(${color.map((c) => Math.round(c + (255 - c) * 0.55)).join(" ")} / 0.55)`;
   ctx.fillStyle = core;
   ctx.strokeStyle = core;
-  ctx.font = `600 ${Math.max(10, Math.round(height * 0.12))}px Orbitron, system-ui, sans-serif`;
+  ctx.font = `600 ${Math.max(10, Math.round(height * 0.12))}px ${font}, system-ui, sans-serif`;
   ctx.textAlign = "center";
   ctx.textBaseline = "top";
   for (let key = 0; key < PIANO_KEYS; key++) {

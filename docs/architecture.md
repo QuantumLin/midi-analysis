@@ -5,7 +5,7 @@
 | Bereich | Technologie | Begründung |
 | --- | --- | --- |
 | Backend | Python 3.14, FastAPI, Uvicorn, pydantic-settings, mido | Python bietet die besten MIDI-/Musiktheorie-Bibliotheken. FastAPI liefert typisierte APIs und automatische OpenAPI-Doku. |
-| Video | numpy, Pillow, ffmpeg, Schrift Orbitron | numpy berechnet Spektrum und Frames, Pillow rendert Text und Glow, ffmpeg erzeugt ProRes 4444 und PNG mit Alpha-Kanal. Orbitron (SIL Open Font License) wird mitgeliefert, damit App und Videos überall gleich aussehen. |
+| Video | numpy, Pillow, ffmpeg, sechs Schriften | numpy berechnet Spektrum und Frames, Pillow rendert Text und Glow, ffmpeg erzeugt ProRes 4444 und PNG mit Alpha-Kanal. Die wählbaren Schriften (Orbitron, Montserrat, Bebas Neue, Playfair Display, Press Start 2P, Caveat; alle SIL Open Font License) werden mitgeliefert, damit App und Videos überall gleich aussehen. |
 | Frontend | React 19, TypeScript, Vite 8 | Moderne, schlanke UI mit sehr schnellem Hot Reload. Lässt sich später unverändert in eine Desktop-Shell einbetten. |
 | Docker | Docker Compose | Ein Befehl startet die gesamte Entwicklungsumgebung. |
 
@@ -39,7 +39,7 @@
 4. Typ in `frontend/src/types/analysis.ts` spiegeln.
 5. Für ein Video: Renderer in `backend/app/video/` (Basis `neon_overlay.py`) anlegen und in `render.py` (`_FRAME_SOURCES`) sowie `options.py` als neue Art eintragen. Ein Video, das nicht so lang ist wie das Stück, gibt einen `FrameStream` mit eigener Bildanzahl zurück (siehe Song Wrapped).
 
-**Erweiterungspunkte ohne neues Modul:** Boss-Faktoren (`FACTORS`), Bingo-Felder (`FIELDS`, `CARD`), Wrapped-Karten (`CARDS`), Akkordfolgen (`PROGRESSIONS`) und Achievements sind Listen, die sich um einen Eintrag erweitern lassen (siehe [Analyse](analysis.md)).
+**Erweiterungspunkte ohne neues Modul:** Schriften und Leuchtstufen (`FONTS`, `GLOW_FACTORS` in `style.py`, gespiegelt in `frontend/src/utils/style.ts`), Boss-Faktoren (`FACTORS`), Bingo-Felder (`FIELDS`, `CARD`), Wrapped-Karten (`CARDS`), Akkordfolgen (`PROGRESSIONS`) und Achievements sind Listen, die sich um einen Eintrag erweitern lassen (siehe [Analyse](analysis.md)).
 
 ## Desktop-Anwendung und Docker
 
@@ -83,13 +83,13 @@ MidiAnalysis/
 │   │   │   └── analysis_service.py # führt alle Analysen aus
 │   │   ├── video/
 │   │   │   ├── achievement_renderer.py # Achievement-Pop-ups
-│   │   │   ├── assets/            # Orbitron.ttf + Lizenz (OFL)
+│   │   │   ├── assets/fonts/      # die sechs Schriften, je mit Lizenz (OFL)
 │   │   │   ├── bingo_renderer.py  # Bingo-Karte
 │   │   │   ├── boss_renderer.py   # Endgegner mit HP-Balken
 │   │   │   ├── chord_renderer.py  # Akkord-Overlay
 │   │   │   ├── circle_renderer.py # Quintenzirkel
 │   │   │   ├── encoder.py         # ffmpeg: ProRes 4444 / PNG-Sequenz
-│   │   │   ├── fonts.py           # Orbitron + Ersatzschrift für ♯ ♭ →
+│   │   │   ├── fonts.py           # gewählte Schrift + Ersatzschrift für ♯ ♭ →
 │   │   │   ├── harmony_renderer.py # Stufen-Overlay
 │   │   │   ├── heatmap_renderer.py # Heat-Balken (numpy)
 │   │   │   ├── jobs.py            # Hintergrundjobs
@@ -103,6 +103,7 @@ MidiAnalysis/
 │   │   │   ├── render.py          # rendert ein komplettes Video
 │   │   │   ├── section_renderer.py # Abschnitt-Overlay
 │   │   │   ├── spectrum_renderer.py # Spektrum-Frame (numpy)
+│   │   │   ├── style.py           # wählbares Design: Schriften, Leuchtstärke
 │   │   │   ├── wrapped.py         # Song-Wrapped-Karten
 │   │   │   └── wrapped_renderer.py # Song-Wrapped-Abspann
 │   │   ├── config.py              # Settings aus Umgebungsvariablen
@@ -127,7 +128,7 @@ MidiAnalysis/
 │   │   │   │   ├── SpectrumCanvas.tsx
 │   │   │   │   └── HeatBar.tsx        # Heat-Balken
 │   │   │   └── VideoExport.tsx    # Export-Einstellungen und Jobs
-│   │   ├── assets/fonts/          # Orbitron.ttf + Lizenz (OFL)
+│   │   ├── assets/fonts/          # dieselben sechs Schriften für die Vorschau
 │   │   ├── hooks/                 # usePlayback, useElementWidth
 │   │   ├── types/analysis.ts      # Typen der API-Antwort
 │   │   ├── utils/                 # labels, stats, harmony, form, games, spectrum, chords, canvas, format

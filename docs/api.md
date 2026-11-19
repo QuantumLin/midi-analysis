@@ -8,7 +8,7 @@ Das Backend stellt eine HTTP-API unter `/api` bereit. Das vollständige, automat
 | --- | --- | --- |
 | `GET` | `/api/health` | Health-Check |
 | `POST` | `/api/analysis` | MIDI-Datei analysieren (`multipart/form-data`, Feld `file`) |
-| `POST` | `/api/videos` | Video-Export starten (`file`, `kind`, `format`, `width`, `height`, `fps`, `color`, `show_grid`, `show_frame`, `language`) → Job |
+| `POST` | `/api/videos` | Video-Export starten (`file`, `kind`, `format`, `width`, `height`, `fps`, `color`, `show_grid`, `show_frame`, `font`, `glow`, `language`) → Job |
 | `GET` | `/api/videos/{id}` | Status eines Jobs (`status`, `progress`) |
 | `GET` | `/api/videos/{id}/download` | Fertiges Video herunterladen |
 
@@ -50,6 +50,8 @@ Die Typen sind im Frontend in `frontend/src/types/analysis.ts` gespiegelt.
 | `color` | Hex-Farbe wie `#00e5ff` |
 | `show_grid` | nur Spektrum: Raster und Beschriftung |
 | `show_frame` | Glas-Panel mit Rahmen um Text- und Spiel-Overlays (Standard `true`) |
+| `font` | `orbitron` (Standard), `montserrat`, `bebas`, `playfair`, `pixel`, `handwriting` |
+| `glow` | `subtle`, `normal` (Standard), `strong` |
 | `language` | `de` oder `en` |
 
 Was die einzelnen Videos zeigen, steht in [Video-Export](video-export.md).

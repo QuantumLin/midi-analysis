@@ -9,6 +9,7 @@ of identical states only once.
 from PIL import Image
 
 from app.video.neon import Color, add_neon, centered_frame, draw_text, neon_panel, text_width
+from app.video.style import current
 
 LABEL_TRACKING = 0.22
 LABEL_WEIGHT = 600
@@ -35,6 +36,7 @@ class NeonOverlay:
             radius=round(30 * u),
             border=max(1, round(3 * u)),
             color=color,
+            glow=current().glow_factor,
         )
         self.left = self.margin + self.pad  # content origin inside the canvas
         self.top = self.margin + self.pad

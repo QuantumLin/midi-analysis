@@ -150,6 +150,8 @@ export interface AnalysisResult {
 export type VideoKind = "spectrum" | "chords" | "key" | "note_rate" | "heatmap" | "harmony" | "achievements" | "motifs" | "sections" | "boss" | "circle" | "bingo" | "wrapped";
 export type Language = "de" | "en";
 export type VideoFormat = "prores" | "png";
+export type FontId = "orbitron" | "montserrat" | "bebas" | "playfair" | "pixel" | "handwriting";
+export type GlowLevel = "subtle" | "normal" | "strong";
 
 export interface VideoSettings {
   format: VideoFormat;
@@ -160,6 +162,8 @@ export interface VideoSettings {
   showGrid: boolean;
   language: Language; // texts in the overlays
   showFrame: boolean; // glass panel with glowing border around the text and game overlays
+  font: FontId; // display font of the overlays
+  glow: GlowLevel;
 }
 
 export interface VideoJob {

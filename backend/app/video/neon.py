@@ -14,6 +14,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 
 from app.video.fonts import display_font_has, load_display_font, load_font
+from app.video.style import current
 
 Color = tuple[int, int, int]
 
@@ -109,13 +110,15 @@ def colorize(mask: Image.Image, color: Color, alpha: float = 1.0) -> Image.Image
 def add_neon(canvas: Image.Image, mask: Image.Image, color: Color, radius: float, strength: float = 1.0,
              core_alpha: float = 1.0) -> None:  # fmt: skip
     """Composites glowing text (given as mask) onto the RGBA canvas, in place.
-    strength > 1 (a flash) adds a wide aura and a whiter core on top of the normal glow."""
+    strength > 1 (a flash) adds a wide aura and a whiter core on top of the normal glow.
+    The user's glow setting (style.py) scales the glow, not the core."""
+    factor = current().glow_factor
     for blur, alpha in ((radius, 0.55), (radius * 0.4, 0.8)):
         glow = mask.filter(ImageFilter.GaussianBlur(blur))
-        canvas.alpha_composite(colorize(glow, color, min(2.5, alpha * strength)))
+        canvas.alpha_composite(colorize(glow, color, min(2.5, alpha * strength * factor)))
     if strength > 1:
         aura = mask.filter(ImageFilter.GaussianBlur(radius * 2.5))
-        canvas.alpha_composite(colorize(aura, color, min(1.0, 0.6 * (strength - 1)) * 2))
+        canvas.alpha_composite(colorize(aura, color, min(1.0, 0.6 * (strength - 1)) * 2 * factor))
     core = core_color(color) if strength <= 1 else mix(core_color(color), (255, 255, 255), min(0.8, (strength - 1) * 0.5))
     canvas.alpha_composite(colorize(mask, core, core_alpha))
 
@@ -124,8 +127,10 @@ def add_neon(canvas: Image.Image, mask: Image.Image, color: Color, radius: float
 
 
 @lru_cache(maxsize=16)
-def neon_panel(width: int, height: int, margin: int, radius: int, border: int, color: Color) -> Image.Image:
-    """Glass panel with a glowing border, `margin` px of room around it for the glow."""
+def neon_panel(width: int, height: int, margin: int, radius: int, border: int, color: Color,
+               glow: float = 1.0) -> Image.Image:  # fmt: skip
+    """Glass panel with a glowing border, `margin` px of room around it for the glow
+    (`glow` scales the border's glow, see style.py)."""
     s = SUPERSAMPLING
     size = (width + 2 * margin, height + 2 * margin)
     box = [(margin * s, margin * s), ((margin + width) * s - 1, (margin + height) * s - 1)]
@@ -139,7 +144,8 @@ def neon_panel(width: int, height: int, margin: int, radius: int, border: int, c
     border_mask = shape(outline=255, width=border * s)
 
     panel = colorize(fill_mask, PANEL_FILL, PANEL_ALPHA)
-    panel.alpha_composite(colorize(border_mask.filter(ImageFilter.GaussianBlur(margin * 0.45)), color, 0.9))
+    panel.alpha_composite(colorize(border_mask.filter(ImageFilter.GaussianBlur(margin * 0.45)), color,
+                                   min(2.0, 0.9 * glow)))  # fmt: skip
     panel.alpha_composite(colorize(border_mask, core_color(color), 0.95))
     return panel
 

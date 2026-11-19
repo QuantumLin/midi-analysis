@@ -3,6 +3,7 @@ import { useElementWidth } from "../../hooks/useElementWidth";
 import { usePlayback } from "../../hooks/usePlayback";
 import type { AnalysisResult, VideoSettings } from "../../types/analysis";
 import { chordAt } from "../../utils/chords";
+import { fontFamily, glowFactor, overlayStyle } from "../../utils/style";
 import { displayAccidentals } from "../../utils/labels";
 import { motifAt, sectionAt } from "../../utils/form";
 import { bingoAt, bossAt, circleAt } from "../../utils/games";
@@ -52,7 +53,11 @@ export default function OverlayPreview({ result, settings }: Props) {
 
   return (
     <div className="player" tabIndex={0} onKeyDown={onKeyDown} aria-label="Vorschau, Leertaste startet und pausiert">
-      <div ref={screenRef} className={`player__screen${settings.showFrame ? "" : " player__screen--frameless"}`}>
+      <div
+        ref={screenRef}
+        className={`player__screen${settings.showFrame ? "" : " player__screen--frameless"}`}
+        style={overlayStyle(settings)}
+      >
         <div className="player__fields">
           <NoteRateField
             state={noteRateAt(result.note_rate, bestSoFar, result.notes, time)}
@@ -99,7 +104,14 @@ export default function OverlayPreview({ result, settings }: Props) {
             </div>
           )}
         </div>
-        <HeatBar notes={result.notes} time={time} width={width} color={color} />
+        <HeatBar
+          notes={result.notes}
+          time={time}
+          width={width}
+          color={color}
+          font={fontFamily(settings.font)}
+          glow={glowFactor(settings.glow)}
+        />
       </div>
       <div className="player__controls">
         <button type="button" className="button" onClick={toggle}>

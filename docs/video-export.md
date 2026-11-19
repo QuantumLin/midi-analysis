@@ -13,13 +13,15 @@ Jedes Overlay wird als eigenes Video mit transparentem Hintergrund gerendert, da
 | Sprache | Deutsch oder Englisch für die Texte („d-Moll“ / „D minor“) |
 | Raster | Spektrum mit Raster und Hz/dB-Beschriftung oder nur die Kurve |
 | Rahmen | Glas-Panel mit leuchtendem Rahmen um die Text- und Spiel-Overlays, oder nur der leuchtende Inhalt (Song Wrapped, Spektrum und Heatmap sind nicht betroffen) |
+| Schriftart | Orbitron (Neon-Tech, Standard), Montserrat (modern), Bebas Neue (fett, YouTube-Look), Playfair Display (elegant, klassisch), Press Start 2P (Retro-Pixel), Caveat (Handschrift) |
+| Leuchten | Dezent, Normal oder Stark: wie weit der Glow um Text, Pegel und Rahmen strahlt |
 
 - **Einzeln oder alle:** Jede Videoart hat einen eigenen Button. „Alle erstellen“ rendert alle 13 Videos nacheinander.
 - **Rendern:** Es läuft im Hintergrund mit Fortschrittsanzeige. Fertige Dateien werden nach 60 Minuten gelöscht (einstellbar, siehe [Entwicklung](development.md#konfiguration)).
 
 ## Gestaltung
 
-- **Neon-Look:** Die Schrift ist Orbitron. Die Textfelder sind dunkle Glas-Panels mit leuchtendem Rahmen, darin großer Neon-Text mit Glow und eine Beschriftung in Großbuchstaben. Jedes Panel behält im ganzen Video seine Größe, damit nichts springt.
+- **Neon-Look:** Die Schrift ist wählbar (Standard: Orbitron). Unterschiedlich große Schriften werden angeglichen, damit jedes Panel ähnlich groß bleibt. Die Textfelder sind dunkle Glas-Panels mit leuchtendem Rahmen, darin großer Neon-Text mit Glow und eine Beschriftung in Großbuchstaben. Jedes Panel behält im ganzen Video seine Größe, damit nichts springt.
 - **Effekte:**
   - **Akkordwechsel:** Das Akkord- und das Stufenfeld blitzen kurz auf.
   - **Noten/s:** Ein LED-Pegel zeigt die aktuelle Geschwindigkeit relativ zum Höchstwert des Stücks.

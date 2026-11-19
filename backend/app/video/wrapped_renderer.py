@@ -21,6 +21,7 @@ from app.video.neon import (
     neon_panel,
 )
 from app.video.neon_overlay import LABEL_TRACKING, LABEL_WEIGHT, VALUE_WEIGHT, ease_out_back
+from app.video.style import current
 from app.video.wrapped import WrappedCard
 
 INTRO_SECONDS = 0.8
@@ -121,7 +122,7 @@ class WrappedRenderer:
     def _card_image(self, card: WrappedCard) -> Image.Image:
         """One glass card with the title (small, uppercase) and the value (big neon)."""
         image = neon_panel(self.card_width, self.card_height, self.card_margin, round(24 * self.u),
-                           max(1, round(3 * self.u)), self.color).copy()  # fmt: skip
+                           max(1, round(3 * self.u)), self.color, current().glow_factor).copy()  # fmt: skip
         center_x = image.width / 2
         max_width = self.card_width - 2 * 32 * self.u
         title_size = max(8, round(26 * self.u))
