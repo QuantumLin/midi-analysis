@@ -44,4 +44,4 @@ Python 3.14 mit FastAPI, numpy, Pillow und ffmpeg im Backend, React 19 mit TypeS
 
 ## Lizenz
 
-Der Code steht unter der [MIT-Lizenz](LICENSE). Die mitgelieferten Schriften stehen unter der SIL Open Font License; die Lizenz liegt jeweils neben der Schrift in `assets/fonts/`.
+Der Code steht unter der [PolyForm Noncommercial License 1.0.0](LICENSE): Ansehen, Lernen und Nutzen für private und andere nicht-kommerzielle Zwecke sind erlaubt, kommerzielle Nutzung (z. B. Verkauf oder Einbau in kostenpflichtige Produkte) nur mit ausdrücklicher Erlaubnis. Die mitgelieferten Schriften stehen unter der SIL Open Font License; die Lizenz liegt jeweils neben der Schrift in `assets/fonts/`.
