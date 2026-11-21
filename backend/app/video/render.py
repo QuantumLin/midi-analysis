@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
+from PIL import Image
 
 from app.analysis.achievements import find_achievements
 from app.analysis.bingo import BingoContext, play_bingo
@@ -71,6 +72,8 @@ def render_video(
 ) -> Path:
     with using(Style(options.font, options.glow)):  # font and glow for everything drawn below
         frames = _FRAME_SOURCES[options.kind](midi, options)
+        if options.scale < 1:
+            frames = _scale_frames(frames, options.width, options.height, options.scale)
         frame_count = frames.count if isinstance(frames, FrameStream) else _frame_count(midi, options.fps)
         encoder = VideoEncoder(output_base, options.format, options.width, options.height, options.fps, frame_prefix)
         try:
@@ -84,6 +87,28 @@ def render_video(
             raise
     on_progress(1.0)
     return path
+
+
+def _scale_frame(frame: bytes, width: int, height: int, scale: float) -> bytes:
+    scaled_width = max(1, round(width * scale))
+    scaled_height = max(1, round(height * scale))
+    image = Image.frombytes("RGBA", (width, height), frame).resize(
+        (scaled_width, scaled_height), Image.Resampling.LANCZOS
+    )
+    canvas = Image.new("RGBA", (width, height))
+    canvas.alpha_composite(image, ((width - scaled_width) // 2, (height - scaled_height) // 2))
+    return canvas.tobytes()
+
+
+def _scale_frames(
+    frames: Iterable[bytes] | FrameStream, width: int, height: int, scale: float
+) -> Iterable[bytes] | FrameStream:
+    def resize(frame: bytes) -> bytes:
+        return _scale_frame(frame, width, height, scale)
+
+    if isinstance(frames, FrameStream):
+        return FrameStream(frames.count, map(resize, frames.frames))
+    return map(resize, frames)
 
 
 def _apply_frame(renderer: NeonOverlay, options: VideoOptions) -> None:

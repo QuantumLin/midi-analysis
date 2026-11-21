@@ -14,6 +14,7 @@ Jedes Overlay wird als eigenes Video mit transparentem Hintergrund gerendert, da
 | Rahmen | Glas-Panel mit leuchtendem Rahmen um die Text- und Spiel-Overlays, oder nur der leuchtende Inhalt (Song Wrapped, Spektrum und Heatmap sind nicht betroffen) |
 | Schriftart | Orbitron (Neon-Tech, Standard), Montserrat (modern), Bebas Neue (fett, YouTube-Look), Playfair Display (elegant, klassisch), Press Start 2P (Retro-Pixel), Caveat (Handschrift) |
 | Leuchten | Dezent, Normal oder Stark: wie weit der Glow um Text, Pegel und Rahmen strahlt |
+| Overlay-Größe | 25–100 % separat für jeden Overlaytyp; die App startet mit 50 % |
 
 - **Einzeln oder alle:** Jede Videoart hat einen eigenen Button. „Alle erstellen“ rendert alle 13 Videos nacheinander.
 - **Rendern:** Es läuft im Hintergrund mit Fortschrittsanzeige. Fertige Dateien werden nach 60 Minuten gelöscht (einstellbar, siehe [Entwicklung](development.md#konfiguration)).

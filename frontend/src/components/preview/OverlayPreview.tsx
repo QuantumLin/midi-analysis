@@ -1,4 +1,4 @@
-import { useMemo, useRef, type KeyboardEvent } from "react";
+import { useMemo, useRef, type CSSProperties, type KeyboardEvent, type ReactNode } from "react";
 import { useElementWidth } from "../../hooks/useElementWidth";
 import { usePlayback } from "../../hooks/usePlayback";
 import type { AnalysisResult, VideoSettings } from "../../types/analysis";
@@ -26,6 +26,14 @@ import SpectrumCanvas from "./SpectrumCanvas";
 interface Props {
   result: AnalysisResult;
   settings: VideoSettings;
+}
+
+function ScaledOverlay({ scale, children }: { scale: number; children: ReactNode }) {
+  return (
+    <div className="preview-overlay" style={{ "--overlay-scale": scale } as CSSProperties}>
+      {children}
+    </div>
+  );
 }
 
 /**
@@ -59,59 +67,83 @@ export default function OverlayPreview({ result, settings }: Props) {
         style={overlayStyle(settings)}
       >
         <div className="player__fields">
-          <NoteRateField
-            state={noteRateAt(result.note_rate, bestSoFar, result.notes, time)}
-            peak={result.note_rate.peak_value}
-            color={color}
-            language={language}
-          />
-          <KeyField current={keySegmentAt(result.keys.segments, time)} color={color} language={language} />
-          <ChordField name={chord?.name ?? null} start={chord?.start ?? null} color={color} language={language} />
-          <HarmonyField
-            numeral={chord?.numeral ?? null}
-            start={chord?.start ?? null}
-            chain={chord ? chainBefore(result.chords, chordIndex) : []}
-            musicalKey={chordKey}
-            progression={chord ? progressionAt(result.progressions, time) : null}
-            color={color}
-            language={language}
-          />
-          <SectionField current={sectionAt(result.sections, time)} color={color} language={language} />
-          <MotifField current={motifAt(result.motifs, time)} color={color} language={language} />
-          <BossField boss={result.boss} state={bossAt(result.boss, time)} color={color} language={language} />
+          <ScaledOverlay scale={settings.overlayScales.note_rate}>
+            <NoteRateField
+              state={noteRateAt(result.note_rate, bestSoFar, result.notes, time)}
+              peak={result.note_rate.peak_value}
+              color={color}
+              language={language}
+            />
+          </ScaledOverlay>
+          <ScaledOverlay scale={settings.overlayScales.key}>
+            <KeyField current={keySegmentAt(result.keys.segments, time)} color={color} language={language} />
+          </ScaledOverlay>
+          <ScaledOverlay scale={settings.overlayScales.chords}>
+            <ChordField name={chord?.name ?? null} start={chord?.start ?? null} color={color} language={language} />
+          </ScaledOverlay>
+          <ScaledOverlay scale={settings.overlayScales.harmony}>
+            <HarmonyField
+              numeral={chord?.numeral ?? null}
+              start={chord?.start ?? null}
+              chain={chord ? chainBefore(result.chords, chordIndex) : []}
+              musicalKey={chordKey}
+              progression={chord ? progressionAt(result.progressions, time) : null}
+              color={color}
+              language={language}
+            />
+          </ScaledOverlay>
+          <ScaledOverlay scale={settings.overlayScales.sections}>
+            <SectionField current={sectionAt(result.sections, time)} color={color} language={language} />
+          </ScaledOverlay>
+          <ScaledOverlay scale={settings.overlayScales.motifs}>
+            <MotifField current={motifAt(result.motifs, time)} color={color} language={language} />
+          </ScaledOverlay>
+          <ScaledOverlay scale={settings.overlayScales.boss}>
+            <BossField boss={result.boss} state={bossAt(result.boss, time)} color={color} language={language} />
+          </ScaledOverlay>
         </div>
         <div className="player__fields">
-          <CircleOfFifths
-            state={circleAt(result.chords, chord, time)}
-            chordName={chord ? displayAccidentals(chord.name) : null}
-            color={color}
-            language={language}
-          />
-          <BingoBoard bingo={result.bingo} state={bingoAt(result.bingo, time)} color={color} language={language} />
+          <ScaledOverlay scale={settings.overlayScales.circle}>
+            <CircleOfFifths
+              state={circleAt(result.chords, chord, time)}
+              chordName={chord ? displayAccidentals(chord.name) : null}
+              color={color}
+              language={language}
+            />
+          </ScaledOverlay>
+          <ScaledOverlay scale={settings.overlayScales.bingo}>
+            <BingoBoard bingo={result.bingo} state={bingoAt(result.bingo, time)} color={color} language={language} />
+          </ScaledOverlay>
         </div>
         <div className="player__stage">
-          <SpectrumCanvas
-            spectrum={result.spectrum}
-            time={time}
-            width={width}
-            height={Math.round(Math.min(Math.max(width * 0.36, 200), 360))}
-            color={color}
-            showGrid={settings.showGrid}
-          />
+          <ScaledOverlay scale={settings.overlayScales.spectrum}>
+            <SpectrumCanvas
+              spectrum={result.spectrum}
+              time={time}
+              width={width}
+              height={Math.round(Math.min(Math.max(width * 0.36, 200), 360))}
+              color={color}
+              showGrid={settings.showGrid}
+            />
+          </ScaledOverlay>
           {achievement && (
             <div className="player__popup">
-              <AchievementToast state={achievement} color={color} language={language} />
+              <ScaledOverlay scale={settings.overlayScales.achievements}>
+                <AchievementToast state={achievement} color={color} language={language} />
+              </ScaledOverlay>
             </div>
           )}
         </div>
-        <HeatBar
-          notes={result.notes}
-          time={time}
-          width={width}
-          color={color}
-          font={fontFamily(settings.font)}
-          glow={glowFactor(settings.glow)}
-        />
+        <ScaledOverlay scale={settings.overlayScales.heatmap}>
+          <HeatBar
+            notes={result.notes}
+            time={time}
+            width={width}
+            color={color}
+            font={fontFamily(settings.font)}
+            glow={glowFactor(settings.glow)}
+          />
+        </ScaledOverlay>
       </div>
       <div className="player__controls">
         <button type="button" className="button" onClick={toggle}>

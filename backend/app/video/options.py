@@ -29,6 +29,7 @@ class VideoOptions:
     show_frame: bool = True  # glass panel with glowing border around the text and game overlays
     font: FontId = "orbitron"  # display font, see style.py
     glow: GlowLevel = "normal"
+    scale: float = 1.0  # size of the overlay content within the output frame
 
     @staticmethod
     def create(
@@ -43,6 +44,7 @@ class VideoOptions:
         show_frame: bool = True,
         font: FontId = "orbitron",
         glow: GlowLevel = "normal",
+        scale: float = 1.0,
     ) -> "VideoOptions":
         """Validates raw values; raises ValueError with a readable message."""
         if not (MIN_WIDTH <= width <= MAX_WIDTH and MIN_HEIGHT <= height <= MAX_HEIGHT):
@@ -53,5 +55,7 @@ class VideoOptions:
             raise ValueError(f"FPS must be one of {', '.join(map(str, ALLOWED_FPS))}.")
         if not _HEX_COLOR.match(color):
             raise ValueError("Color must be a hex value like #4da3ff.")
+        if not 0.25 <= scale <= 1.0:
+            raise ValueError("Overlay size must be between 25% and 100%.")
         rgb = tuple(int(color[i : i + 2], 16) for i in (1, 3, 5))
-        return VideoOptions(kind, format, width, height, fps, rgb, show_grid, language, show_frame, font, glow)  # type: ignore[arg-type]
+        return VideoOptions(kind, format, width, height, fps, rgb, show_grid, language, show_frame, font, glow, scale)  # type: ignore[arg-type]

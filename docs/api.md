@@ -52,5 +52,6 @@ Die Typen sind im Frontend in `frontend/src/types/analysis.ts` gespiegelt.
 | `show_frame` | Glas-Panel mit Rahmen um Text- und Spiel-Overlays (Standard `true`) |
 | `font` | `orbitron` (Standard), `montserrat`, `bebas`, `playfair`, `pixel`, `handwriting` |
 | `glow` | `subtle`, `normal` (Standard), `strong` |
+| `scale` | Overlay size from `0.25` to `1.0`; `1.0` is original size (API default) |
 
 Was die einzelnen Videos zeigen, steht in [Video-Export](video-export.md).

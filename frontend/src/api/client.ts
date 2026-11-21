@@ -48,6 +48,7 @@ export function createVideoJob(file: File, kind: VideoKind, settings: VideoSetti
   form.append("show_frame", String(settings.showFrame));
   form.append("font", settings.font);
   form.append("glow", settings.glow);
+  form.append("scale", String(settings.overlayScales[kind]));
   return request<VideoJob>("/videos", { method: "POST", body: form });
 }
 

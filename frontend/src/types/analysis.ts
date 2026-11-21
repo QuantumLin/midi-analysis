@@ -164,6 +164,7 @@ export interface VideoSettings {
   showFrame: boolean; // glass panel with glowing border around the text and game overlays
   font: FontId; // display font of the overlays
   glow: GlowLevel;
+  overlayScales: Record<VideoKind, number>; // per-overlay scale, from 0.25 to 1
 }
 
 export interface VideoJob {

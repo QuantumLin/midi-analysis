@@ -463,6 +463,32 @@ h2 {
   padding-bottom: 6px;
 }
 
+.field--scale {
+  flex: 1 1 220px;
+}
+
+.field--scale input {
+  flex: 1;
+  min-width: 0;
+}
+
+.field--scale__controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.button--reset {
+  padding: 6px 10px;
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
+
+.button--reset:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
 .hint {
   margin: 0;
   font-size: 0.8125rem;
@@ -501,8 +527,20 @@ h2 {
   padding: 16px 12px 4px;
 }
 
+.preview-overlay {
+  display: inline-flex;
+  justify-content: center;
+  transform: scale(var(--overlay-scale, 1));
+  transform-origin: center;
+}
+
+.preview-overlay--wrapped {
+  width: 100%;
+}
+
 .player__screen canvas + canvas,
-.player__stage + canvas {
+.player__stage + canvas,
+.player__stage + .preview-overlay {
   margin-top: 8px;
 }
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { createVideoJob, fetchVideoJob, videoDownloadUrl } from "../api/client";
 import type { VideoFormat, VideoJob, VideoKind, VideoSettings } from "../types/analysis";
-import { FONTS, GLOW_LEVELS } from "../utils/style";
+import { DEFAULT_OVERLAY_SCALE, FONTS, GLOW_LEVELS } from "../utils/style";
 
 interface Props {
   file: File;
@@ -49,6 +49,7 @@ export default function VideoExport({
 }: Props) {
   const [jobs, setJobs] = useState<VideoJob[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [scaleKind, setScaleKind] = useState<VideoKind>("chords");
 
   // Poll unfinished jobs until they are done or failed.
   const pendingIds = jobs
@@ -94,7 +95,13 @@ export default function VideoExport({
 
   const update = (patch: Partial<VideoSettings>) =>
     onSettingsChange({ ...settings, ...patch });
+  const updateOverlayScale = (scale: number) =>
+    onSettingsChange({
+      ...settings,
+      overlayScales: { ...settings.overlayScales, [scaleKind]: scale },
+    });
   const resolution = `${settings.width}x${settings.height}`;
+  const overlayScalePercent = Math.round(settings.overlayScales[scaleKind] * 100);
 
   return (
     <div className="export">
@@ -224,6 +231,39 @@ export default function VideoExport({
             />
             <span>Grid &amp; Hz labels (spectrum)</span>
           </label>
+          <label className="field">
+            <span>Overlay to resize</span>
+            <select value={scaleKind} onChange={(e) => setScaleKind(e.target.value as VideoKind)}>
+              {KINDS.map((kind) => (
+                <option key={kind} value={kind}>
+                  {KIND_LABELS[kind]}
+                </option>
+              ))}
+            </select>
+          </label>
+          <div className="field field--scale">
+            <label htmlFor="overlay-size">Overlay size: {overlayScalePercent}%</label>
+            <div className="field--scale__controls">
+              <input
+                id="overlay-size"
+                type="range"
+                min={25}
+                max={100}
+                step={5}
+                value={overlayScalePercent}
+                aria-label={`Size of ${KIND_LABELS[scaleKind]}`}
+                onChange={(e) => updateOverlayScale(Number(e.target.value) / 100)}
+              />
+              <button
+                type="button"
+                className="button button--reset"
+                disabled={settings.overlayScales[scaleKind] === DEFAULT_OVERLAY_SCALE}
+                onClick={() => updateOverlayScale(DEFAULT_OVERLAY_SCALE)}
+              >
+                Reset to default
+              </button>
+            </div>
+          </div>
         </div>
       </fieldset>
 

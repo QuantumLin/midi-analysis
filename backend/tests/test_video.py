@@ -6,6 +6,7 @@ import zipfile
 import numpy as np
 import pytest
 from fastapi.testclient import TestClient
+from PIL import Image, ImageDraw
 
 from app.analysis.chords import ChordMatch, ChordSegment
 from app.analysis.spectrum import MIN_DB, log_frequencies
@@ -13,7 +14,7 @@ from app.main import app
 from app.midi.parser import parse_midi
 from app.video.chord_renderer import ChordRenderer
 from app.video.options import VideoOptions
-from app.video.render import chord_at, render_video
+from app.video.render import _scale_frame, chord_at, render_video
 from app.video.spectrum_renderer import SpectrumRenderer
 from tests.midi_factory import build_midi, chord_events
 
@@ -39,6 +40,23 @@ def test_options_validation():
     for bad in [(1921, 1080, 30, "#ffffff"), (1920, 1080, 29, "#ffffff"), (1920, 1080, 30, "red"), (100, 100, 30, "#ffffff")]:
         with pytest.raises(ValueError):
             VideoOptions.create("spectrum", "prores", *bad, True)
+
+    assert VideoOptions.create("chords", "png", WIDTH, HEIGHT, 24, "#ffffff", True, scale=0.5).scale == 0.5
+    with pytest.raises(ValueError, match="Overlay size"):
+        VideoOptions.create("chords", "png", WIDTH, HEIGHT, 24, "#ffffff", True, scale=1.01)
+
+
+def test_overlay_scale_keeps_output_dimensions_and_centers_smaller_content():
+    image = Image.new("RGBA", (WIDTH, HEIGHT))
+    ImageDraw.Draw(image).rectangle((110, 50, 209, 129), fill=WHITE + (255,))
+
+    scaled = Image.frombytes("RGBA", (WIDTH, HEIGHT), _scale_frame(image.tobytes(), WIDTH, HEIGHT, 0.5))
+
+    assert scaled.size == (WIDTH, HEIGHT)
+    left, top, right, bottom = scaled.getchannel("A").getbbox()
+    assert right - left <= 60 and bottom - top <= 50
+    assert (left + right) // 2 == WIDTH // 2
+    assert (top + bottom) // 2 == HEIGHT // 2
 
 
 # --- chord display timing ------------------------------------------------------------
@@ -203,6 +221,10 @@ def test_video_api_rejects_bad_options_and_unknown_jobs():
     midi = build_midi(chord_events([60], 0, 1))
     response = client.post(
         "/api/videos", files={"file": ("a.mid", midi, "audio/midi")}, data={"kind": "spectrum", "fps": 29}
+    )
+    assert response.status_code == 400
+    response = client.post(
+        "/api/videos", files={"file": ("a.mid", midi, "audio/midi")}, data={"kind": "spectrum", "scale": 1.01}
     )
     assert response.status_code == 400
     assert client.get("/api/videos/does-not-exist").status_code == 404

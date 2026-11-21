@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { analyzeMidi, fetchHealth } from "./api/client";
 import ChordTable from "./components/ChordTable";
 import FileUpload from "./components/FileUpload";
@@ -6,11 +6,27 @@ import Logo from "./components/Logo";
 import { WrappedPreview } from "./components/preview/GameFields";
 import OverlayPreview from "./components/preview/OverlayPreview";
 import VideoExport from "./components/VideoExport";
-import type { AnalysisResult, VideoSettings } from "./types/analysis";
-import { overlayStyle } from "./utils/style";
+import type { AnalysisResult, VideoKind, VideoSettings } from "./types/analysis";
+import { DEFAULT_OVERLAY_SCALE, overlayStyle } from "./utils/style";
 
 type BackendState = "checking" | "online" | "offline";
 type SidebarTab = "video" | "chords";
+
+const DEFAULT_OVERLAY_SCALES: Record<VideoKind, number> = {
+  spectrum: DEFAULT_OVERLAY_SCALE,
+  chords: DEFAULT_OVERLAY_SCALE,
+  key: DEFAULT_OVERLAY_SCALE,
+  note_rate: DEFAULT_OVERLAY_SCALE,
+  heatmap: DEFAULT_OVERLAY_SCALE,
+  harmony: DEFAULT_OVERLAY_SCALE,
+  achievements: DEFAULT_OVERLAY_SCALE,
+  motifs: DEFAULT_OVERLAY_SCALE,
+  sections: DEFAULT_OVERLAY_SCALE,
+  boss: DEFAULT_OVERLAY_SCALE,
+  circle: DEFAULT_OVERLAY_SCALE,
+  bingo: DEFAULT_OVERLAY_SCALE,
+  wrapped: DEFAULT_OVERLAY_SCALE,
+};
 
 const DEFAULT_VIDEO_SETTINGS: VideoSettings = {
   format: "prores",
@@ -23,6 +39,7 @@ const DEFAULT_VIDEO_SETTINGS: VideoSettings = {
   showFrame: true,
   font: "orbitron",
   glow: "normal",
+  overlayScales: DEFAULT_OVERLAY_SCALES,
 };
 
 export default function App() {
@@ -120,7 +137,12 @@ export default function App() {
               separate clip that can be placed behind the piece in the editor.
             </p>
             <div className="player__screen" style={overlayStyle(videoSettings)}>
-              <WrappedPreview cards={result.wrapped} color={videoSettings.color} language={videoSettings.language} />
+              <div
+                className="preview-overlay preview-overlay--wrapped"
+                style={{ "--overlay-scale": videoSettings.overlayScales.wrapped } as CSSProperties}
+              >
+                <WrappedPreview cards={result.wrapped} color={videoSettings.color} language={videoSettings.language} />
+              </div>
             </div>
           </section>
         </>

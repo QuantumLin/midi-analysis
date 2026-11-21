@@ -4,6 +4,8 @@
 import type { CSSProperties } from "react";
 import type { FontId, GlowLevel, VideoSettings } from "../types/analysis";
 
+export const DEFAULT_OVERLAY_SCALE = 0.5;
+
 // scale: evens out the visual size between fonts, as FontSpec.scale in the backend.
 export const FONTS: { id: FontId; label: string; family: string; hint: string; scale: number }[] = [
   { id: "orbitron", label: "Orbitron", family: '"Orbitron"', hint: "Neon-Tech", scale: 1 },
