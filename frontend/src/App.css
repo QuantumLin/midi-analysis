@@ -92,7 +92,7 @@ h2 {
 }
 
 .app {
-  max-width: 1100px;
+  max-width: 1600px;
   margin: 0 auto;
   padding: 24px 16px 48px;
   display: flex;
@@ -273,6 +273,73 @@ h2 {
   font-size: 1rem;
 }
 
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(340px, 0.42fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 16px;
+  min-width: 0;
+}
+
+.sidebar,
+.preview {
+  min-width: 0;
+}
+
+.sidebar__tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 10px;
+  background: var(--bg);
+}
+
+.sidebar__tab {
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sidebar__tab--active {
+  background: var(--surface);
+  color: var(--text-primary);
+  box-shadow: 0 1px 3px color-mix(in srgb, var(--text-primary) 12%, transparent);
+}
+
+.sidebar__tab:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.chord-summary {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+}
+
+.chord-summary strong {
+  color: var(--text-primary);
+  font-size: 1.125rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.sidebar .table-scroll {
+  max-height: min(60vh, 640px);
+}
+
 .empty {
   margin: 0;
   color: var(--text-secondary);
@@ -344,7 +411,9 @@ h2 {
 
 .button:focus-visible,
 .field select:focus-visible,
-.field input:focus-visible {
+.field input:focus-visible,
+.design-mode__toggle:focus-visible,
+.feature-design__tab:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
@@ -396,6 +465,125 @@ h2 {
   padding-bottom: 6px;
 }
 
+.field--scale {
+  flex: 1 1 100%;
+}
+
+.field--scale input {
+  flex: 1;
+  min-width: 0;
+}
+
+.field--scale__controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.button--reset {
+  padding: 6px 10px;
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
+
+.button--reset:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.design-mode {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+
+.design-mode__toggle {
+  flex: 0 0 auto;
+}
+
+.feature-design__tabs {
+  display: flex;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  gap: 5px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  padding: 2px 1px 5px;
+  scrollbar-width: thin;
+}
+
+.feature-design__tab {
+  flex: 0 0 auto;
+  padding: 5px 8px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.feature-design__tab:hover {
+  border-color: var(--text-muted);
+  color: var(--text-primary);
+}
+
+.feature-design__tab--active {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--text-primary);
+}
+
+.field--scale {
+  flex: 1 1 100%;
+}
+
+.design-mode__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 3px 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  cursor: pointer;
+}
+
+.design-mode__toggle-track {
+  display: inline-flex;
+  align-items: center;
+  width: 30px;
+  height: 17px;
+  padding: 2px;
+  border-radius: 999px;
+  background: var(--border);
+  transition: background 0.2s;
+}
+
+.design-mode__toggle[aria-checked="true"] .design-mode__toggle-track {
+  background: var(--accent);
+}
+
+.design-mode__toggle-track span {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: white;
+  transition: transform 0.2s;
+}
+
+.design-mode__toggle[aria-checked="true"] .design-mode__toggle-track span {
+  transform: translateX(13px);
+}
+
 .hint {
   margin: 0;
   font-size: 0.8125rem;
@@ -409,6 +597,37 @@ h2 {
   flex-direction: column;
   gap: 12px;
   outline: none;
+}
+
+.preview__feature-toggles {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.preview__feature-toggle {
+  flex: 0 1 auto;
+  max-width: 100%;
+  padding: 6px 9px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.preview__feature-toggle[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--text-primary);
+}
+
+.preview__feature-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .player:focus-visible .player__screen {
@@ -434,8 +653,20 @@ h2 {
   padding: 16px 12px 4px;
 }
 
+.preview-overlay {
+  display: inline-flex;
+  justify-content: center;
+  transform: scale(var(--overlay-scale, 1));
+  transform-origin: center;
+}
+
+.preview-overlay--wrapped {
+  width: 100%;
+}
+
 .player__screen canvas + canvas,
-.player__stage + canvas {
+.player__stage + canvas,
+.player__stage + .preview-overlay {
   margin-top: 8px;
 }
 
@@ -480,6 +711,7 @@ h2 {
 /* Video export */
 
 .export {
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -487,12 +719,16 @@ h2 {
 
 .export__settings {
   display: flex;
+  min-width: 0;
+  width: 100%;
   flex-wrap: wrap;
   gap: 12px 20px;
 }
 
 /* Two groups: what file is rendered (Video) and how the overlays look (Design) */
 .export__group {
+  min-width: 0;
+  width: 100%;
   margin: 0 0 14px;
   padding: 10px 14px 14px;
   border: 1px solid var(--border);
@@ -889,7 +1125,7 @@ h2 {
 }
 
 /* Export without frame: the panels lose glass and border, the glowing content stays */
-.player__screen--frameless .neon-panel {
+.preview-overlay--frameless .neon-panel {
   border-color: transparent;
   background: none;
   box-shadow: none;
@@ -921,6 +1157,12 @@ h2 {
 .choice:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
+}
+
+@media (max-width: 900px) {
+  .workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 /* Neon colour swatches in the export settings */

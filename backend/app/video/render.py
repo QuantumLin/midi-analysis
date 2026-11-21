@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
+from PIL import Image
 
 from app.analysis.achievements import find_achievements
 from app.analysis.bingo import BingoContext, play_bingo
@@ -17,8 +18,6 @@ from app.analysis.circle_of_fifths import circle_path
 from app.analysis.harmony import analyze_harmony
 from app.analysis.key import detect_keys
 from app.analysis.keyboard_activity import KeyboardActivity
-from app.analysis.motifs import find_motifs
-from app.analysis.sections import find_sections
 from app.analysis.note_rate import note_rate, summarize
 from app.analysis.spectrum import compute_spectrum
 from app.midi.models import MidiData
@@ -31,11 +30,9 @@ from app.video.encoder import VideoEncoder
 from app.video.harmony_renderer import HarmonyRenderer
 from app.video.heatmap_renderer import HeatmapRenderer
 from app.video.key_renderer import KeyRenderer
-from app.video.motif_renderer import MotifRenderer
 from app.video.neon_overlay import NeonOverlay
 from app.video.note_rate_renderer import NoteRateRenderer
 from app.video.options import VideoOptions
-from app.video.section_renderer import SectionRenderer
 from app.video.spectrum_renderer import SpectrumRenderer
 from app.video.style import Style, using
 from app.video.wrapped import collect_facts, wrapped_cards
@@ -71,6 +68,8 @@ def render_video(
 ) -> Path:
     with using(Style(options.font, options.glow)):  # font and glow for everything drawn below
         frames = _FRAME_SOURCES[options.kind](midi, options)
+        if options.scale < 1:
+            frames = _scale_frames(frames, options.width, options.height, options.scale)
         frame_count = frames.count if isinstance(frames, FrameStream) else _frame_count(midi, options.fps)
         encoder = VideoEncoder(output_base, options.format, options.width, options.height, options.fps, frame_prefix)
         try:
@@ -86,6 +85,28 @@ def render_video(
     return path
 
 
+def _scale_frame(frame: bytes, width: int, height: int, scale: float) -> bytes:
+    scaled_width = max(1, round(width * scale))
+    scaled_height = max(1, round(height * scale))
+    image = Image.frombytes("RGBA", (width, height), frame).resize(
+        (scaled_width, scaled_height), Image.Resampling.LANCZOS
+    )
+    canvas = Image.new("RGBA", (width, height))
+    canvas.alpha_composite(image, ((width - scaled_width) // 2, (height - scaled_height) // 2))
+    return canvas.tobytes()
+
+
+def _scale_frames(
+    frames: Iterable[bytes] | FrameStream, width: int, height: int, scale: float
+) -> Iterable[bytes] | FrameStream:
+    def resize(frame: bytes) -> bytes:
+        return _scale_frame(frame, width, height, scale)
+
+    if isinstance(frames, FrameStream):
+        return FrameStream(frames.count, map(resize, frames.frames))
+    return map(resize, frames)
+
+
 def _apply_frame(renderer: NeonOverlay, options: VideoOptions) -> None:
     if not options.show_frame:
         renderer.hide_frame()
@@ -97,7 +118,9 @@ def _frame_count(midi: MidiData, fps: int) -> int:
 
 def _spectrum_frames(midi: MidiData, options: VideoOptions):
     spectrum = compute_spectrum(midi, options.fps, SPECTRUM_BINS)
-    renderer = SpectrumRenderer(options.width, options.height, options.color, options.show_grid)
+    renderer = SpectrumRenderer(
+        options.width, options.height, options.color, options.show_grid, options.spectrum_style
+    )
     last_row = spectrum.levels_db.shape[0] - 1
 
     def render(index: int) -> bytes:
@@ -218,20 +241,6 @@ def _achievement_frames(midi: MidiData, options: VideoOptions):
     yield from _render_states(states, renderer.render_state)
 
 
-def _motif_frames(midi: MidiData, options: VideoOptions):
-    renderer = MotifRenderer(options.width, options.height, options.color, options.language, find_motifs(midi))
-    _apply_frame(renderer, options)
-    states = [renderer.state(i / options.fps) for i in range(_frame_count(midi, options.fps))]
-    yield from _render_states(states, renderer.render_state)
-
-
-def _section_frames(midi: MidiData, options: VideoOptions):
-    renderer = SectionRenderer(options.width, options.height, options.color, options.language, find_sections(midi))
-    _apply_frame(renderer, options)
-    states = [renderer.state(i / options.fps) for i in range(_frame_count(midi, options.fps))]
-    yield from _render_states(states, renderer.render_state)
-
-
 def _boss_frames(midi: MidiData, options: VideoOptions):
     renderer = BossRenderer(options.width, options.height, options.color, options.language, find_boss_fight(midi))
     _apply_frame(renderer, options)
@@ -261,7 +270,7 @@ def _bingo_frames(midi: MidiData, options: VideoOptions):
     chords = detect_chords(midi)
     keys = detect_keys(midi)
     harmony = analyze_harmony(chords, keys)
-    card = play_bingo(BingoContext(midi, chords, keys, harmony.progressions, find_motifs(midi)))
+    card = play_bingo(BingoContext(midi, chords, keys, harmony.progressions))
     renderer = BingoRenderer(options.width, options.height, options.color, options.language, card)
     _apply_frame(renderer, options)
     states = [renderer.state(i / options.fps) for i in range(_frame_count(midi, options.fps))]
@@ -298,8 +307,6 @@ _FRAME_SOURCES = {
     "heatmap": _heatmap_frames,
     "harmony": _harmony_frames,
     "achievements": _achievement_frames,
-    "motifs": _motif_frames,
-    "sections": _section_frames,
     "boss": _boss_frames,
     "circle": _circle_frames,
     "bingo": _bingo_frames,

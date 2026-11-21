@@ -13,7 +13,6 @@ from dataclasses import dataclass
 from app.analysis.chords import ChordSegment
 from app.analysis.harmony import ProgressionHit
 from app.analysis.key import KeyAnalysis
-from app.analysis.motifs import Motif
 from app.midi.models import MidiData, Note
 
 GROUP_SECONDS = 0.04
@@ -29,7 +28,6 @@ class BingoContext:
     chords: list[ChordSegment]
     keys: KeyAnalysis
     progressions: list[ProgressionHit]
-    motifs: list[Motif]
 
     @property
     def notes(self) -> list[Note]:
@@ -79,11 +77,6 @@ def _progression(ctx: BingoContext) -> float | None:
     return ctx.progressions[0].time if ctx.progressions else None
 
 
-def _motif_return(ctx: BingoContext) -> float | None:
-    returns = [m.occurrences[1].start for m in ctx.motifs if len(m.occurrences) > 1]
-    return min(returns, default=None)
-
-
 def _fast_run(ctx: BingoContext, notes: int = 6, max_interval: float = 0.125) -> float | None:
     """`notes` single notes in a row, each at most `max_interval` after the previous one."""
     run = 0
@@ -115,7 +108,6 @@ FIELDS: dict[str, Detector] = {
     "fast_run": _fast_run,
     "progression": _progression,
     "pause": _pause,
-    "motif_return": _motif_return,
     "fortissimo": _first_note(lambda n: n.velocity >= 110),
     "pianissimo": _first_note(lambda n: n.velocity <= 40),
     "modulation": _modulation,
@@ -126,7 +118,7 @@ FIELDS: dict[str, Detector] = {
 # every line contains at least two rare events, so a bingo doesn't come too early.
 # (FREE may be used as a field that is ticked from the start.)
 CARD: tuple[str, ...] = (
-    "motif_return", "octave", "progression",
+    "modulation", "octave", "progression",
     "seventh_chord", "big_chord", "deep_bass",
     "high_notes", "pause", "fast_run",
 )  # fmt: skip

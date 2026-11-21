@@ -14,13 +14,12 @@ from app.analysis.achievements import Achievement, find_achievements
 from app.analysis.boss_fight import BossFight, find_boss_fight
 from app.analysis.chords import ChordSegment, detect_chords
 from app.analysis.key import KeyAnalysis, detect_keys
-from app.analysis.motifs import Motif, find_motifs
 from app.analysis.note_rate import NoteRateSummary, note_rate, summarize
 from app.midi.models import MidiData
 from app.midi.pitch import pitch_name
 from app.video.labels import BOSS_NAMES, Language, display_accidentals, key_name
 
-MAX_CARDS = 8
+MAX_CARDS = 7
 FACTS_FPS = 20  # resolution of the note-rate curve
 
 
@@ -32,7 +31,6 @@ class SongFacts:
     keys: KeyAnalysis
     rate: NoteRateSummary
     boss: BossFight | None
-    motifs: list[Motif]
     achievements: list[Achievement]
 
 
@@ -46,7 +44,6 @@ def collect_facts(midi: MidiData) -> SongFacts:
         keys=keys,
         rate=summarize(note_rate(midi), midi.duration, FACTS_FPS),
         boss=find_boss_fight(midi),
-        motifs=find_motifs(midi),
         achievements=find_achievements(midi),
     )
 
@@ -124,13 +121,6 @@ def _boss(f: SongFacts, lang: Language) -> Card:
     return _de_en(lang, "Endgegner", "Final boss"), f"{BOSS_NAMES[f.boss.factor][lang]} · {difficulty}/10"
 
 
-def _main_motif(f: SongFacts, lang: Language) -> Card:
-    if not f.motifs:
-        return None
-    count = len(f.motifs[0].occurrences)
-    return _de_en(lang, "Hauptmotiv", "Main motif"), _de_en(lang, f"{count}× gehört", f"heard {count}×")
-
-
 def _achievements(f: SongFacts, lang: Language) -> Card:
     if not f.achievements:
         return None
@@ -144,7 +134,6 @@ CARDS: tuple[tuple[str, Callable[[SongFacts, Language], Card]], ...] = (
     ("key", _key),
     ("range", _range),
     ("boss", _boss),
-    ("main_motif", _main_motif),
     ("achievements", _achievements),
 )
 

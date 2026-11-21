@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef } from "react";
-import type { SpectrumData } from "../../types/analysis";
+import type { SpectrumData, SpectrumStyle } from "../../types/analysis";
 import { hexToRgb, prepareCanvas, rgba } from "../../utils/canvas";
 import { decodeSpectrum, levelsAt, type DecodedSpectrum } from "../../utils/spectrum";
 
@@ -10,23 +10,25 @@ interface Props {
   height: number;
   color: string;
   showGrid: boolean;
+  displayStyle: SpectrumStyle;
 }
 
 const GRID_HZ = [20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000];
 const GRID_DB_STEP = 12;
+const BAR_COUNT = 72;
 
 /** Spectrum analyzer frame, drawn like the exported video (backend/app/video/spectrum_renderer.py). */
-export default function SpectrumCanvas({ spectrum, time, width, height, color, showGrid }: Props) {
+export default function SpectrumCanvas({ spectrum, time, width, height, color, showGrid, displayStyle }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const decoded = useMemo(() => decodeSpectrum(spectrum), [spectrum]);
   const buffer = useMemo(() => new Float32Array(spectrum.bins), [spectrum.bins]);
 
   useEffect(() => {
     if (!canvasRef.current || width === 0) return;
-    draw(canvasRef.current, width, height, decoded, levelsAt(decoded, time, buffer), color, showGrid);
-  }, [decoded, buffer, time, width, height, color, showGrid]);
+    draw(canvasRef.current, width, height, decoded, levelsAt(decoded, time, buffer), color, showGrid, displayStyle);
+  }, [decoded, buffer, time, width, height, color, showGrid, displayStyle]);
 
-  return <canvas ref={canvasRef} style={{ width, height }} role="img" aria-label="Frequenzspektrum" />;
+  return <canvas ref={canvasRef} style={{ width, height }} role="img" aria-label="Frequency spectrum" />;
 }
 
 function draw(
@@ -37,6 +39,7 @@ function draw(
   levels: Float32Array,
   color: string,
   showGrid: boolean,
+  displayStyle: SpectrumStyle,
 ) {
   const ctx = prepareCanvas(canvas, width, height);
   const rgb = hexToRgb(color);
@@ -68,6 +71,27 @@ function draw(
       line(ctx, plot.left, y, plot.right, y);
       ctx.fillText(`${db} dB`, plot.right + 6, y);
     }
+  }
+
+  if (displayStyle === "centered_bars") {
+    const spacing = (plot.right - plot.left) / BAR_COUNT;
+    const centerY = (plot.top + plot.bottom) / 2;
+    ctx.beginPath();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = Math.max(1, spacing * 0.18);
+    ctx.lineCap = "butt";
+    for (let index = 0; index < BAR_COUNT; index++) {
+      const position = ((index + 0.5) / BAR_COUNT) * (bins - 1);
+      const bin = Math.min(Math.floor(position), bins - 2);
+      const fraction = position - bin;
+      const normalized = levels[bin] * (1 - fraction) + levels[bin + 1] * fraction;
+      const halfLength = normalized * ((plot.bottom - plot.top) / 2);
+      const x = plot.left + (index + 0.5) * spacing;
+      ctx.moveTo(x, centerY - halfLength);
+      ctx.lineTo(x, centerY + halfLength);
+    }
+    ctx.stroke();
+    return;
   }
 
   // Curve: one point per CSS pixel column, sampled from the log-spaced bins.

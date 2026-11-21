@@ -6,6 +6,7 @@ import zipfile
 import numpy as np
 import pytest
 from fastapi.testclient import TestClient
+from PIL import Image, ImageDraw
 
 from app.analysis.chords import ChordMatch, ChordSegment
 from app.analysis.spectrum import MIN_DB, log_frequencies
@@ -13,7 +14,7 @@ from app.main import app
 from app.midi.parser import parse_midi
 from app.video.chord_renderer import ChordRenderer
 from app.video.options import VideoOptions
-from app.video.render import chord_at, render_video
+from app.video.render import _scale_frame, chord_at, render_video
 from app.video.spectrum_renderer import SpectrumRenderer
 from tests.midi_factory import build_midi, chord_events
 
@@ -39,6 +40,23 @@ def test_options_validation():
     for bad in [(1921, 1080, 30, "#ffffff"), (1920, 1080, 29, "#ffffff"), (1920, 1080, 30, "red"), (100, 100, 30, "#ffffff")]:
         with pytest.raises(ValueError):
             VideoOptions.create("spectrum", "prores", *bad, True)
+
+    assert VideoOptions.create("chords", "png", WIDTH, HEIGHT, 24, "#ffffff", True, scale=0.5).scale == 0.5
+    with pytest.raises(ValueError, match="Overlay size"):
+        VideoOptions.create("chords", "png", WIDTH, HEIGHT, 24, "#ffffff", True, scale=1.01)
+
+
+def test_overlay_scale_keeps_output_dimensions_and_centers_smaller_content():
+    image = Image.new("RGBA", (WIDTH, HEIGHT))
+    ImageDraw.Draw(image).rectangle((110, 50, 209, 129), fill=WHITE + (255,))
+
+    scaled = Image.frombytes("RGBA", (WIDTH, HEIGHT), _scale_frame(image.tobytes(), WIDTH, HEIGHT, 0.5))
+
+    assert scaled.size == (WIDTH, HEIGHT)
+    left, top, right, bottom = scaled.getchannel("A").getbbox()
+    assert right - left <= 60 and bottom - top <= 50
+    assert (left + right) // 2 == WIDTH // 2
+    assert (top + bottom) // 2 == HEIGHT // 2
 
 
 # --- chord display timing ------------------------------------------------------------
@@ -73,6 +91,29 @@ def test_spectrum_frame_draws_peak_where_the_note_is():
     expected = np.log(1000 / 20) / np.log(20000 / 20) * WIDTH
     assert abs(peak_column - expected) <= 3
     assert image[: HEIGHT // 2, : WIDTH // 4, 3].max() == 0  # top-left stays transparent
+
+
+def test_centered_spectrum_bars_are_separated_and_share_a_midpoint():
+    frequencies = log_frequencies(512)
+    levels = np.full(512, -3.0)
+    renderer = SpectrumRenderer(WIDTH, HEIGHT, WHITE, show_grid=False, display_style="centered_bars")
+    image = as_image(renderer.render(levels, frequencies))
+    alpha = image[..., 3]
+    center_y = round((renderer.top + renderer.bottom) / 2 - 0.5)
+
+    occupied_columns = np.flatnonzero(alpha[center_y] > 0)
+    assert 72 <= len(occupied_columns) < WIDTH // 2
+    assert alpha[center_y - 20].sum() == alpha[center_y + 20].sum()
+    assert alpha[:, 0].sum() == 0
+
+
+def test_video_options_validate_spectrum_style():
+    options = VideoOptions.create(
+        "spectrum", "prores", WIDTH, HEIGHT, 30, "#ffffff", True, spectrum_style="centered_bars"
+    )
+    assert options.spectrum_style == "centered_bars"
+    with pytest.raises(ValueError, match="Spectrum style"):
+        VideoOptions.create("spectrum", "prores", WIDTH, HEIGHT, 30, "#ffffff", True, spectrum_style="dots")
 
 
 def test_spectrum_grid_adds_labels_and_lines():
@@ -110,7 +151,7 @@ def probe(path) -> dict:
     return json.loads(output)["streams"][0]
 
 
-@pytest.mark.parametrize("kind", ["spectrum", "chords", "key", "note_rate", "heatmap", "harmony", "achievements", "motifs", "sections", "boss", "circle", "bingo"])
+@pytest.mark.parametrize("kind", ["spectrum", "chords", "key", "note_rate", "heatmap", "harmony", "achievements", "boss", "circle", "bingo"])
 def test_render_prores_with_alpha(tmp_path, kind):
     midi = parse_midi(build_midi(chord_events([60, 64, 67], 0, 2)))  # 1 s
     options = VideoOptions.create(kind, "prores", WIDTH, HEIGHT, 24, "#ffffff", True)
@@ -142,7 +183,7 @@ def test_render_wrapped_has_its_own_length(tmp_path):
     assert progress[-1] == 1.0
 
 
-@pytest.mark.parametrize("kind", ["chords", "key", "note_rate", "harmony", "sections", "circle", "bingo"])
+@pytest.mark.parametrize("kind", ["chords", "key", "note_rate", "harmony", "circle", "bingo"])
 def test_frame_can_be_switched_off(kind):
     """Without the frame the glass panel and border disappear, the glowing content stays."""
     from app.video.render import _FRAME_SOURCES
@@ -203,6 +244,10 @@ def test_video_api_rejects_bad_options_and_unknown_jobs():
     midi = build_midi(chord_events([60], 0, 1))
     response = client.post(
         "/api/videos", files={"file": ("a.mid", midi, "audio/midi")}, data={"kind": "spectrum", "fps": 29}
+    )
+    assert response.status_code == 400
+    response = client.post(
+        "/api/videos", files={"file": ("a.mid", midi, "audio/midi")}, data={"kind": "spectrum", "scale": 1.01}
     )
     assert response.status_code == 400
     assert client.get("/api/videos/does-not-exist").status_code == 404

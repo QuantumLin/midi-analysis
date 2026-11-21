@@ -2,6 +2,7 @@
 // the dev server (or later the desktop shell) is responsible for routing them to the backend.
 
 import type { AnalysisResult, VideoJob, VideoKind, VideoSettings } from "../types/analysis";
+import { overlayDesign } from "../utils/style";
 
 export interface HealthResponse {
   status: string;
@@ -36,6 +37,7 @@ export function analyzeMidi(file: File): Promise<AnalysisResult> {
 }
 
 export function createVideoJob(file: File, kind: VideoKind, settings: VideoSettings): Promise<VideoJob> {
+  const design = overlayDesign(settings, kind);
   const form = new FormData();
   form.append("file", file);
   form.append("kind", kind);
@@ -43,11 +45,13 @@ export function createVideoJob(file: File, kind: VideoKind, settings: VideoSetti
   form.append("width", String(settings.width));
   form.append("height", String(settings.height));
   form.append("fps", String(settings.fps));
-  form.append("color", settings.color);
-  form.append("show_grid", String(settings.showGrid));
-  form.append("show_frame", String(settings.showFrame));
-  form.append("font", settings.font);
-  form.append("glow", settings.glow);
+  form.append("color", design.color);
+  form.append("show_grid", String(design.showGrid));
+  if (kind === "spectrum") form.append("spectrum_style", design.spectrumStyle);
+  form.append("show_frame", String(design.showFrame));
+  form.append("font", design.font);
+  form.append("glow", design.glow);
+  form.append("scale", String(design.scale));
   return request<VideoJob>("/videos", { method: "POST", body: form });
 }
 

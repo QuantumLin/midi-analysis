@@ -79,27 +79,6 @@ export interface Achievement {
   detail: Localized;
 }
 
-export interface MotifOccurrence {
-  start: number;
-  end: number; // end of the motif's last note
-  number: number; // 1 = first appearance
-}
-
-/** A melodic fragment that recurs (also transposed): label "A", "B", "C". */
-export interface Motif {
-  label: string;
-  length: number; // notes
-  occurrences: MotifOccurrence[];
-}
-
-/** A section of the piece; sections with the same label are the same part (A B A ...). */
-export interface Section {
-  start: number;
-  end: number;
-  label: string;
-  number: number; // 1 = first time this part is heard
-}
-
 /** The hardest passage as "final boss"; every note in it is a hit. */
 export interface Boss {
   start: number;
@@ -139,31 +118,38 @@ export interface AnalysisResult {
   note_rate: NoteRate;
   progressions: Progression[];
   achievements: Achievement[];
-  motifs: Motif[];
-  sections: Section[];
   boss: Boss | null; // null for pieces shorter than 10 s
   bingo: Bingo;
   wrapped: WrappedCard[];
   notes: Notes;
 }
 
-export type VideoKind = "spectrum" | "chords" | "key" | "note_rate" | "heatmap" | "harmony" | "achievements" | "motifs" | "sections" | "boss" | "circle" | "bingo" | "wrapped";
+export type VideoKind = "spectrum" | "chords" | "key" | "note_rate" | "heatmap" | "harmony" | "achievements" | "boss" | "circle" | "bingo" | "wrapped";
 export type Language = "en";
 export type VideoFormat = "prores" | "png";
 export type FontId = "orbitron" | "montserrat" | "bebas" | "playfair" | "pixel" | "handwriting";
 export type GlowLevel = "subtle" | "normal" | "strong";
+export type SpectrumStyle = "curve" | "centered_bars";
+
+export interface OverlayDesign {
+  color: string;
+  showGrid: boolean;
+  spectrumStyle: SpectrumStyle;
+  showFrame: boolean;
+  font: FontId;
+  glow: GlowLevel;
+  scale: number;
+}
 
 export interface VideoSettings {
   format: VideoFormat;
   width: number;
   height: number;
   fps: number;
-  color: string; // hex, e.g. "#ffffff"
-  showGrid: boolean;
   language: Language; // texts in the overlays
-  showFrame: boolean; // glass panel with glowing border around the text and game overlays
-  font: FontId; // display font of the overlays
-  glow: GlowLevel;
+  designMode: "global" | "individual";
+  globalDesign: OverlayDesign;
+  featureDesigns: Record<VideoKind, OverlayDesign>;
 }
 
 export interface VideoJob {

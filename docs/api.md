@@ -30,8 +30,6 @@ curl -F "file=@song.mid" -F kind=spectrum -F format=prores http://localhost:8001
 - **`note_rate`:** `values` pro Frame (20 fps), `peak_value`, `peak_time`, `records`
 - **`progressions`:** erkannte Akkordfolgen mit `time`, `end`, `id`, `count` und `name` (`de`/`en`)
 - **`achievements`:** Pop-ups mit `time`, `end`, `kind`, `title` und `detail` (je `de`/`en`)
-- **`motifs`:** `label`, `length` (Töne) und `occurrences` (`start`, `end`, `number`)
-- **`sections`:** `start`, `end`, `label` (gleicher Buchstabe = gleicher Teil) und `number`
 - **`boss`:** `start`, `end`, `factor`, `name` (`de`/`en`), `difficulty` (0–10), `hits` (Notenstarts in der Passage); `null` bei Stücken unter 10 s
 - **`bingo`:** `fields` (3×3 zeilenweise, je `id`, `label` (`de`/`en`), `time` oder `null`) und `lines` (vollständige Linien mit `cells` und `time`)
 - **`wrapped`:** Karten mit `id`, `title` und `value` (je `de`/`en`)
@@ -43,7 +41,7 @@ Die Typen sind im Frontend in `frontend/src/types/analysis.ts` gespiegelt.
 
 | Parameter | Werte |
 | --- | --- |
-| `kind` | `spectrum`, `chords`, `key`, `note_rate`, `heatmap`, `harmony`, `achievements`, `motifs`, `sections`, `boss`, `circle`, `bingo`, `wrapped` |
+| `kind` | `spectrum`, `chords`, `key`, `note_rate`, `heatmap`, `harmony`, `achievements`, `boss`, `circle`, `bingo`, `wrapped` |
 | `format` | `prores` (Standard) oder `png` |
 | `width` × `height` | 320×180 bis 3840×2160, gerade Zahlen |
 | `fps` | 24, 25, 30, 50, 60 |
@@ -52,5 +50,6 @@ Die Typen sind im Frontend in `frontend/src/types/analysis.ts` gespiegelt.
 | `show_frame` | Glas-Panel mit Rahmen um Text- und Spiel-Overlays (Standard `true`) |
 | `font` | `orbitron` (Standard), `montserrat`, `bebas`, `playfair`, `pixel`, `handwriting` |
 | `glow` | `subtle`, `normal` (Standard), `strong` |
+| `scale` | Overlay size from `0.25` to `1.0`; `1.0` is original size (API default) |
 
 Was die einzelnen Videos zeigen, steht in [Video-Export](video-export.md).

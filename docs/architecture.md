@@ -71,9 +71,7 @@ MidiAnalysis/
 │   │   │   ├── harmony.py         # Stufen und bekannte Akkordfolgen
 │   │   │   ├── key.py             # Tonart und Modulationen
 │   │   │   ├── keyboard_activity.py # Anschläge pro Taste (Heatmap)
-│   │   │   ├── motifs.py          # wiederkehrende Melodie-Motive
 │   │   │   ├── note_rate.py       # Noten pro Sekunde, Rekorde
-│   │   │   ├── sections.py        # Abschnitte (A B A …)
 │   │   │   └── spectrum.py        # synthetisches Frequenzspektrum
 │   │   ├── midi/
 │   │   │   ├── models.py          # Note, MidiData
@@ -95,13 +93,11 @@ MidiAnalysis/
 │   │   │   ├── jobs.py            # Hintergrundjobs
 │   │   │   ├── key_renderer.py    # Tonart-Overlay
 │   │   │   ├── labels.py          # Texte Deutsch/Englisch, ♯/♭
-│   │   │   ├── motif_renderer.py  # Motiv-Overlay
 │   │   │   ├── neon.py            # Neon-Toolkit: Glow, Glas-Panel, Text
 │   │   │   ├── neon_overlay.py    # gemeinsame Basis der Text-Overlays
 │   │   │   ├── note_rate_renderer.py # Noten/s-Overlay mit LED-Pegel
 │   │   │   ├── options.py         # Export-Einstellungen
 │   │   │   ├── render.py          # rendert ein komplettes Video
-│   │   │   ├── section_renderer.py # Abschnitt-Overlay
 │   │   │   ├── spectrum_renderer.py # Spektrum-Frame (numpy)
 │   │   │   ├── style.py           # wählbares Design: Schriften, Leuchtstärke
 │   │   │   ├── wrapped.py         # Song-Wrapped-Karten

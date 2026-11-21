@@ -8,8 +8,6 @@ from app.analysis.circle_of_fifths import CirclePosition, CircleStep
 from app.analysis.chords import ChordMatch, ChordSegment
 from app.analysis.harmony import HarmonyAnalysis, ProgressionHit
 from app.analysis.key import Key, KeyAnalysis, KeySegment
-from app.analysis.motifs import Motif, MotifOccurrence
-from app.analysis.sections import Section
 from app.analysis.keyboard_activity import KEY_COUNT
 from app.analysis.note_rate import NoteRateRecord
 from app.video.fonts import display_font_has
@@ -20,12 +18,10 @@ from app.video.circle_renderer import CircleRenderer
 from app.video.harmony_renderer import HarmonyRenderer
 from app.video.heatmap_renderer import HeatmapRenderer
 from app.video.key_renderer import KeyRenderer
-from app.video.motif_renderer import MotifRenderer
 from app.video.labels import display_accidentals, key_name
 from app.video.neon import text_width
 from app.video.neon_overlay import flash_strength
 from app.video.note_rate_renderer import NoteRateRenderer
-from app.video.section_renderer import SectionRenderer
 from app.video.wrapped import WrappedCard
 from app.video.wrapped_renderer import WrappedRenderer
 
@@ -192,40 +188,6 @@ def test_achievement_panel_fits_the_longest_text():
     items = [Achievement(0.0, "big_chord", 6), Achievement(4.0, "milestone", 10000)]
     renderer = AchievementRenderer(1920, 1080, ACCENT, "de", items)
     assert renderer.panel.width < 1920 * 0.6
-
-
-# --- motifs --------------------------------------------------------------------------------
-
-
-def test_motif_overlay_appears_while_a_motif_plays():
-    motifs = [
-        Motif("A", 6, [MotifOccurrence(1.0, 3.0, 1), MotifOccurrence(10.0, 12.0, 2)]),
-        Motif("B", 7, [MotifOccurrence(11.5, 14.0, 1)]),
-    ]
-    renderer = MotifRenderer(WIDTH, HEIGHT, ACCENT, "de", motifs)
-    assert renderer.state(0.5) is None
-    assert renderer.state(2.0)[:2] == ("A", 1)
-    assert renderer.state(3.5)[:2] == ("A", 1)  # short hold after the motif
-    assert renderer.state(5.0) is None
-    assert renderer.state(10.5)[:2] == ("A", 2)
-    assert renderer.state(12.0)[:2] == ("B", 1)  # the latest one wins
-    assert renderer.render(5.0) == bytes(WIDTH * HEIGHT * 4)
-    flash, steady = as_image(renderer.render(10.05)), as_image(renderer.render(11.0))
-    assert glow(flash) > glow(steady) > 0
-
-
-# --- sections ------------------------------------------------------------------------------
-
-
-def test_section_overlay_glows_when_a_part_returns():
-    sections = [Section(0, 10, "A", 1), Section(10, 20, "B", 1), Section(20, 30, "A", 2)]
-    renderer = SectionRenderer(WIDTH, HEIGHT, ACCENT, "en", sections)
-    assert renderer.state(5)[:3] == ("A", 1, False)
-    assert renderer.state(21)[:3] == ("A", 2, True)
-    assert renderer.state(25)[:3] == ("A", 2, False)
-    assert renderer.state(31) is None
-    returning, later = as_image(renderer.render(21)), as_image(renderer.render(25))
-    assert glow(returning) > glow(later) * 1.1
 
 
 # --- boss fight ----------------------------------------------------------------------------
