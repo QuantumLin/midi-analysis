@@ -1,10 +1,10 @@
-# Dokumentation
+# Documentation
 
-| Seite | Inhalt |
+| Page | Description |
 | --- | --- |
-| [Funktionen](features.md) | Was die Anwendung zeigt: alle Overlays, Vorschau, Akkordtabelle |
-| [Video-Export](video-export.md) | Einstellungen, Neon-Look und Effekte, Renderzeiten, Import in DaVinci Resolve |
-| [Analyse](analysis.md) | Wie Akkorde, Tonart, Stufen, Achievements, Motive, Abschnitte und Spektrum berechnet werden |
-| [API](api.md) | Endpunkte, Antwortfelder, Export-Parameter |
-| [Architektur](architecture.md) | Tech-Stack, Aufbau, Projektstruktur, neue Analyse hinzufügen, Desktop-Pläne |
-| [Entwicklung](development.md) | Start mit Docker, Konfiguration, Tests, Hot Reload, lokale Entwicklung |
+| [Features](features.md) | What the application displays: all overlays, preview, and chord table |
+| [Video Export](video-export.md) | Settings, neon look and effects, render times, and DaVinci Resolve import |
+| [Analysis](analysis.md) | How chords, keys, degrees, achievements, motifs, sections, and spectrum are calculated |
+| [API](api.md) | Endpoints, response fields, and export parameters |
+| [Architecture](architecture.md) | Technology stack, structure, project layout, adding analyses, and desktop plans |
+| [Development](development.md) | Docker startup, configuration, tests, hot reload, and local development |

@@ -32,8 +32,8 @@ export default function FileUpload({ disabled, onFileSelected }: Props) {
       onDrop={onDrop}
     >
       <input type="file" accept=".mid,.midi,audio/midi" disabled={disabled} onChange={onChange} />
-      <span className="upload__button">MIDI-Datei wählen</span>
-      <span className="upload__hint">oder hierher ziehen (.mid, .midi)</span>
+      <span className="upload__button">Choose MIDI file</span>
+      <span className="upload__hint">or drop it here (.mid, .midi)</span>
     </label>
   );
 }

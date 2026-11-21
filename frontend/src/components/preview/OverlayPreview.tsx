@@ -52,7 +52,7 @@ export default function OverlayPreview({ result, settings }: Props) {
   }
 
   return (
-    <div className="player" tabIndex={0} onKeyDown={onKeyDown} aria-label="Vorschau, Leertaste startet und pausiert">
+    <div className="player" tabIndex={0} onKeyDown={onKeyDown} aria-label="Preview; press Space to play or pause">
       <div
         ref={screenRef}
         className={`player__screen${settings.showFrame ? "" : " player__screen--frameless"}`}

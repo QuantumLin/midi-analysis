@@ -7,17 +7,16 @@ import type { FontId, GlowLevel, VideoSettings } from "../types/analysis";
 // scale: evens out the visual size between fonts, as FontSpec.scale in the backend.
 export const FONTS: { id: FontId; label: string; family: string; hint: string; scale: number }[] = [
   { id: "orbitron", label: "Orbitron", family: '"Orbitron"', hint: "Neon-Tech", scale: 1 },
-  { id: "montserrat", label: "Montserrat", family: '"Montserrat"', hint: "Modern, klar", scale: 1.05 },
-  { id: "bebas", label: "Bebas Neue", family: '"Bebas Neue"', hint: "Fett, YouTube-Look", scale: 1.1 },
-  { id: "playfair", label: "Playfair", family: '"Playfair Display"', hint: "Elegant, klassisch", scale: 1.1 },
-  { id: "pixel", label: "Pixel", family: '"Press Start 2P"', hint: "Retro-Game", scale: 0.72 },
-  { id: "handwriting", label: "Handschrift", family: '"Caveat"', hint: "Persönlich, handgeschrieben", scale: 1.35 },
+  { id: "montserrat", label: "Montserrat", family: '"Montserrat"', hint: "Modern, clean", scale: 1.05 },
+  { id: "bebas", label: "Bebas Neue", family: '"Bebas Neue"', hint: "Bold, YouTube style", scale: 1.1 },
+  { id: "playfair", label: "Playfair", family: '"Playfair Display"', hint: "Elegant, classic", scale: 1.1 },
+  { id: "pixel", label: "Pixel", family: '"Press Start 2P"', hint: "Retro game", scale: 0.72 },
+  { id: "handwriting", label: "Handwriting", family: '"Caveat"', hint: "Personal, handwritten", scale: 1.35 },
 ];
 
 export const GLOW_LEVELS: { id: GlowLevel; label: string; factor: number }[] = [
-  { id: "subtle", label: "Dezent", factor: 0.3 },
+  { id: "subtle", label: "Subtle", factor: 0.3 },
   { id: "normal", label: "Normal", factor: 1.0 },
-  { id: "strong", label: "Stark", factor: 1.8 },
 ];
 
 export function fontFamily(id: FontId): string {

@@ -19,7 +19,7 @@ const DEFAULT_VIDEO_SETTINGS: VideoSettings = {
   fps: 30,
   color: "#00e5ff",
   showGrid: true,
-  language: "de",
+  language: "en",
   showFrame: true,
   font: "orbitron",
   glow: "normal",
@@ -46,7 +46,7 @@ export default function App() {
       setResult(await analyzeMidi(selected));
       setFile(selected); // kept for the video export, which re-uploads it
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Analyse fehlgeschlagen.");
+      setError(e instanceof Error ? e.message : "Analysis failed.");
     } finally {
       setLoading(false);
     }
@@ -60,7 +60,7 @@ export default function App() {
       </header>
 
       <FileUpload disabled={loading || backend === "offline"} onFileSelected={handleFile} />
-      {loading && <p className="message">Analysiere …</p>}
+      {loading && <p className="message">Analyzing …</p>}
       {error && (
         <p className="message message--error" role="alert">
           {error}
@@ -71,25 +71,25 @@ export default function App() {
         <>
           <AnalysisSummary result={result} />
           <section className="card">
-            <h2>Overlay-Vorschau</h2>
+            <h2>Overlay Preview</h2>
             <OverlayPreview result={result} settings={videoSettings} />
           </section>
           <section className="card">
             <h2>Song Wrapped</h2>
             <p className="hint">
-              Abspann mit den Zahlen des Stücks. Im Video springen die Karten nacheinander ins Bild; es ist ein eigener
-              Clip, der im Schnitt hinter das Stück gelegt wird.
+              An ending with the numbers from the piece. The cards appear one after another in the video; it is a
+              separate clip that can be placed behind the piece in the editor.
             </p>
             <div className="player__screen" style={overlayStyle(videoSettings)}>
               <WrappedPreview cards={result.wrapped} color={videoSettings.color} language={videoSettings.language} />
             </div>
           </section>
           <section className="card">
-            <h2>Video-Export</h2>
+            <h2>Video Export</h2>
             <VideoExport file={file} settings={videoSettings} onSettingsChange={setVideoSettings} />
           </section>
           <section className="card">
-            <h2>Akkorde</h2>
+            <h2>Chords</h2>
             <ChordTable chords={result.chords} />
           </section>
         </>
