@@ -4,7 +4,6 @@ from app.analysis.bingo import CARD, FIELDS, FREE, LINES, BingoContext, play_bin
 from app.analysis.chords import detect_chords
 from app.analysis.harmony import analyze_harmony
 from app.analysis.key import detect_keys
-from app.analysis.motifs import find_motifs
 from app.midi.parser import parse_midi
 from app.video.labels import BINGO_LABELS, bingo_banner
 from tests.midi_factory import build_midi, chord_events
@@ -16,7 +15,7 @@ def context_of(events) -> BingoContext:
     midi = parse_midi(build_midi(events))
     chords = detect_chords(midi)
     keys = detect_keys(midi)
-    return BingoContext(midi, chords, keys, analyze_harmony(chords, keys).progressions, find_motifs(midi))
+    return BingoContext(midi, chords, keys, analyze_harmony(chords, keys).progressions)
 
 
 def detect(field: str, events) -> float | None:

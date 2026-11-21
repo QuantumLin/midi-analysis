@@ -128,7 +128,7 @@ def probe(path) -> dict:
     return json.loads(output)["streams"][0]
 
 
-@pytest.mark.parametrize("kind", ["spectrum", "chords", "key", "note_rate", "heatmap", "harmony", "achievements", "motifs", "sections", "boss", "circle", "bingo"])
+@pytest.mark.parametrize("kind", ["spectrum", "chords", "key", "note_rate", "heatmap", "harmony", "achievements", "boss", "circle", "bingo"])
 def test_render_prores_with_alpha(tmp_path, kind):
     midi = parse_midi(build_midi(chord_events([60, 64, 67], 0, 2)))  # 1 s
     options = VideoOptions.create(kind, "prores", WIDTH, HEIGHT, 24, "#ffffff", True)
@@ -160,7 +160,7 @@ def test_render_wrapped_has_its_own_length(tmp_path):
     assert progress[-1] == 1.0
 
 
-@pytest.mark.parametrize("kind", ["chords", "key", "note_rate", "harmony", "sections", "circle", "bingo"])
+@pytest.mark.parametrize("kind", ["chords", "key", "note_rate", "harmony", "circle", "bingo"])
 def test_frame_can_be_switched_off(kind):
     """Without the frame the glass panel and border disappear, the glowing content stays."""
     from app.video.render import _FRAME_SOURCES

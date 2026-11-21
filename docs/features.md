@@ -14,8 +14,6 @@ Play, Pause und eine Zeitleiste spielen alle Overlays synchron ab. Die Vorschau 
 | Tonart | Die aktuelle Tonart, z. B. „d-Moll“. Bei einem Tonartwechsel steht 3 s lang „Modulation →“ darüber. |
 | Akkord | Der aktuelle Akkord, z. B. `C`, `Am7`, `G7`, `Cmaj7`, `Bm7b5` oder Umkehrungen wie `C/E`. |
 | Stufe | Der aktuelle Akkord als Stufe in der Tonart, z. B. „vi“ oder „V⁷“. Darunter die letzten vier Stufen als Kette („I – V – vi – IV“) und die Bezugstonart („in C-Dur“). Bei einer bekannten Akkordfolge erscheint ihr Name, z. B. „Die Pop-Formel ×2“. |
-| Abschnitt | Der aktuelle Teil des Stücks („Teil B“) und ob er neu ist oder wiederkehrt („zum 2. Mal“). |
-| Motiv | Erscheint, während ein wiederkehrendes Melodie-Motiv gespielt wird: „Motiv A, 5. Mal – kehrt zurück“. In der Vorschau ist das Feld sonst abgedunkelt, im Video ausgeblendet. |
 | Achievements | Pop-ups wie in einem Videospiel („Erfolg freigeschaltet: 8-Finger-Akkord“) für besondere Momente. |
 | Endgegner | Die schwerste Stelle des Stücks als „Boss“. 3 s vorher blinkt „Achtung: Boss naht!“, dann sinkt der HP-Balken mit jeder gespielten Note, am Ende steht „Besiegt!“. Der Name richtet sich nach dem, was die Stelle schwer macht: „Notensturm“ (Tempo), „Sprungriese“ (Sprünge), „Akkord-Koloss“ (große Akkorde). |
 | Quintenzirkel | Alle 12 Dur-Tonarten außen, die parallelen Moll-Tonarten innen. Der aktuelle Akkord leuchtet auf und steht groß in der Mitte, eine Leuchtspur verbindet die letzten Akkorde. Jede bisher besuchte Tonart glüht umso stärker, je öfter sie vorkam: Am Ende zeigt der Kreis den harmonischen „Fingerabdruck“ des Stücks. |
@@ -29,7 +27,7 @@ Jedes Overlay lässt sich einzeln als **transparentes Video** exportieren und in
 
 ## Song Wrapped
 
-Ein Abspann im Stil von „Spotify Wrapped“ mit den Zahlen des Stücks: gespielte Noten, schnellste Stelle, Lieblingsakkord, Tonart, Tonumfang, Endgegner, Hauptmotiv, Anzahl der Achievements. Die Karten springen nacheinander ins Bild. Anders als die anderen Overlays ist es ein eigener Clip (ca. 13 s), der im Schnitt hinter das Stück gelegt wird. Die App zeigt die Karten unter der Vorschau.
+Ein Abspann im Stil von „Spotify Wrapped“ mit den Zahlen des Stücks: gespielte Noten, schnellste Stelle, Lieblingsakkord, Tonart, Tonumfang, Endgegner und Anzahl der Achievements. Die Karten springen nacheinander ins Bild. Anders als die anderen Overlays ist es ein eigener Clip (ca. 13 s), der im Schnitt hinter das Stück gelegt wird. Die App zeigt die Karten unter der Vorschau.
 
 ## Akkordtabelle
 

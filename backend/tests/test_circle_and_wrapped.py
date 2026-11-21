@@ -60,7 +60,7 @@ def test_wrapped_cards_in_both_languages():
 def test_cards_without_data_are_left_out():
     empty = collect_facts(parse_midi(build_midi(chord_events([60], 0, 1))))
     ids = [c.id for c in wrapped_cards(empty, "en")]
-    assert "notes" in ids and "boss" not in ids and "main_motif" not in ids
+    assert "notes" in ids and "boss" not in ids
 
 
 def test_every_card_has_a_unique_id():

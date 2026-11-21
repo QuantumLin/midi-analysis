@@ -6,7 +6,7 @@ from typing import Literal
 
 from app.video.style import FontId, GlowLevel
 
-VideoKind = Literal["spectrum", "chords", "key", "note_rate", "heatmap", "harmony", "achievements", "motifs", "sections", "boss", "circle", "bingo", "wrapped"]
+VideoKind = Literal["spectrum", "chords", "key", "note_rate", "heatmap", "harmony", "achievements", "boss", "circle", "bingo", "wrapped"]
 VideoFormat = Literal["prores", "png"]
 Language = Literal["de", "en"]
 

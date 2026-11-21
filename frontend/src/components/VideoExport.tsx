@@ -22,8 +22,6 @@ const KIND_LABELS: Record<VideoKind, string> = {
   chords: "Chord",
   harmony: "Degrees",
   achievements: "Achievements",
-  sections: "Sections",
-  motifs: "Motifs",
   boss: "Final boss",
   circle: "Circle of fifths",
   bingo: "Bingo",

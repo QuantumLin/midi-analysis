@@ -50,21 +50,6 @@ Sie werden allein aus den Noten erkannt:
 
 Pop-ups überlappen sich nie. Kommt eines, während ein anderes zu sehen ist, wartet es bis zu 4 s und entfällt sonst.
 
-## Motive (Grundversion)
-
-- **Melodie:** Als Melodie gilt der höchste Ton jedes Anschlags ab G3, tiefere Töne zählen als Begleitung.
-- **Motiv:** Eine Folge von mindestens 6 Tönen mit gleichen Intervallen und gleichem Rhythmus (Tondauern im Verhältnis, auf Faktor 2 gerundet), die mindestens dreimal vorkommt. Dadurch wird sie auch transponiert und in anderem Tempo erkannt.
-- **Länge:** Ein Motiv wird so weit verlängert, wie alle Wiederholungen übereinstimmen (bis 16 Töne).
-- **Mehrere Motive:** Bis zu drei Motive (A, B, C) teilen sich keine Töne. Tonleitern, Triller und Tonwiederholungen zählen nicht als Motiv.
-- **Grenzen:** Abgewandelte Wiederholungen (andere Verzierung, anderer Rhythmus) werden noch nicht erkannt.
-
-## Abschnitte (Grundversion)
-
-- **Beschreibung:** Alle 0,5 s wird der Klang beschrieben: welche Tonstufen klingen, wie dicht und wie hoch gespielt wird, gemittelt über 3 s.
-- **Grenzen:** Sie liegen dort, wo sich diese Beschreibung vorher und nachher am stärksten unterscheidet (Neuheitskurve nach Foote), mindestens 6 s auseinander.
-- **Teile:** Abschnitte mit ähnlichem Verlauf bekommen denselben Buchstaben.
-- **Grenzen der Grundversion:** Ob ein Teil Strophe oder Refrain ist, wird noch nicht bestimmt.
-
 ## Endgegner
 
 - **Schwierigkeit:** Alle 0,5 s wird aus mehreren Faktoren ein Wert von 0 bis 10 berechnet, jeweils über die letzte Sekunde und über 2 s geglättet:
@@ -94,7 +79,6 @@ Dur-Akkorde (auch Dominant- und Major-Septakkorde) liegen außen auf ihrem Grund
   | Blitzlauf | 6 Einzeltöne in Folge, je höchstens 0,125 s auseinander |
   | Akkordfolge | erste erkannte bekannte Akkordfolge |
   | Pause | 1 s völlige Stille mitten im Stück |
-  | Motiv zurück | erste Wiederkehr eines Motivs |
   | 6-Ton-Akkord | 6 verschiedene Töne gleichzeitig angeschlagen |
   | Fortissimo / Pianissimo / Modulation | stehen bereit, sind aber nicht auf der Standardkarte |
 
@@ -103,7 +87,7 @@ Dur-Akkorde (auch Dominant- und Major-Septakkorde) liegen außen auf ihrem Grund
 
 ## Song Wrapped
 
-Jede Karte ist eine kleine Funktion, die aus den Fakten des Stücks Titel und Wert in einer Sprache baut, oder nichts, wenn es dazu nichts zu sagen gibt (z. B. kein Boss bei sehr kurzen Stücken). Höchstens 8 Karten werden gezeigt. **Erweitern:** eine Funktion schreiben und in `CARDS` (`backend/app/video/wrapped.py`) eintragen; die Reihenfolge dort ist die Reihenfolge im Video.
+Jede Karte ist eine kleine Funktion, die aus den Fakten des Stücks Titel und Wert in einer Sprache baut, oder nichts, wenn es dazu nichts zu sagen gibt (z. B. kein Boss bei sehr kurzen Stücken). Höchstens 7 Karten werden gezeigt. **Erweitern:** eine Funktion schreiben und in `CARDS` (`backend/app/video/wrapped.py`) eintragen; die Reihenfolge dort ist die Reihenfolge im Video.
 
 ## Spektrum
 

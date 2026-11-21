@@ -18,8 +18,6 @@ from app.analysis.circle_of_fifths import circle_path
 from app.analysis.harmony import analyze_harmony
 from app.analysis.key import detect_keys
 from app.analysis.keyboard_activity import KeyboardActivity
-from app.analysis.motifs import find_motifs
-from app.analysis.sections import find_sections
 from app.analysis.note_rate import note_rate, summarize
 from app.analysis.spectrum import compute_spectrum
 from app.midi.models import MidiData
@@ -32,11 +30,9 @@ from app.video.encoder import VideoEncoder
 from app.video.harmony_renderer import HarmonyRenderer
 from app.video.heatmap_renderer import HeatmapRenderer
 from app.video.key_renderer import KeyRenderer
-from app.video.motif_renderer import MotifRenderer
 from app.video.neon_overlay import NeonOverlay
 from app.video.note_rate_renderer import NoteRateRenderer
 from app.video.options import VideoOptions
-from app.video.section_renderer import SectionRenderer
 from app.video.spectrum_renderer import SpectrumRenderer
 from app.video.style import Style, using
 from app.video.wrapped import collect_facts, wrapped_cards
@@ -243,20 +239,6 @@ def _achievement_frames(midi: MidiData, options: VideoOptions):
     yield from _render_states(states, renderer.render_state)
 
 
-def _motif_frames(midi: MidiData, options: VideoOptions):
-    renderer = MotifRenderer(options.width, options.height, options.color, options.language, find_motifs(midi))
-    _apply_frame(renderer, options)
-    states = [renderer.state(i / options.fps) for i in range(_frame_count(midi, options.fps))]
-    yield from _render_states(states, renderer.render_state)
-
-
-def _section_frames(midi: MidiData, options: VideoOptions):
-    renderer = SectionRenderer(options.width, options.height, options.color, options.language, find_sections(midi))
-    _apply_frame(renderer, options)
-    states = [renderer.state(i / options.fps) for i in range(_frame_count(midi, options.fps))]
-    yield from _render_states(states, renderer.render_state)
-
-
 def _boss_frames(midi: MidiData, options: VideoOptions):
     renderer = BossRenderer(options.width, options.height, options.color, options.language, find_boss_fight(midi))
     _apply_frame(renderer, options)
@@ -286,7 +268,7 @@ def _bingo_frames(midi: MidiData, options: VideoOptions):
     chords = detect_chords(midi)
     keys = detect_keys(midi)
     harmony = analyze_harmony(chords, keys)
-    card = play_bingo(BingoContext(midi, chords, keys, harmony.progressions, find_motifs(midi)))
+    card = play_bingo(BingoContext(midi, chords, keys, harmony.progressions))
     renderer = BingoRenderer(options.width, options.height, options.color, options.language, card)
     _apply_frame(renderer, options)
     states = [renderer.state(i / options.fps) for i in range(_frame_count(midi, options.fps))]
@@ -323,8 +305,6 @@ _FRAME_SOURCES = {
     "heatmap": _heatmap_frames,
     "harmony": _harmony_frames,
     "achievements": _achievement_frames,
-    "motifs": _motif_frames,
-    "sections": _section_frames,
     "boss": _boss_frames,
     "circle": _circle_frames,
     "bingo": _bingo_frames,

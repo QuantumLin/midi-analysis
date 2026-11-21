@@ -5,7 +5,6 @@ import type { AnalysisResult, VideoSettings } from "../../types/analysis";
 import { chordAt } from "../../utils/chords";
 import { fontFamily, glowFactor, overlayStyle } from "../../utils/style";
 import { displayAccidentals } from "../../utils/labels";
-import { motifAt, sectionAt } from "../../utils/form";
 import { bingoAt, bossAt, circleAt } from "../../utils/games";
 import { achievementAt, chainBefore, progressionAt } from "../../utils/harmony";
 import { formatTime } from "../../utils/format";
@@ -17,9 +16,7 @@ import {
   ChordField,
   HarmonyField,
   KeyField,
-  MotifField,
   NoteRateField,
-  SectionField,
 } from "./OverlayFields";
 import SpectrumCanvas from "./SpectrumCanvas";
 
@@ -91,12 +88,6 @@ export default function OverlayPreview({ result, settings }: Props) {
               color={color}
               language={language}
             />
-          </ScaledOverlay>
-          <ScaledOverlay scale={settings.overlayScales.sections}>
-            <SectionField current={sectionAt(result.sections, time)} color={color} language={language} />
-          </ScaledOverlay>
-          <ScaledOverlay scale={settings.overlayScales.motifs}>
-            <MotifField current={motifAt(result.motifs, time)} color={color} language={language} />
           </ScaledOverlay>
           <ScaledOverlay scale={settings.overlayScales.boss}>
             <BossField boss={result.boss} state={bossAt(result.boss, time)} color={color} language={language} />

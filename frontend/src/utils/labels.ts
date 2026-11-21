@@ -12,12 +12,6 @@ const TEXTS = {
   degree: { en: "Degree" },
   inKey: { en: "in" },
   achievement: { en: "Achievement unlocked" },
-  motif: { en: "Motif" },
-  firstAppearance: { en: "First appearance" },
-  returns: { en: "Returns" },
-  section: { en: "Section" },
-  part: { en: "Part" },
-  new: { en: "New" },
   finalBoss: { en: "Final boss" },
   bossWarning: { en: "Warning: boss ahead!" },
   defeated: { en: "Defeated!" },
@@ -44,23 +38,6 @@ export function displayAccidentals(name: string): string {
 export function keyName(key: MusicalKey, language: Language): string {
   const tonic = displayAccidentals(key.tonic);
   return `${tonic} ${key.mode}`;
-}
-
-/** 1 -> "1st", 2 -> "2nd", 11 -> "11th", 23 -> "23rd". */
-export function ordinalEn(n: number): string {
-  const suffix = n % 100 >= 10 && n % 100 <= 20 ? "th" : ({ 1: "st", 2: "nd", 3: "rd" }[n % 10] ?? "th");
-  return `${n}${suffix}`;
-}
-
-/** "6. Mal" / "6th time". */
-export function motifCount(n: number, language: Language): string {
-  return `${ordinalEn(n)} time`;
-}
-
-/** "Neu" for a part heard for the first time, otherwise "zum 3. Mal" / "3rd time". */
-export function sectionCount(n: number, language: Language): string {
-  if (n === 1) return text("new", language);
-  return `${ordinalEn(n)} time`;
 }
 
 /** "Bingo!" for the first completed line, then "2× Bingo!" ... */

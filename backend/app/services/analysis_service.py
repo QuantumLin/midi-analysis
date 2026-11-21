@@ -9,8 +9,6 @@ from app.analysis.chords import detect_chords
 from app.analysis.circle_of_fifths import circle_position
 from app.analysis.harmony import analyze_harmony
 from app.analysis.key import Key, KeyAnalysis, detect_keys
-from app.analysis.motifs import find_motifs
-from app.analysis.sections import find_sections
 from app.analysis.note_rate import note_rate, summarize
 from app.analysis.spectrum import MAX_DB, MAX_HZ, MIN_DB, MIN_HZ, compute_spectrum, quantize
 from app.api.schemas import (
@@ -26,13 +24,10 @@ from app.api.schemas import (
     KeySegmentOut,
     KeysOut,
     LocalizedOut,
-    MotifOccurrenceOut,
-    MotifOut,
     NoteRateOut,
     NoteRecordOut,
     NotesOut,
     ProgressionOut,
-    SectionOut,
     SpectrumOut,
     WrappedCardOut,
 )
@@ -54,12 +49,11 @@ def analyze_midi(data: bytes, file_name: str) -> AnalysisResponse:
     harmony = analyze_harmony(chords, keys)
     rate = summarize(note_rate(midi), midi.duration, PREVIEW_FPS)
     levels = quantize(spectrum.levels_db)
-    motifs = find_motifs(midi)
     achievements = find_achievements(midi)
     boss = find_boss_fight(midi)
-    bingo = play_bingo(BingoContext(midi, chords, keys, harmony.progressions, motifs))
+    bingo = play_bingo(BingoContext(midi, chords, keys, harmony.progressions))
     chord_names = [c.chord.spelled(keys.prefer_flats_at(c.start)) for c in chords]
-    facts = SongFacts(midi, chords, chord_names, keys, rate, boss, motifs, achievements)
+    facts = SongFacts(midi, chords, chord_names, keys, rate, boss, achievements)
     cards = {language: wrapped_cards(facts, language) for language in ("de", "en")}
 
     return AnalysisResponse(
@@ -111,21 +105,6 @@ def analyze_midi(data: bytes, file_name: str) -> AnalysisResponse:
                 detail=_localized(lambda language: achievement_texts(a, language)[1]),
             )
             for a in achievements
-        ],
-        motifs=[
-            MotifOut(
-                label=m.label,
-                length=m.length,
-                occurrences=[
-                    MotifOccurrenceOut(start=round(o.start, 3), end=round(o.end, 3), number=o.number)
-                    for o in m.occurrences
-                ],
-            )
-            for m in motifs
-        ],
-        sections=[
-            SectionOut(start=round(s.start, 3), end=round(s.end, 3), label=s.label, number=s.number)
-            for s in find_sections(midi)
         ],
         boss=BossOut(
             start=round(boss.start, 3),

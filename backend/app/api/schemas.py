@@ -88,29 +88,6 @@ class AchievementOut(BaseModel):
     detail: LocalizedOut
 
 
-class MotifOccurrenceOut(BaseModel):
-    start: float
-    end: float  # end of the motif's last note
-    number: int  # 1 = first appearance
-
-
-class MotifOut(BaseModel):
-    """A melodic fragment that recurs (also transposed): label "A", "B", "C"."""
-
-    label: str
-    length: int  # notes
-    occurrences: list[MotifOccurrenceOut]
-
-
-class SectionOut(BaseModel):
-    """A section of the piece; sections with the same label are the same part (A B A ...)."""
-
-    start: float
-    end: float
-    label: str
-    number: int  # 1 = first time this part is heard
-
-
 class CirclePositionOut(BaseModel):
     """Major chords on the outer ring at their root, minor chords on the inner ring next to
     their relative major; index 0 = top (C / a), clockwise in fifths."""
@@ -172,8 +149,6 @@ class AnalysisResponse(BaseModel):
     note_rate: NoteRateOut
     progressions: list[ProgressionOut]
     achievements: list[AchievementOut]
-    motifs: list[MotifOut]
-    sections: list[SectionOut]
     boss: BossOut | None  # None for pieces shorter than 10 s
     bingo: BingoOut
     wrapped: list[WrappedCardOut]

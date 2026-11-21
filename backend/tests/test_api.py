@@ -16,7 +16,7 @@ def test_health():
     assert response.json()["status"] == "ok"
 
 
-def test_analysis_returns_all_sections():
+def test_analysis_returns_analysis_data():
     data = build_midi(chord_events([60, 64, 67], 0, 2) + chord_events([55, 59, 62, 65], 2, 2))
     response = upload(data)
 
@@ -35,8 +35,6 @@ def test_analysis_returns_all_sections():
     assert all(c["numeral"] for c in body["chords"])  # numerals themselves: test_harmony.py
     assert body["progressions"] == []
     assert body["achievements"] == []
-    assert body["motifs"] == []  # motif detection itself: test_motifs.py
-    assert [(s["label"], s["number"]) for s in body["sections"]] == [("A", 1)]  # see test_sections.py
     assert body["boss"] is None  # 2 s: too short for a boss
     assert len(body["bingo"]["fields"]) == 9 and body["bingo"]["fields"][0]["label"]["de"]
     assert body["wrapped"][0]["title"] == {"de": "Gespielte Noten", "en": "Notes played"}

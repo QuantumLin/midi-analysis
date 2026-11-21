@@ -7,9 +7,9 @@ An application that analyzes MIDI files and exports the results as transparent n
 ## Features
 
 - **Live statistics:** Notes per second with records, musical key with modulations, chords, and chord degrees
-- **Musical structure:** Recognized chord progressions (for example, the pop formula ×2), recurring motifs, and sections (Part A, B, ...)
+- **Musical structure:** Recognized chord progressions (for example, the pop formula ×2)
 - **Achievements:** Video game-style pop-ups such as "8-finger chord" or "Giant leap"
-- **Game elements:** The hardest section as a final boss with an HP bar, keyboard bingo, and a glowing circle of fifths
+- **Game elements:** The hardest passage as a final boss with an HP bar, keyboard bingo, and a glowing circle of fifths
 - **Song Wrapped:** A summary featuring key statistics about the piece
 - **Visualizations:** DAW-style frequency spectrum and a key heatmap across all 88 piano keys
 - **Video export:** Each overlay as a separate video with an alpha channel (ProRes 4444 or PNG sequence) in a selectable neon color
@@ -33,7 +33,7 @@ Open http://localhost:5173 and drop in a MIDI file. The API documentation is ava
 | --- | --- |
 | [Features](docs/features.md) | All overlays, preview, and chord table |
 | [Video export](docs/video-export.md) | Settings, neon look, render times, and DaVinci Resolve |
-| [Analysis](docs/analysis.md) | How chords, keys, degrees, achievements, motifs, sections, and spectrum are calculated |
+| [Analysis](docs/analysis.md) | How chords, keys, degrees, achievements, and spectrum are calculated |
 | [API](docs/api.md) | Endpoints and response fields |
 | [Architecture](docs/architecture.md) | Technology stack, structure, and project layout |
 | [Development](docs/development.md) | Configuration, tests, hot reload, Docker commands, and local development |
