@@ -6,8 +6,8 @@ export default function ChordTable({ chords }: { chords: Chord[] }) {
   if (chords.length === 0) {
     return (
       <p className="empty">
-        Keine Akkorde erkannt. Akkorde werden aus gleichzeitig klingenden Noten bestimmt – einstimmige Melodien oder
-        gebrochene Akkorde ergeben daher keine Treffer.
+        No chords detected. Chords are determined from simultaneously sounding notes, so monophonic melodies or
+        broken chords do not produce matches.
       </p>
     );
   }
@@ -18,10 +18,10 @@ export default function ChordTable({ chords }: { chords: Chord[] }) {
         <thead>
           <tr>
             <th>Start</th>
-            <th>Ende</th>
-            <th>Akkord</th>
-            <th>Stufe</th>
-            <th>Noten</th>
+            <th>End</th>
+            <th>Chord</th>
+            <th>Degree</th>
+            <th>Notes</th>
           </tr>
         </thead>
         <tbody>

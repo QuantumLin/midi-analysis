@@ -25,7 +25,7 @@ class VideoOptions:
     fps: int
     color: tuple[int, int, int]  # accent colour: curve, text, heat
     show_grid: bool  # spectrum only: frequency/dB grid with labels
-    language: Language = "de"  # texts in the overlays
+    language: Language = "en"  # texts in the overlays
     show_frame: bool = True  # glass panel with glowing border around the text and game overlays
     font: FontId = "orbitron"  # display font, see style.py
     glow: GlowLevel = "normal"
@@ -39,7 +39,7 @@ class VideoOptions:
         fps: int,
         color: str,
         show_grid: bool,
-        language: Language = "de",
+        language: Language = "en",
         show_frame: bool = True,
         font: FontId = "orbitron",
         glow: GlowLevel = "normal",

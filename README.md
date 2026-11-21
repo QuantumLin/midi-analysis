@@ -2,46 +2,46 @@
 
 <h1 align="center">MIDI Analysis</h1>
 
-Eine Anwendung, die MIDI-Dateien analysiert und die Ergebnisse als transparente Neon-Overlays für Piano-Visualizer-Videos exportiert, z. B. für den Schnitt in DaVinci Resolve.
+An application that analyzes MIDI files and exports the results as transparent neon overlays for piano visualizer videos, for example for editing in DaVinci Resolve.
 
-## Funktionen
+## Features
 
-- **Live-Statistiken:** Noten pro Sekunde mit Rekorden, Tonart mit Modulationen, Akkorde und ihre Stufen
-- **Musikalische Struktur:** bekannte Akkordfolgen („Die Pop-Formel ×2“), wiederkehrende Motive, Abschnitte (Teil A, B, …)
-- **Achievements:** Pop-ups wie in einem Videospiel, z. B. „8-Finger-Akkord“ oder „Riesensprung“
-- **Spiel-Elemente:** die schwerste Stelle als Endgegner mit HP-Balken, Tastatur-Bingo, ein leuchtender Quintenzirkel
-- **Song Wrapped:** ein Abspann mit den Zahlen des Stücks
-- **Visualisierungen:** Frequenzspektrum wie in einer DAW, Tasten-Heatmap über alle 88 Tasten
-- **Video-Export:** Jedes Overlay als eigenes Video mit Alpha-Kanal (ProRes 4444 oder PNG-Sequenz), in eigener Neonfarbe, auf Deutsch oder Englisch
-- **Vorschau:** Alle Overlays laufen synchron im Browser, so wie sie im Video aussehen werden
+- **Live statistics:** Notes per second with records, musical key with modulations, chords, and chord degrees
+- **Musical structure:** Recognized chord progressions (for example, the pop formula ×2), recurring motifs, and sections (Part A, B, ...)
+- **Achievements:** Video game-style pop-ups such as "8-finger chord" or "Giant leap"
+- **Game elements:** The hardest section as a final boss with an HP bar, keyboard bingo, and a glowing circle of fifths
+- **Song Wrapped:** A summary featuring key statistics about the piece
+- **Visualizations:** DAW-style frequency spectrum and a key heatmap across all 88 piano keys
+- **Video export:** Each overlay as a separate video with an alpha channel (ProRes 4444 or PNG sequence) in a selectable neon color
+- **Preview:** All overlays play in sync in the browser, matching their appearance in the exported video
 
-Ausführlich: [Funktionen](docs/features.md) · [Video-Export](docs/video-export.md)
+Details: [Features](docs/features.md) · [Video export](docs/video-export.md)
 
-## Schnellstart
+## Quick Start
 
-Voraussetzung ist [Docker Desktop](https://www.docker.com/products/docker-desktop/).
+[Docker Desktop](https://www.docker.com/products/docker-desktop/) is required.
 
 ```bash
 docker compose up --build
 ```
 
-Danach die Anwendung unter http://localhost:5173 öffnen und eine MIDI-Datei hineinziehen. Die API-Doku liegt unter http://localhost:8001/docs.
+Open http://localhost:5173 and drop in a MIDI file. The API documentation is available at http://localhost:8001/docs.
 
-## Dokumentation
+## Documentation
 
-| Seite | Inhalt |
+| Page | Description |
 | --- | --- |
-| [Funktionen](docs/features.md) | Alle Overlays, Vorschau, Akkordtabelle |
-| [Video-Export](docs/video-export.md) | Einstellungen, Neon-Look, Renderzeiten, DaVinci Resolve |
-| [Analyse](docs/analysis.md) | Wie Akkorde, Tonart, Stufen, Achievements, Motive, Abschnitte und Spektrum berechnet werden |
-| [API](docs/api.md) | Endpunkte und Antwortfelder |
-| [Architektur](docs/architecture.md) | Tech-Stack, Aufbau, Projektstruktur |
-| [Entwicklung](docs/development.md) | Konfiguration, Tests, Hot Reload, Docker-Befehle, lokale Entwicklung |
+| [Features](docs/features.md) | All overlays, preview, and chord table |
+| [Video export](docs/video-export.md) | Settings, neon look, render times, and DaVinci Resolve |
+| [Analysis](docs/analysis.md) | How chords, keys, degrees, achievements, motifs, sections, and spectrum are calculated |
+| [API](docs/api.md) | Endpoints and response fields |
+| [Architecture](docs/architecture.md) | Technology stack, structure, and project layout |
+| [Development](docs/development.md) | Configuration, tests, hot reload, Docker commands, and local development |
 
-## Tech-Stack
+## Technology Stack
 
-Python 3.14 mit FastAPI, numpy, Pillow und ffmpeg im Backend, React 19 mit TypeScript und Vite im Frontend, Docker Compose für die Entwicklungsumgebung. Details: [Architektur](docs/architecture.md).
+Python 3.14 with FastAPI, NumPy, Pillow, and FFmpeg in the backend; React 19 with TypeScript and Vite in the frontend; Docker Compose for the development environment. See [Architecture](docs/architecture.md).
 
-## Lizenz
+## License
 
-Der Code steht unter der [PolyForm Noncommercial License 1.0.0](LICENSE): Ansehen, Lernen und Nutzen für private und andere nicht-kommerzielle Zwecke sind erlaubt, kommerzielle Nutzung (z. B. Verkauf oder Einbau in kostenpflichtige Produkte) nur mit ausdrücklicher Erlaubnis. Die mitgelieferten Schriften stehen unter der SIL Open Font License; die Lizenz liegt jeweils neben der Schrift in `assets/fonts/`.
+The source code is licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE). Viewing, learning, and using it for private and other non-commercial purposes is permitted. Commercial use, such as selling it or incorporating it into paid products, requires explicit permission. Included fonts are distributed under the SIL Open Font License; each license is stored alongside its font in `assets/fonts/`.

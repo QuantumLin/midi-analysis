@@ -1,12 +1,6 @@
 import { useEffect, useState } from "react";
 import { createVideoJob, fetchVideoJob, videoDownloadUrl } from "../api/client";
-import type {
-  Language,
-  VideoFormat,
-  VideoJob,
-  VideoKind,
-  VideoSettings,
-} from "../types/analysis";
+import type { VideoFormat, VideoJob, VideoKind, VideoSettings } from "../types/analysis";
 import { FONTS, GLOW_LEVELS } from "../utils/style";
 
 interface Props {
@@ -23,19 +17,19 @@ const RESOLUTIONS = [
 ];
 const FPS_OPTIONS = [24, 25, 30, 50, 60];
 const KIND_LABELS: Record<VideoKind, string> = {
-  note_rate: "Noten/s",
-  key: "Tonart",
-  chords: "Akkord",
-  harmony: "Stufen",
+  note_rate: "Notes/s",
+  key: "Key",
+  chords: "Chord",
+  harmony: "Degrees",
   achievements: "Achievements",
-  sections: "Abschnitte",
-  motifs: "Motive",
-  boss: "Endgegner",
-  circle: "Quintenzirkel",
+  sections: "Sections",
+  motifs: "Motifs",
+  boss: "Final boss",
+  circle: "Circle of fifths",
   bingo: "Bingo",
   wrapped: "Song Wrapped",
-  spectrum: "Frequenzspektrum",
-  heatmap: "Tasten-Heatmap",
+  spectrum: "Frequency spectrum",
+  heatmap: "Key heatmap",
 };
 const KINDS = Object.keys(KIND_LABELS) as VideoKind[];
 const POLL_INTERVAL_MS = 1000;
@@ -44,8 +38,8 @@ const NEON_PRESETS = [
   { name: "Magenta", value: "#ff2bd6" },
   { name: "Lime", value: "#39ff14" },
   { name: "Orange", value: "#ff8a00" },
-  { name: "Violett", value: "#a855ff" },
-  { name: "Gelb", value: "#ffe600" },
+  { name: "Purple", value: "#a855ff" },
+  { name: "Yellow", value: "#ffe600" },
 ];
 
 export default function VideoExport({
@@ -75,7 +69,7 @@ export default function VideoExport({
         setError(
           e instanceof Error
             ? e.message
-            : "Status konnte nicht abgefragt werden.",
+            : "Status could not be retrieved.",
         );
       }
     }, POLL_INTERVAL_MS);
@@ -94,7 +88,7 @@ export default function VideoExport({
         setJobs((current) => [...current, job]);
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Export fehlgeschlagen.");
+      setError(e instanceof Error ? e.message : "Export failed.");
     }
   }
 
@@ -120,7 +114,7 @@ export default function VideoExport({
             </select>
           </label>
           <label className="field">
-            <span>Auflösung</span>
+            <span>Resolution</span>
             <select
               value={resolution}
               onChange={(e) => {
@@ -138,7 +132,7 @@ export default function VideoExport({
             </select>
           </label>
           <label className="field">
-            <span>Bildrate</span>
+            <span>Frame rate</span>
             <select
               value={settings.fps}
               onChange={(e) => update({ fps: Number(e.target.value) })}
@@ -150,23 +144,13 @@ export default function VideoExport({
               ))}
             </select>
           </label>
-          <label className="field">
-            <span>Sprache der Texte</span>
-            <select
-              value={settings.language}
-              onChange={(e) => update({ language: e.target.value as Language })}
-            >
-              <option value="de">Deutsch</option>
-              <option value="en">English</option>
-            </select>
-          </label>
         </div>
       </fieldset>
       <fieldset className="export__group">
         <legend>Design</legend>
         <div className="export__settings">
           <div className="field">
-            <span>Neonfarbe</span>
+            <span>Neon color</span>
             <div className="swatches">
               {NEON_PRESETS.map((preset) => (
                 <button
@@ -182,15 +166,15 @@ export default function VideoExport({
               <input
                 type="color"
                 value={settings.color}
-                aria-label="Eigene Farbe"
-                title="Eigene Farbe"
+                aria-label="Custom color"
+                title="Custom color"
                 onChange={(e) => update({ color: e.target.value })}
               />
             </div>
           </div>
           <div className="field">
-            <span>Schriftart</span>
-            <div className="choices" role="radiogroup" aria-label="Schriftart">
+            <span>Font</span>
+            <div className="choices" role="radiogroup" aria-label="Font">
               {FONTS.map((font) => (
                 <button
                   key={font.id}
@@ -208,8 +192,8 @@ export default function VideoExport({
             </div>
           </div>
           <div className="field">
-            <span>Leuchten</span>
-            <div className="choices" role="radiogroup" aria-label="Leuchten">
+            <span>Glow</span>
+            <div className="choices" role="radiogroup" aria-label="Glow">
               {GLOW_LEVELS.map((level) => (
                 <button
                   key={level.id}
@@ -230,7 +214,7 @@ export default function VideoExport({
               checked={settings.showFrame}
               onChange={(e) => update({ showFrame: e.target.checked })}
             />
-            <span>Rahmen um Text- und Spiel-Overlays</span>
+            <span>Frame around text and game overlays</span>
           </label>
           <label className="field field--checkbox">
             <input
@@ -238,16 +222,15 @@ export default function VideoExport({
               checked={settings.showGrid}
               onChange={(e) => update({ showGrid: e.target.checked })}
             />
-            <span>Raster &amp; Hz-Beschriftung (Spektrum)</span>
+            <span>Grid &amp; Hz labels (spectrum)</span>
           </label>
         </div>
       </fieldset>
 
       <p className="hint">
-        Jedes Overlay ist ein eigenes Video mit transparentem Hintergrund, so
-        lässt es sich in DaVinci Resolve frei platzieren. ProRes 4444 ist dafür
-        das gängige Format, aber groß (Spektrum in 1080p30 ca. 0,7 GB pro
-        Minute).
+        Each overlay is a separate video with a transparent background, so it can
+        be placed freely in DaVinci Resolve. ProRes 4444 is the recommended format,
+        but it is large (about 0.7 GB per minute for 1080p30 spectrum).
       </p>
 
       <div className="export__actions">
@@ -266,7 +249,7 @@ export default function VideoExport({
           className="button button--primary"
           onClick={() => start(KINDS)}
         >
-          Alle erstellen
+          Create all
         </button>
       </div>
 
@@ -305,7 +288,7 @@ function JobRow({ job }: { job: VideoJob }) {
           Download {job.file_name} ({formatBytes(job.size_bytes ?? 0)})
         </a>
       ) : job.status === "failed" ? (
-        <p className="message message--error">Fehlgeschlagen: {job.error}</p>
+        <p className="message message--error">Failed: {job.error}</p>
       ) : (
         <div className="job__progress">
           <progress
@@ -313,7 +296,7 @@ function JobRow({ job }: { job: VideoJob }) {
             value={percent}
             aria-label={`${KIND_LABELS[job.kind]} wird erstellt`}
           />
-          <span>{job.status === "queued" ? "Wartet …" : `${percent} %`}</span>
+          <span>{job.status === "queued" ? "Waiting …" : `${percent} %`}</span>
         </div>
       )}
     </li>

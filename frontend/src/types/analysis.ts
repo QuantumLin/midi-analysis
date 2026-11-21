@@ -148,7 +148,7 @@ export interface AnalysisResult {
 }
 
 export type VideoKind = "spectrum" | "chords" | "key" | "note_rate" | "heatmap" | "harmony" | "achievements" | "motifs" | "sections" | "boss" | "circle" | "bingo" | "wrapped";
-export type Language = "de" | "en";
+export type Language = "en";
 export type VideoFormat = "prores" | "png";
 export type FontId = "orbitron" | "montserrat" | "bebas" | "playfair" | "pixel" | "handwriting";
 export type GlowLevel = "subtle" | "normal" | "strong";
