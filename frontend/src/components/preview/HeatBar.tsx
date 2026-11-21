@@ -40,7 +40,7 @@ export default function HeatBar({ notes, time, width, color, font, glow }: Props
     draw(canvasRef.current, width, height, keyHeat(counts, held), hexToRgb(color), font, glow);
   }, [notes, time, width, height, color, font, glow]);
 
-  return <canvas ref={canvasRef} style={{ width, height }} role="img" aria-label="Tasten-Heatmap" />;
+  return <canvas ref={canvasRef} style={{ width, height }} role="img" aria-label="Piano key heatmap" />;
 }
 
 function keyHeat(counts: Uint32Array, held: Uint8Array): number[] {

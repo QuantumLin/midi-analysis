@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { analyzeMidi, fetchHealth } from "./api/client";
-import AnalysisSummary from "./components/AnalysisSummary";
 import ChordTable from "./components/ChordTable";
 import FileUpload from "./components/FileUpload";
 import Logo from "./components/Logo";
@@ -11,6 +10,7 @@ import type { AnalysisResult, VideoSettings } from "./types/analysis";
 import { overlayStyle } from "./utils/style";
 
 type BackendState = "checking" | "online" | "offline";
+type SidebarTab = "video" | "chords";
 
 const DEFAULT_VIDEO_SETTINGS: VideoSettings = {
   format: "prores",
@@ -32,6 +32,7 @@ export default function App() {
   const [file, setFile] = useState<File | null>(null);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [videoSettings, setVideoSettings] = useState<VideoSettings>(DEFAULT_VIDEO_SETTINGS);
+  const [sidebarTab, setSidebarTab] = useState<SidebarTab>("video");
 
   useEffect(() => {
     fetchHealth()
@@ -45,6 +46,7 @@ export default function App() {
     try {
       setResult(await analyzeMidi(selected));
       setFile(selected); // kept for the video export, which re-uploads it
+      setSidebarTab("video");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Analysis failed.");
     } finally {
@@ -69,11 +71,48 @@ export default function App() {
 
       {result && file && (
         <>
-          <AnalysisSummary result={result} />
-          <section className="card">
-            <h2>Overlay Preview</h2>
-            <OverlayPreview result={result} settings={videoSettings} />
-          </section>
+          <div className="workspace">
+            <aside className="sidebar card">
+              <div className="sidebar__tabs" role="tablist" aria-label="Workspace tools">
+                <button
+                  id="tab-video"
+                  type="button"
+                  role="tab"
+                  aria-selected={sidebarTab === "video"}
+                  aria-controls="panel-video"
+                  className={`sidebar__tab${sidebarTab === "video" ? " sidebar__tab--active" : ""}`}
+                  onClick={() => setSidebarTab("video")}
+                >
+                  Video Export
+                </button>
+                <button
+                  id="tab-chords"
+                  type="button"
+                  role="tab"
+                  aria-selected={sidebarTab === "chords"}
+                  aria-controls="panel-chords"
+                  className={`sidebar__tab${sidebarTab === "chords" ? " sidebar__tab--active" : ""}`}
+                  onClick={() => setSidebarTab("chords")}
+                >
+                  Chords
+                </button>
+              </div>
+              <div id="panel-video" role="tabpanel" aria-labelledby="tab-video" hidden={sidebarTab !== "video"}>
+                <VideoExport file={file} settings={videoSettings} onSettingsChange={setVideoSettings} />
+              </div>
+              <div id="panel-chords" role="tabpanel" aria-labelledby="tab-chords" hidden={sidebarTab !== "chords"}>
+                <div className="chord-summary">
+                  <span>Chord changes</span>
+                  <strong>{result.chords.length.toLocaleString("en-US")}</strong>
+                </div>
+                <ChordTable chords={result.chords} />
+              </div>
+            </aside>
+            <section className="preview card">
+              <h2>Overlay Preview</h2>
+              <OverlayPreview result={result} settings={videoSettings} />
+            </section>
+          </div>
           <section className="card">
             <h2>Song Wrapped</h2>
             <p className="hint">
@@ -83,14 +122,6 @@ export default function App() {
             <div className="player__screen" style={overlayStyle(videoSettings)}>
               <WrappedPreview cards={result.wrapped} color={videoSettings.color} language={videoSettings.language} />
             </div>
-          </section>
-          <section className="card">
-            <h2>Video Export</h2>
-            <VideoExport file={file} settings={videoSettings} onSettingsChange={setVideoSettings} />
-          </section>
-          <section className="card">
-            <h2>Chords</h2>
-            <ChordTable chords={result.chords} />
           </section>
         </>
       )}

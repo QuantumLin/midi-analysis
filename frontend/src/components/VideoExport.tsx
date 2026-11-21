@@ -110,7 +110,7 @@ export default function VideoExport({
               }
             >
               <option value="prores">ProRes 4444 (.mov)</option>
-              <option value="png">PNG-Sequenz (.zip)</option>
+              <option value="png">PNG sequence (.zip)</option>
             </select>
           </label>
           <label className="field">
@@ -294,7 +294,7 @@ function JobRow({ job }: { job: VideoJob }) {
           <progress
             max={100}
             value={percent}
-            aria-label={`${KIND_LABELS[job.kind]} wird erstellt`}
+            aria-label={`Creating ${KIND_LABELS[job.kind]}`}
           />
           <span>{job.status === "queued" ? "Waiting …" : `${percent} %`}</span>
         </div>

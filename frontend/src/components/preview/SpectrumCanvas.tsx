@@ -26,7 +26,7 @@ export default function SpectrumCanvas({ spectrum, time, width, height, color, s
     draw(canvasRef.current, width, height, decoded, levelsAt(decoded, time, buffer), color, showGrid);
   }, [decoded, buffer, time, width, height, color, showGrid]);
 
-  return <canvas ref={canvasRef} style={{ width, height }} role="img" aria-label="Frequenzspektrum" />;
+  return <canvas ref={canvasRef} style={{ width, height }} role="img" aria-label="Frequency spectrum" />;
 }
 
 function draw(
