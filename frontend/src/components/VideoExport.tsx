@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { createVideoJob, fetchVideoJob, videoDownloadUrl } from "../api/client";
-import type { VideoFormat, VideoJob, VideoKind, VideoSettings } from "../types/analysis";
-import { DEFAULT_OVERLAY_SCALE, FONTS, GLOW_LEVELS } from "../utils/style";
+import type { OverlayDesign, VideoFormat, VideoJob, VideoKind, VideoSettings } from "../types/analysis";
+import { DEFAULT_OVERLAY_DESIGN, FONTS, GLOW_LEVELS, overlayDesign } from "../utils/style";
 
 interface Props {
   file: File;
@@ -47,7 +47,7 @@ export default function VideoExport({
 }: Props) {
   const [jobs, setJobs] = useState<VideoJob[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [scaleKind, setScaleKind] = useState<VideoKind>("chords");
+  const [designKind, setDesignKind] = useState<VideoKind>("chords");
 
   // Poll unfinished jobs until they are done or failed.
   const pendingIds = jobs
@@ -93,13 +93,22 @@ export default function VideoExport({
 
   const update = (patch: Partial<VideoSettings>) =>
     onSettingsChange({ ...settings, ...patch });
-  const updateOverlayScale = (scale: number) =>
-    onSettingsChange({
-      ...settings,
-      overlayScales: { ...settings.overlayScales, [scaleKind]: scale },
-    });
+  const updateDesign = (patch: Partial<OverlayDesign>) => {
+    if (settings.designMode === "global") {
+      update({ globalDesign: { ...settings.globalDesign, ...patch } });
+    } else {
+      update({
+        featureDesigns: {
+          ...settings.featureDesigns,
+          [designKind]: { ...settings.featureDesigns[designKind], ...patch },
+        },
+      });
+    }
+  };
   const resolution = `${settings.width}x${settings.height}`;
-  const overlayScalePercent = Math.round(settings.overlayScales[scaleKind] * 100);
+  const design = overlayDesign(settings, designKind);
+  const scaleValue = design.scale;
+  const overlayScalePercent = Math.round(scaleValue * 100);
 
   return (
     <div className="export">
@@ -153,7 +162,48 @@ export default function VideoExport({
       </fieldset>
       <fieldset className="export__group">
         <legend>Design</legend>
-        <div className="export__settings">
+        <div className="design-mode">
+          <span id="design-mode-label">Apply design settings</span>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={settings.designMode === "individual"}
+            aria-labelledby="design-mode-label"
+            className="design-mode__toggle"
+            onClick={() =>
+              update({ designMode: settings.designMode === "global" ? "individual" : "global" })
+            }
+          >
+            <span className="design-mode__toggle-track" aria-hidden="true">
+              <span />
+            </span>
+            {settings.designMode === "global" ? "Global" : "Individual"}
+          </button>
+        </div>
+        {settings.designMode === "individual" && (
+          <div className="feature-design__tabs" role="tablist" aria-label="Feature design">
+            {KINDS.map((kind) => (
+              <button
+                key={kind}
+                id={`feature-design-tab-${kind}`}
+                type="button"
+                role="tab"
+                aria-selected={designKind === kind}
+                aria-controls="feature-design-panel"
+                className={`feature-design__tab${designKind === kind ? " feature-design__tab--active" : ""}`}
+                onClick={() => setDesignKind(kind)}
+              >
+                {KIND_LABELS[kind]}
+              </button>
+            ))}
+          </div>
+        )}
+        <div
+          id="feature-design-panel"
+          className="export__settings"
+          role={settings.designMode === "individual" ? "tabpanel" : undefined}
+          aria-labelledby={settings.designMode === "individual" ? `feature-design-tab-${designKind}` : undefined}
+        >
           <div className="field">
             <span>Neon color</span>
             <div className="swatches">
@@ -161,19 +211,19 @@ export default function VideoExport({
                 <button
                   key={preset.value}
                   type="button"
-                  className={`swatch${settings.color.toLowerCase() === preset.value ? " swatch--active" : ""}`}
+                  className={`swatch${design.color.toLowerCase() === preset.value ? " swatch--active" : ""}`}
                   style={{ background: preset.value, color: preset.value }}
                   aria-label={preset.name}
                   title={preset.name}
-                  onClick={() => update({ color: preset.value })}
+                  onClick={() => updateDesign({ color: preset.value })}
                 />
               ))}
               <input
                 type="color"
-                value={settings.color}
+                value={design.color}
                 aria-label="Custom color"
                 title="Custom color"
-                onChange={(e) => update({ color: e.target.value })}
+                onChange={(e) => updateDesign({ color: e.target.value })}
               />
             </div>
           </div>
@@ -185,11 +235,11 @@ export default function VideoExport({
                   key={font.id}
                   type="button"
                   role="radio"
-                  aria-checked={settings.font === font.id}
-                  className={`choice${settings.font === font.id ? " choice--active" : ""}`}
+                  aria-checked={design.font === font.id}
+                  className={`choice${design.font === font.id ? " choice--active" : ""}`}
                   style={{ fontFamily: font.family, fontSize: `calc(0.8125rem * ${font.scale})` }}
                   title={font.hint}
-                  onClick={() => update({ font: font.id })}
+                  onClick={() => updateDesign({ font: font.id })}
                 >
                   {font.label}
                 </button>
@@ -204,9 +254,9 @@ export default function VideoExport({
                   key={level.id}
                   type="button"
                   role="radio"
-                  aria-checked={settings.glow === level.id}
-                  className={`choice${settings.glow === level.id ? " choice--active" : ""}`}
-                  onClick={() => update({ glow: level.id })}
+                  aria-checked={design.glow === level.id}
+                  className={`choice${design.glow === level.id ? " choice--active" : ""}`}
+                  onClick={() => updateDesign({ glow: level.id })}
                 >
                   {level.label}
                 </button>
@@ -216,31 +266,23 @@ export default function VideoExport({
           <label className="field field--checkbox">
             <input
               type="checkbox"
-              checked={settings.showFrame}
-              onChange={(e) => update({ showFrame: e.target.checked })}
+              checked={design.showFrame}
+              onChange={(e) => updateDesign({ showFrame: e.target.checked })}
             />
             <span>Frame around text and game overlays</span>
           </label>
           <label className="field field--checkbox">
             <input
               type="checkbox"
-              checked={settings.showGrid}
-              onChange={(e) => update({ showGrid: e.target.checked })}
+              checked={design.showGrid}
+              onChange={(e) => updateDesign({ showGrid: e.target.checked })}
             />
             <span>Grid &amp; Hz labels (spectrum)</span>
           </label>
-          <label className="field">
-            <span>Overlay to resize</span>
-            <select value={scaleKind} onChange={(e) => setScaleKind(e.target.value as VideoKind)}>
-              {KINDS.map((kind) => (
-                <option key={kind} value={kind}>
-                  {KIND_LABELS[kind]}
-                </option>
-              ))}
-            </select>
-          </label>
           <div className="field field--scale">
-            <label htmlFor="overlay-size">Overlay size: {overlayScalePercent}%</label>
+            <label htmlFor="overlay-size">
+              {settings.designMode === "global" ? "All overlays" : KIND_LABELS[designKind]} size: {overlayScalePercent}%
+            </label>
             <div className="field--scale__controls">
               <input
                 id="overlay-size"
@@ -249,14 +291,14 @@ export default function VideoExport({
                 max={100}
                 step={5}
                 value={overlayScalePercent}
-                aria-label={`Size of ${KIND_LABELS[scaleKind]}`}
-                onChange={(e) => updateOverlayScale(Number(e.target.value) / 100)}
+                aria-label={`Size of ${settings.designMode === "global" ? "all overlays" : KIND_LABELS[designKind]}`}
+                onChange={(e) => updateDesign({ scale: Number(e.target.value) / 100 })}
               />
               <button
                 type="button"
                 className="button button--reset"
-                disabled={settings.overlayScales[scaleKind] === DEFAULT_OVERLAY_SCALE}
-                onClick={() => updateOverlayScale(DEFAULT_OVERLAY_SCALE)}
+                disabled={scaleValue === DEFAULT_OVERLAY_DESIGN.scale}
+                onClick={() => updateDesign({ scale: DEFAULT_OVERLAY_DESIGN.scale })}
               >
                 Reset to default
               </button>

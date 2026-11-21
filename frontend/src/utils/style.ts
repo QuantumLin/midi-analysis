@@ -2,9 +2,17 @@
 // To add a font: add it there, put the .ttf into src/assets/fonts/, add an @font-face in
 // App.css and an entry here.
 import type { CSSProperties } from "react";
-import type { FontId, GlowLevel, VideoSettings } from "../types/analysis";
+import type { FontId, GlowLevel, OverlayDesign, VideoKind, VideoSettings } from "../types/analysis";
 
 export const DEFAULT_OVERLAY_SCALE = 0.5;
+export const DEFAULT_OVERLAY_DESIGN: OverlayDesign = {
+  color: "#00e5ff",
+  showGrid: true,
+  showFrame: true,
+  font: "orbitron",
+  glow: "normal",
+  scale: DEFAULT_OVERLAY_SCALE,
+};
 
 // scale: evens out the visual size between fonts, as FontSpec.scale in the backend.
 export const FONTS: { id: FontId; label: string; family: string; hint: string; scale: number }[] = [
@@ -29,8 +37,12 @@ export function glowFactor(id: GlowLevel): number {
   return GLOW_LEVELS.find((g) => g.id === id)?.factor ?? 1;
 }
 
+export function overlayDesign(settings: Pick<VideoSettings, "designMode" | "globalDesign" | "featureDesigns">, kind: VideoKind): OverlayDesign {
+  return settings.designMode === "global" ? settings.globalDesign : settings.featureDesigns[kind];
+}
+
 /** CSS variables the overlay styles read (App.css): font, its size factor and glow strength. */
-export function overlayStyle(settings: Pick<VideoSettings, "font" | "glow">): CSSProperties {
+export function overlayStyle(settings: Pick<OverlayDesign, "font" | "glow">): CSSProperties {
   return {
     "--overlay-font": fontFamily(settings.font),
     "--font-scale": FONTS.find((f) => f.id === settings.font)?.scale ?? 1,

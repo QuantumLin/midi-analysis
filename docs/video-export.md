@@ -9,14 +9,15 @@ Jedes Overlay wird als eigenes Video mit transparentem Hintergrund gerendert, da
 | Format | **ProRes 4444 `.mov`** mit Alpha-Kanal (Standard für Resolve) oder **PNG-Sequenz** als `.zip` |
 | Auflösung | 1280×720 bis 3840×2160 |
 | Bildrate | 24, 25, 30, 50, 60 fps |
-| Neonfarbe | Vorlagen (Cyan, Magenta, Lime, Orange, Violett, Gelb) oder eine eigene Farbe für alle Overlays |
+| Designmodus | Global für alle Overlays oder individuell pro Overlaytyp; Farbe, Schriftart, Glow, Rahmen, Raster und Größe werden entsprechend angewendet |
+| Neonfarbe | Vorlagen (Cyan, Magenta, Lime, Orange, Violett, Gelb) oder eine eigene Farbe |
 | Raster | Spektrum mit Raster und Hz/dB-Beschriftung oder nur die Kurve |
 | Rahmen | Glas-Panel mit leuchtendem Rahmen um die Text- und Spiel-Overlays, oder nur der leuchtende Inhalt (Song Wrapped, Spektrum und Heatmap sind nicht betroffen) |
 | Schriftart | Orbitron (Neon-Tech, Standard), Montserrat (modern), Bebas Neue (fett, YouTube-Look), Playfair Display (elegant, klassisch), Press Start 2P (Retro-Pixel), Caveat (Handschrift) |
 | Leuchten | Dezent, Normal oder Stark: wie weit der Glow um Text, Pegel und Rahmen strahlt |
-| Overlay-Größe | 25–100 % separat für jeden Overlaytyp; die App startet mit 50 % |
+| Overlay-Größe | 25–100 %, Standard 50 % |
 
-- **Einzeln oder alle:** Jede Videoart hat einen eigenen Button. „Alle erstellen“ rendert alle 13 Videos nacheinander.
+- **Einzeln oder alle:** Jede Videoart hat einen eigenen Button. „Alle erstellen“ rendert alle 11 Videos nacheinander.
 - **Rendern:** Es läuft im Hintergrund mit Fortschrittsanzeige. Fertige Dateien werden nach 60 Minuten gelöscht (einstellbar, siehe [Entwicklung](development.md#konfiguration)).
 
 ## Gestaltung

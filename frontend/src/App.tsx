@@ -7,23 +7,23 @@ import { WrappedPreview } from "./components/preview/GameFields";
 import OverlayPreview from "./components/preview/OverlayPreview";
 import VideoExport from "./components/VideoExport";
 import type { AnalysisResult, VideoKind, VideoSettings } from "./types/analysis";
-import { DEFAULT_OVERLAY_SCALE, overlayStyle } from "./utils/style";
+import { DEFAULT_OVERLAY_DESIGN, overlayDesign, overlayStyle } from "./utils/style";
 
 type BackendState = "checking" | "online" | "offline";
 type SidebarTab = "video" | "chords";
 
-const DEFAULT_OVERLAY_SCALES: Record<VideoKind, number> = {
-  spectrum: DEFAULT_OVERLAY_SCALE,
-  chords: DEFAULT_OVERLAY_SCALE,
-  key: DEFAULT_OVERLAY_SCALE,
-  note_rate: DEFAULT_OVERLAY_SCALE,
-  heatmap: DEFAULT_OVERLAY_SCALE,
-  harmony: DEFAULT_OVERLAY_SCALE,
-  achievements: DEFAULT_OVERLAY_SCALE,
-  boss: DEFAULT_OVERLAY_SCALE,
-  circle: DEFAULT_OVERLAY_SCALE,
-  bingo: DEFAULT_OVERLAY_SCALE,
-  wrapped: DEFAULT_OVERLAY_SCALE,
+const DEFAULT_FEATURE_DESIGNS: Record<VideoKind, typeof DEFAULT_OVERLAY_DESIGN> = {
+  spectrum: { ...DEFAULT_OVERLAY_DESIGN },
+  chords: { ...DEFAULT_OVERLAY_DESIGN },
+  key: { ...DEFAULT_OVERLAY_DESIGN },
+  note_rate: { ...DEFAULT_OVERLAY_DESIGN },
+  heatmap: { ...DEFAULT_OVERLAY_DESIGN },
+  harmony: { ...DEFAULT_OVERLAY_DESIGN },
+  achievements: { ...DEFAULT_OVERLAY_DESIGN },
+  boss: { ...DEFAULT_OVERLAY_DESIGN },
+  circle: { ...DEFAULT_OVERLAY_DESIGN },
+  bingo: { ...DEFAULT_OVERLAY_DESIGN },
+  wrapped: { ...DEFAULT_OVERLAY_DESIGN },
 };
 
 const DEFAULT_VIDEO_SETTINGS: VideoSettings = {
@@ -31,13 +31,10 @@ const DEFAULT_VIDEO_SETTINGS: VideoSettings = {
   width: 1920,
   height: 1080,
   fps: 30,
-  color: "#00e5ff",
-  showGrid: true,
   language: "en",
-  showFrame: true,
-  font: "orbitron",
-  glow: "normal",
-  overlayScales: DEFAULT_OVERLAY_SCALES,
+  designMode: "global",
+  globalDesign: { ...DEFAULT_OVERLAY_DESIGN },
+  featureDesigns: DEFAULT_FEATURE_DESIGNS,
 };
 
 export default function App() {
@@ -48,6 +45,7 @@ export default function App() {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [videoSettings, setVideoSettings] = useState<VideoSettings>(DEFAULT_VIDEO_SETTINGS);
   const [sidebarTab, setSidebarTab] = useState<SidebarTab>("video");
+  const wrappedDesign = overlayDesign(videoSettings, "wrapped");
 
   useEffect(() => {
     fetchHealth()
@@ -134,12 +132,12 @@ export default function App() {
               An ending with the numbers from the piece. The cards appear one after another in the video; it is a
               separate clip that can be placed behind the piece in the editor.
             </p>
-            <div className="player__screen" style={overlayStyle(videoSettings)}>
+            <div className="player__screen" style={overlayStyle(wrappedDesign)}>
               <div
                 className="preview-overlay preview-overlay--wrapped"
-                style={{ "--overlay-scale": videoSettings.overlayScales.wrapped } as CSSProperties}
+                style={{ "--overlay-scale": wrappedDesign.scale } as CSSProperties}
               >
-                <WrappedPreview cards={result.wrapped} color={videoSettings.color} language={videoSettings.language} />
+                <WrappedPreview cards={result.wrapped} color={wrappedDesign.color} language={videoSettings.language} />
               </div>
             </div>
           </section>

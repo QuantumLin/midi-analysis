@@ -130,18 +130,24 @@ export type VideoFormat = "prores" | "png";
 export type FontId = "orbitron" | "montserrat" | "bebas" | "playfair" | "pixel" | "handwriting";
 export type GlowLevel = "subtle" | "normal" | "strong";
 
+export interface OverlayDesign {
+  color: string;
+  showGrid: boolean;
+  showFrame: boolean;
+  font: FontId;
+  glow: GlowLevel;
+  scale: number;
+}
+
 export interface VideoSettings {
   format: VideoFormat;
   width: number;
   height: number;
   fps: number;
-  color: string; // hex, e.g. "#ffffff"
-  showGrid: boolean;
   language: Language; // texts in the overlays
-  showFrame: boolean; // glass panel with glowing border around the text and game overlays
-  font: FontId; // display font of the overlays
-  glow: GlowLevel;
-  overlayScales: Record<VideoKind, number>; // per-overlay scale, from 0.25 to 1
+  designMode: "global" | "individual";
+  globalDesign: OverlayDesign;
+  featureDesigns: Record<VideoKind, OverlayDesign>;
 }
 
 export interface VideoJob {
