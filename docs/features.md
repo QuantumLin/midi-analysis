@@ -6,7 +6,7 @@ Wie die Werte berechnet werden, steht in [Analyse](analysis.md). Wie die Overlay
 
 ## Overlay-Vorschau
 
-Play, Pause und eine Zeitleiste spielen alle Overlays synchron ab. Die Vorschau zeigt Farbe, Sprache und Raster so, wie die exportierten Videos aussehen werden.
+Play, Pause und eine Zeitleiste spielen alle Overlays synchron ab. Anfangs ist nur das Frequenzspektrum sichtbar; die Schalter unter dem Titel blenden weitere Features einzeln ein oder aus. Die Vorschau zeigt Farbe, Sprache und Raster so, wie die exportierten Videos aussehen werden.
 
 | Overlay | Was es zeigt |
 | --- | --- |
@@ -27,7 +27,7 @@ Jedes Overlay lässt sich einzeln als **transparentes Video** exportieren und in
 
 ## Song Wrapped
 
-Ein Abspann im Stil von „Spotify Wrapped“ mit den Zahlen des Stücks: gespielte Noten, schnellste Stelle, Lieblingsakkord, Tonart, Tonumfang, Endgegner und Anzahl der Achievements. Die Karten springen nacheinander ins Bild. Anders als die anderen Overlays ist es ein eigener Clip (ca. 13 s), der im Schnitt hinter das Stück gelegt wird. Die App zeigt die Karten unter der Vorschau.
+Ein Abspann im Stil von „Spotify Wrapped“ mit den Zahlen des Stücks: gespielte Noten, schnellste Stelle, Lieblingsakkord, Tonart, Tonumfang, Endgegner und Anzahl der Achievements. Die Karten springen nacheinander ins Bild. Anders als die anderen Overlays ist es ein eigener Clip (ca. 13 s), der im Schnitt hinter das Stück gelegt wird. Die Vorschau ist standardmäßig ausgeblendet und lässt sich über den „Song Wrapped“-Schalter unter „Overlay Preview“ einblenden.
 
 ## Akkordtabelle
 

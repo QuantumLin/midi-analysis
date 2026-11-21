@@ -45,6 +45,7 @@ export default function App() {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [videoSettings, setVideoSettings] = useState<VideoSettings>(DEFAULT_VIDEO_SETTINGS);
   const [sidebarTab, setSidebarTab] = useState<SidebarTab>("video");
+  const [wrappedVisible, setWrappedVisible] = useState(false);
   const wrappedDesign = overlayDesign(videoSettings, "wrapped");
 
   useEffect(() => {
@@ -123,24 +124,31 @@ export default function App() {
             </aside>
             <section className="preview card">
               <h2>Overlay Preview</h2>
-              <OverlayPreview result={result} settings={videoSettings} />
+              <OverlayPreview
+                result={result}
+                settings={videoSettings}
+                wrappedVisible={wrappedVisible}
+                onWrappedVisibilityChange={setWrappedVisible}
+              />
             </section>
           </div>
-          <section className="card">
-            <h2>Song Wrapped</h2>
-            <p className="hint">
-              An ending with the numbers from the piece. The cards appear one after another in the video; it is a
-              separate clip that can be placed behind the piece in the editor.
-            </p>
-            <div className="player__screen" style={overlayStyle(wrappedDesign)}>
-              <div
-                className="preview-overlay preview-overlay--wrapped"
-                style={{ "--overlay-scale": wrappedDesign.scale } as CSSProperties}
-              >
-                <WrappedPreview cards={result.wrapped} color={wrappedDesign.color} language={videoSettings.language} />
+          {wrappedVisible && (
+            <section className="card">
+              <h2>Song Wrapped</h2>
+              <p className="hint">
+                An ending with the numbers from the piece. The cards appear one after another in the video; it is a
+                separate clip that can be placed behind the piece in the editor.
+              </p>
+              <div className="player__screen" style={overlayStyle(wrappedDesign)}>
+                <div
+                  className="preview-overlay preview-overlay--wrapped"
+                  style={{ "--overlay-scale": wrappedDesign.scale } as CSSProperties}
+                >
+                  <WrappedPreview cards={result.wrapped} color={wrappedDesign.color} language={videoSettings.language} />
+                </div>
               </div>
-            </div>
-          </section>
+            </section>
+          )}
         </>
       )}
     </main>
