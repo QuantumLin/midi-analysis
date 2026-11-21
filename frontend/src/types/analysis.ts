@@ -129,10 +129,12 @@ export type Language = "en";
 export type VideoFormat = "prores" | "png";
 export type FontId = "orbitron" | "montserrat" | "bebas" | "playfair" | "pixel" | "handwriting";
 export type GlowLevel = "subtle" | "normal" | "strong";
+export type SpectrumStyle = "curve" | "centered_bars";
 
 export interface OverlayDesign {
   color: string;
   showGrid: boolean;
+  spectrumStyle: SpectrumStyle;
   showFrame: boolean;
   font: FontId;
   glow: GlowLevel;

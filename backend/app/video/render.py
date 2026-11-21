@@ -118,7 +118,9 @@ def _frame_count(midi: MidiData, fps: int) -> int:
 
 def _spectrum_frames(midi: MidiData, options: VideoOptions):
     spectrum = compute_spectrum(midi, options.fps, SPECTRUM_BINS)
-    renderer = SpectrumRenderer(options.width, options.height, options.color, options.show_grid)
+    renderer = SpectrumRenderer(
+        options.width, options.height, options.color, options.show_grid, options.spectrum_style
+    )
     last_row = spectrum.levels_db.shape[0] - 1
 
     def render(index: int) -> bytes:

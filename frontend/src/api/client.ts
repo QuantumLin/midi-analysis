@@ -47,6 +47,7 @@ export function createVideoJob(file: File, kind: VideoKind, settings: VideoSetti
   form.append("fps", String(settings.fps));
   form.append("color", design.color);
   form.append("show_grid", String(design.showGrid));
+  if (kind === "spectrum") form.append("spectrum_style", design.spectrumStyle);
   form.append("show_frame", String(design.showFrame));
   form.append("font", design.font);
   form.append("glow", design.glow);

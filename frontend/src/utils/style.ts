@@ -8,6 +8,7 @@ export const DEFAULT_OVERLAY_SCALE = 0.5;
 export const DEFAULT_OVERLAY_DESIGN: OverlayDesign = {
   color: "#00e5ff",
   showGrid: true,
+  spectrumStyle: "curve",
   showFrame: true,
   font: "orbitron",
   glow: "normal",

@@ -279,6 +279,31 @@ export default function VideoExport({
             />
             <span>Grid &amp; Hz labels (spectrum)</span>
           </label>
+          {(settings.designMode === "global" || designKind === "spectrum") && (
+            <div className="field">
+              <span>Spectrum display</span>
+              <div className="choices" role="radiogroup" aria-label="Spectrum display">
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={design.spectrumStyle === "curve"}
+                  className={`choice${design.spectrumStyle === "curve" ? " choice--active" : ""}`}
+                  onClick={() => updateDesign({ spectrumStyle: "curve" })}
+                >
+                  Curve
+                </button>
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={design.spectrumStyle === "centered_bars"}
+                  className={`choice${design.spectrumStyle === "centered_bars" ? " choice--active" : ""}`}
+                  onClick={() => updateDesign({ spectrumStyle: "centered_bars" })}
+                >
+                  Centered bars
+                </button>
+              </div>
+            </div>
+          )}
           <div className="field field--scale">
             <label htmlFor="overlay-size">
               {settings.designMode === "global" ? "All overlays" : KIND_LABELS[designKind]} size: {overlayScalePercent}%

@@ -200,6 +200,7 @@ export default function OverlayPreview({ result, settings, wrappedVisible, onWra
                   height={Math.round(Math.min(Math.max(width * 0.36, 200), 360))}
                   color={spectrumDesign.color}
                   showGrid={spectrumDesign.showGrid}
+                  displayStyle={spectrumDesign.spectrumStyle}
                 />
               </ScaledOverlay>
             )}

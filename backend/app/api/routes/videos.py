@@ -13,7 +13,7 @@ from app.api.uploads import read_midi_upload
 from app.config import get_settings
 from app.midi.parser import MidiParseError
 from app.video.jobs import VideoJob, VideoJobManager
-from app.video.options import VideoFormat, VideoKind, VideoOptions
+from app.video.options import SpectrumStyle, VideoFormat, VideoKind, VideoOptions
 from app.video.style import FontId, GlowLevel
 
 router = APIRouter(prefix="/videos", tags=["videos"])
@@ -43,11 +43,12 @@ async def create_video(
     font: Annotated[FontId, Form()] = "orbitron",
     glow: Annotated[GlowLevel, Form()] = "normal",
     scale: Annotated[float, Form()] = 1.0,
+    spectrum_style: Annotated[SpectrumStyle, Form()] = "curve",
 ) -> VideoJobOut:
     data, file_name = await read_midi_upload(file)
     try:
         options = VideoOptions.create(
-            kind, format, width, height, fps, color, show_grid, "en", show_frame, font, glow, scale
+            kind, format, width, height, fps, color, show_grid, "en", show_frame, font, glow, scale, spectrum_style
         )
         job = await run_in_threadpool(jobs.submit, data, file_name, options)
     except (ValueError, MidiParseError) as exc:  # MidiParseError is a ValueError, listed for clarity

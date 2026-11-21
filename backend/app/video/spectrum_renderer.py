@@ -14,9 +14,11 @@ from PIL import Image, ImageDraw
 
 from app.analysis.spectrum import MAX_DB, MAX_HZ, MIN_DB, MIN_HZ
 from app.video.fonts import load_font
+from app.video.options import SpectrumStyle
 
 GRID_FREQUENCIES = (20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000)
 GRID_DB_STEP = 12
+BAR_COUNT = 72
 GRID_COLOR = (255, 255, 255)
 GRID_LINE_ALPHA = 0.16
 GRID_LABEL_ALPHA = 0.7
@@ -25,10 +27,20 @@ FILL_ALPHA_BOTTOM = 0.08  # ... fading towards the bottom
 
 
 class SpectrumRenderer:
-    def __init__(self, width: int, height: int, color: tuple[int, int, int], show_grid: bool):
+    def __init__(
+        self,
+        width: int,
+        height: int,
+        color: tuple[int, int, int],
+        show_grid: bool,
+        display_style: SpectrumStyle = "curve",
+    ):
+        if display_style not in ("curve", "centered_bars"):
+            raise ValueError("Spectrum style must be 'curve' or 'centered_bars'.")
         self.width = width
         self.height = height
         self.color = np.array(color, dtype=np.float32)
+        self.display_style = display_style
         scale = height / 1080
         self.half_line = np.float32(max(1.5, 3.0 * scale) / 2 + 0.5)
 
@@ -62,7 +74,11 @@ class SpectrumRenderer:
 
     def render(self, levels_db: np.ndarray, bin_frequencies: np.ndarray) -> bytes:
         """levels_db: one spectrum frame over bin_frequencies. Returns raw RGBA bytes."""
-        alpha = self._curve_alpha(levels_db, bin_frequencies)
+        alpha = (
+            self._centered_bars_alpha(levels_db, bin_frequencies)
+            if self.display_style == "centered_bars"
+            else self._curve_alpha(levels_db, bin_frequencies)
+        )
         frame = self.base.copy()
         target = frame[self.region]
 
@@ -90,6 +106,30 @@ class SpectrumRenderer:
         fill = np.clip(offset + 0.5, 0, 1) * self.fill_alpha
         line = np.clip(self.half_line - np.abs(offset) * slope_factor[None, :], 0, 1)
         return line + fill * (1 - line)  # line over fill, same colour
+
+    def _centered_bars_alpha(self, levels_db: np.ndarray, bin_frequencies: np.ndarray) -> np.ndarray:
+        fractions = (np.arange(BAR_COUNT, dtype=np.float64) + 0.5) / BAR_COUNT
+        bar_log_hz = np.log(MIN_HZ) + fractions * (np.log(MAX_HZ) - np.log(MIN_HZ))
+        levels = np.interp(bar_log_hz, np.log(bin_frequencies), levels_db)
+        normalized = np.clip((levels - MIN_DB) / (MAX_DB - MIN_DB), 0, 1)
+
+        spacing = (self.right - self.left) / BAR_COUNT
+        half_width = max(1.0, spacing * 0.18) / 2
+        center_y = (self.top + self.bottom) / 2
+        columns = np.arange(self.left, self.right, dtype=np.float32) + 0.5
+        alpha = np.zeros((self.rows.shape[0], self.right - self.left), dtype=np.float32)
+
+        for index, value in enumerate(normalized):
+            center_x = self.left + (index + 0.5) * spacing
+            first = max(0, int(np.floor(center_x - half_width - 0.5)) - self.left)
+            last = min(len(columns), int(np.ceil(center_x + half_width + 0.5)) - self.left)
+            horizontal = np.clip(half_width + 0.5 - np.abs(columns[first:last] - center_x), 0, 1)
+            half_length = value * (self.bottom - self.top) / 2
+            vertical = np.clip(half_length + 0.5 - np.abs(self.rows[:, 0] - center_y), 0, 1)
+            region = alpha[:, first:last]
+            np.maximum(region, vertical[:, None] * horizontal[None, :], out=region)
+
+        return alpha
 
     def _grid_layer(self, scale: float) -> np.ndarray:
         """Static grid with labels as uint8 RGBA."""

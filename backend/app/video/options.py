@@ -9,6 +9,7 @@ from app.video.style import FontId, GlowLevel
 VideoKind = Literal["spectrum", "chords", "key", "note_rate", "heatmap", "harmony", "achievements", "boss", "circle", "bingo", "wrapped"]
 VideoFormat = Literal["prores", "png"]
 Language = Literal["de", "en"]
+SpectrumStyle = Literal["curve", "centered_bars"]
 
 ALLOWED_FPS = (24, 25, 30, 50, 60)
 MIN_WIDTH, MAX_WIDTH = 320, 3840
@@ -30,6 +31,7 @@ class VideoOptions:
     font: FontId = "orbitron"  # display font, see style.py
     glow: GlowLevel = "normal"
     scale: float = 1.0  # size of the overlay content within the output frame
+    spectrum_style: SpectrumStyle = "curve"
 
     @staticmethod
     def create(
@@ -45,6 +47,7 @@ class VideoOptions:
         font: FontId = "orbitron",
         glow: GlowLevel = "normal",
         scale: float = 1.0,
+        spectrum_style: SpectrumStyle = "curve",
     ) -> "VideoOptions":
         """Validates raw values; raises ValueError with a readable message."""
         if not (MIN_WIDTH <= width <= MAX_WIDTH and MIN_HEIGHT <= height <= MAX_HEIGHT):
@@ -57,5 +60,9 @@ class VideoOptions:
             raise ValueError("Color must be a hex value like #4da3ff.")
         if not 0.25 <= scale <= 1.0:
             raise ValueError("Overlay size must be between 25% and 100%.")
+        if spectrum_style not in ("curve", "centered_bars"):
+            raise ValueError("Spectrum style must be 'curve' or 'centered_bars'.")
         rgb = tuple(int(color[i : i + 2], 16) for i in (1, 3, 5))
-        return VideoOptions(kind, format, width, height, fps, rgb, show_grid, language, show_frame, font, glow, scale)  # type: ignore[arg-type]
+        return VideoOptions(
+            kind, format, width, height, fps, rgb, show_grid, language, show_frame, font, glow, scale, spectrum_style
+        )  # type: ignore[arg-type]

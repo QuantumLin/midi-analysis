@@ -93,6 +93,29 @@ def test_spectrum_frame_draws_peak_where_the_note_is():
     assert image[: HEIGHT // 2, : WIDTH // 4, 3].max() == 0  # top-left stays transparent
 
 
+def test_centered_spectrum_bars_are_separated_and_share_a_midpoint():
+    frequencies = log_frequencies(512)
+    levels = np.full(512, -3.0)
+    renderer = SpectrumRenderer(WIDTH, HEIGHT, WHITE, show_grid=False, display_style="centered_bars")
+    image = as_image(renderer.render(levels, frequencies))
+    alpha = image[..., 3]
+    center_y = round((renderer.top + renderer.bottom) / 2 - 0.5)
+
+    occupied_columns = np.flatnonzero(alpha[center_y] > 0)
+    assert 72 <= len(occupied_columns) < WIDTH // 2
+    assert alpha[center_y - 20].sum() == alpha[center_y + 20].sum()
+    assert alpha[:, 0].sum() == 0
+
+
+def test_video_options_validate_spectrum_style():
+    options = VideoOptions.create(
+        "spectrum", "prores", WIDTH, HEIGHT, 30, "#ffffff", True, spectrum_style="centered_bars"
+    )
+    assert options.spectrum_style == "centered_bars"
+    with pytest.raises(ValueError, match="Spectrum style"):
+        VideoOptions.create("spectrum", "prores", WIDTH, HEIGHT, 30, "#ffffff", True, spectrum_style="dots")
+
+
 def test_spectrum_grid_adds_labels_and_lines():
     frequencies = log_frequencies(512)
     silent = np.full(512, MIN_DB)
